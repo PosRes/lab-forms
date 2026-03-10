@@ -155,6 +155,7 @@ function loadJsPDF(cb) {
   .edit-drawer.open{right:0;}
   .edit-drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid var(--accent);flex-shrink:0;}
   .edit-drawer-header.rsr{border-color:var(--accent-rsr);}
+  .edit-drawer-header.eql{border-color:var(--accent-eql);}
   .edit-drawer-title{font-size:15px;font-weight:600;}
   .edit-drawer-subtitle{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;}
   .close-drawer-btn{background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;padding:4px 8px;border-radius:var(--radius);transition:background 0.12s;line-height:1;}
@@ -222,9 +223,7 @@ function loadJsPDF(cb) {
     <button class="tab-btn" id="tab-eql" onclick="switchTab('Equipment Log')">
       🔧 Equipment Log<span class="tab-count" id="tab-count-eql">0</span>
     </button>
-    <button class="tab-btn" id="tab-arl" onclick="switchTab('Autoclave Run Log')">
-      ♨️ Autoclave Runs<span class="tab-count" id="tab-count-arl">0</span>
-    </button>
+
   </div>
 
   <div class="toolbar">
@@ -291,8 +290,8 @@ window.addEventListener('load',()=>{
 
 async function loadBothCounts(){
   try{
-    const sheets=['MOR%20Records','RSR%20Records','Equipment%20Log','Autoclave%20Run%20Log'];
-    const counts=['tab-count-mor','tab-count-rsr','tab-count-eql','tab-count-arl'];
+    const sheets=['MOR%20Records','RSR%20Records','Equipment%20Log'];
+    const counts=['tab-count-mor','tab-count-rsr','tab-count-eql'];
     const results=await Promise.all(sheets.map(s=>fetch(APPS_SCRIPT_URL+'?sheet='+s).then(r=>r.json()).catch(()=>({status:'error'}))));
     results.forEach((r,i)=>{ document.getElementById(counts[i]).textContent=r.status==='success'?r.records.length:'—'; });
   }catch(e){}
@@ -300,14 +299,14 @@ async function loadBothCounts(){
 
 function switchTab(sheet){
   activeSheet=sheet;
-  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Equipment Log':'tab-eql','Autoclave Run Log':'tab-arl'};
-  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Equipment Log':'active-eql','Autoclave Run Log':'active-arl'};
+  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Equipment Log':'tab-eql'};
+  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Equipment Log':'active-eql'};
   Object.entries(tabMap).forEach(([s,id])=>{
     document.getElementById(id).className='tab-btn'+(s===sheet?' '+activeClass[s]:'');
   });
   const isMor=sheet==='MOR Records';const isRsr=sheet==='RSR Records';
   const isEql=sheet==='Equipment Log';
-  document.getElementById('load-btn').className=`load-btn-main ${isMor?'load-btn-mor':isRsr?'load-btn-rsr':isEql?'load-btn-eql':'load-btn-arl'}`;
+  document.getElementById('load-btn').className=`load-btn-main ${isMor?'load-btn-mor':isRsr?'load-btn-rsr':'load-btn-eql'}`;
   document.getElementById('filter-disposition').value='';
   document.getElementById('search').value='';
   loadRecords();
@@ -332,7 +331,7 @@ async function loadRecords(){
     renderRecords(allRecords);
     const now=new Date();
     document.getElementById('last-loaded').textContent='Updated '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
+    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
     document.getElementById(tabCountMap[activeSheet]||'tab-count-mor').textContent=allRecords.length;
     showToast(`✓ ${allRecords.length} record(s) loaded`);
   }catch(err){
@@ -505,6 +504,7 @@ function cardGeneric(r,idx){
       </div>
       <div class="card-actions">
         <button class="btn ${isEql?'btn-eql':'btn-arl'}" onclick="downloadPDF_Generic(${idx})">⬇ PDF</button>
+        <button class="btn btn-edit" onclick="openEditDrawer(${idx})">✏ Edit</button>
         <button class="btn btn-ghost" onclick="copyRecord(${idx})">⎘ Copy</button>
         <button class="btn btn-delete" onclick="deleteRecord(${idx})">🗑 Delete</button>
       </div>
@@ -561,11 +561,13 @@ function openEditDrawer(idx){
   const r=sorted[idx];if(!r)return;
   editingIdx=idx;passRowCount=0;
   const isMor=activeSheet==='MOR Records';
-  document.getElementById('edit-drawer-header').className='edit-drawer-header'+(isMor?'':' rsr');
+  const isEql=activeSheet==='Equipment Log';
+  const headerCls=isMor?'':isEql?' eql':' rsr';
+  document.getElementById('edit-drawer-header').className='edit-drawer-header'+headerCls;
   document.getElementById('edit-drawer-title').textContent='Edit Record';
-  document.getElementById('edit-drawer-subtitle').textContent=r['Record ID']+' — '+(isMor?(r['Media Name / Type']||''):(r['Organism Name']||''));
-  document.getElementById('save-edit-btn').className='btn '+(isMor?'btn-primary':'btn-primary-rsr');
-  document.getElementById('edit-drawer-body').innerHTML=isMor?buildMorForm(r):buildRsrForm(r);
+  document.getElementById('edit-drawer-subtitle').textContent=r['Record ID']+' — '+(isMor?(r['Media Name / Type']||''):isEql?(r['Equipment Type']||''):(r['Organism Name']||''));
+  document.getElementById('save-edit-btn').className='btn '+(isMor?'btn-primary':isEql?'btn-eql':'btn-primary-rsr');
+  document.getElementById('edit-drawer-body').innerHTML=isMor?buildMorForm(r):isEql?buildEqlForm(r):buildRsrForm(r);
   document.getElementById('edit-backdrop').classList.add('show');
   document.getElementById('edit-drawer').classList.add('open');
 }
@@ -776,7 +778,7 @@ async function confirmDelete(){
     if(result.status==='success'){
       allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
       closeDeleteModal();filterRecords();
-      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
+      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
       document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
       showToast(`🗑 Record ${r['Record ID']} deleted`);
     } else {
@@ -869,6 +871,91 @@ function downloadPDF_RSR(idx){
     {title:'06 — Sign-Off',keys:['Analyst Name','Analyst Date','QC Verifier Name','QC Verifier Date','Supervisor Name','Supervisor Date','Additional Comments']}
   ],[61,43,31]);
 }
+function buildEqlForm(r){
+  const F=(a,b,c,d,e)=>f(a,b,r,c,d,e);
+  const eType=String(r['Equipment Type']||'').toLowerCase();
+  const isAutoclave=eType==='autoclave';
+  const isInc=eType==='incubator';
+  const isFridge=eType==='refrigerator';
+  const isBsc=eType==='bsc';
+
+  let sec2='';
+  if(isAutoclave){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Autoclave Status</div>
+    <div class="edit-field-grid">
+      ${F('Chamber Condition','Chamber Condition','select',['Clean','Needs Cleaning','Damaged'])}
+      ${F('Door Seal / Gasket','Door Seal / Gasket','select',['Intact','Worn','Damaged'])}
+      ${F('Pre-Vacuum / Bowie-Dick','Pre-Vacuum / Bowie-Dick Test','select',['Pass','Fail','Not Performed'])}
+      ${F('Drain / Strainer','Drain / Strainer Condition','select',['Clear','Blocked','Not Checked'])}
+      ${F('Autoclave Notes','Autoclave Notes','textarea',null,true)}
+    </div></div>
+    <div class="edit-section"><div class="edit-section-title eql">03 — Run Log</div>
+    <div class="edit-field full"><label class="edit-label">Run Log (JSON)</label>
+    <textarea class="edit-input" id="ef-Run_Log" data-key="Run Log" style="font-family:monospace;font-size:11px;min-height:120px;">${String(r['Run Log']||'[]')}</textarea>
+    </div></div>`;
+  } else if(isInc){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Incubator Status</div>
+    <div class="edit-field-grid">
+      ${F('Set Temp (°C)','Set Temperature (°C)','number')}
+      ${F('Actual Temp AM (°C)','Actual Temperature AM (°C)','number')}
+      ${F('Actual Temp PM (°C)','Actual Temperature PM (°C)','number')}
+      ${F('Temperature Deviation','Temperature Deviation')}
+      ${F('Alarm Status','Temperature Alarm','select',['Normal','Alarm Triggered','Not Checked'])}
+      ${F('Door Seal','Door Seal','select',['Intact','Worn','Damaged'])}
+      ${F('Incubator Notes','Incubator Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(isFridge){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Refrigerator / Freezer Status</div>
+    <div class="edit-field-grid">
+      ${F('Sub-Type','Sub-Type','select',['Refrigerator (2–8°C)','Freezer (-20°C)','ULT Freezer (-80°C)'])}
+      ${F('Set Temp (°C)','Set Temperature (°C)','number')}
+      ${F('Actual Temp AM (°C)','Actual Temperature AM (°C)','number')}
+      ${F('Actual Temp PM (°C)','Actual Temperature PM (°C)','number')}
+      ${F('Temperature Deviation','Temperature Deviation')}
+      ${F('Alarm Status','Temperature Alarm','select',['Normal','Alarm Triggered','Not Checked'])}
+      ${F('Door Seal','Door Seal','select',['Intact','Worn','Damaged'])}
+      ${F('Frost Buildup','Frost Buildup','select',['None','Minimal','Excessive'])}
+      ${F('Fridge Notes','Refrigerator Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(isBsc){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — BSC Status</div>
+    <div class="edit-field-grid">
+      ${F('UV Decontamination','UV Decontamination','select',['Yes','No'])}
+      ${F('UV Duration (min)','UV Duration (min)','number')}
+      ${F('Blower Pre-run','Blower Pre-run','select',['Yes — 5 min','Yes — 10 min','Not Performed'])}
+      ${F('Decon Agent','Decontamination Agent')}
+      ${F('Contact Time (min)','Contact Time (min)','number')}
+      ${F('Sash Position','Sash Position','select',['Correct Operating Height','Incorrect'])}
+      ${F('Airflow Indicator','Airflow Indicator','select',['Normal','Abnormal','Not Checked'])}
+      ${F('HEPA Filter Status','HEPA Filter Status','select',['OK','Due for Change','Replace Immediately'])}
+      ${F('BSC Notes','BSC Notes','textarea',null,true)}
+    </div></div>`;
+  }
+
+  return`
+  <div class="edit-section"><div class="edit-section-title eql">01 — Record Information</div>
+  <div class="edit-field-grid">
+    ${F('Equipment Type','Equipment Type','select',['Autoclave','Incubator','Refrigerator','BSC'])}
+    ${F('Record Date','Record Date','date')}
+    ${F('Shift','Shift','select',['Morning','Afternoon','Evening'])}
+  </div></div>
+  ${sec2}
+  <div class="edit-section"><div class="edit-section-title eql">03 — Overall Status</div>
+  <div class="edit-field-grid">
+    ${F('Overall Status','Overall Status','select',['Operational','Requires Maintenance','Out of Service'])}
+    ${F('Corrective Action','Corrective Action / Notes','textarea',null,true)}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title eql">04 — Sign-Off</div>
+  <div class="edit-field-grid">
+    ${F('Analyst Name','Analyst Name')}
+    ${F('Checked Date & Time','Checked Date & Time','datetime-local')}
+  </div></div>`;
+}
+
 </script>
 <script>
 // Preload jsPDF on first user interaction so PDF is ready when needed
