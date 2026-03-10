@@ -196,6 +196,15 @@ function loadJsPDF(cb) {
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-family:var(--mono);box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;transition:all 0.3s;pointer-events:none;z-index:400;white-space:nowrap;max-width:90vw;text-align:center;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('[SW] registered', r.scope))
+      .catch(e => console.warn('[SW] failed', e));
+  });
+}
+</script>
 </head>
 <body>
 <div class="page-wrap">
@@ -243,7 +252,7 @@ function loadJsPDF(cb) {
       <input type="text" id="search" placeholder="Search records…" oninput="filterRecords()">
     </div>
     <select class="filter-select" id="filter-disposition" onchange="filterRecords()">
-      <option value="">All Dispositions</option>
+      <option value="">All Status</option>
       <option value="approved">Approved</option>
       <option value="rejected">Rejected</option>
       <option value="conditional">Conditional</option>
@@ -308,6 +317,19 @@ async function loadBothCounts(){
   }catch(e){}
 }
 
+function updateFilterOptions(sheet){
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(sheet);
+  const sel=document.getElementById('filter-disposition');
+  sel.innerHTML=isEql?
+    `<option value="">All Status</option>
+     <option value="operational">Operational</option>
+     <option value="requires maintenance">Requires Maintenance</option>
+     <option value="out of service">Out of Service</option>`:
+    `<option value="">All Dispositions</option>
+     <option value="approved">Approved</option>
+     <option value="rejected">Rejected</option>
+     <option value="conditional">Conditional</option>`;
+}
 function switchTab(sheet){
   activeSheet=sheet;
   const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Autoclave Log':'tab-ac','Incubator Log':'tab-inc','Refrigerator Log':'tab-ref','BSC Log':'tab-bsc'};
@@ -355,9 +377,11 @@ async function loadRecords(){
 function filterRecords(){
   const q=document.getElementById('search').value.toLowerCase();
   const dis=document.getElementById('filter-disposition').value.toLowerCase();
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const filterField=isEql?'Overall Status':'QC Disposition';
   const filtered=allRecords.filter(r=>{
     const ms=!q||Object.values(r).some(v=>String(v||'').toLowerCase().includes(q));
-    const md=!dis||String(r['QC Disposition']||'').toLowerCase()===dis;
+    const md=!dis||String(r[filterField]||'').toLowerCase()===dis;
     return ms&&md;
   });
   renderRecords(filtered);
