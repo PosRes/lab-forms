@@ -278,7 +278,7 @@ function loadJsPDF(cb) {
         </div>
         <div class="field">
           <label>Actual Temperature PM (°C)</label>
-          <input type="number" id="inc-actual-pm" step="0.1" placeholder="—">
+          <input type="number" id="inc-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('inc')">
         </div>
         <div class="field">
           <label>Temperature Deviation</label>
@@ -331,7 +331,7 @@ function loadJsPDF(cb) {
         </div>
         <div class="field">
           <label>Actual Temp PM (°C)</label>
-          <input type="number" id="ref-actual-pm" step="0.1" placeholder="—">
+          <input type="number" id="ref-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('ref')">
         </div>
         <div class="field">
           <label>Temperature Deviation</label>
@@ -490,7 +490,9 @@ async function generateId(){
   const display=document.getElementById('record-id-display');
   display.textContent='EQL-fetching…';
   try{
-    const enc=encodeURIComponent('Equipment Log');
+    const sheetNames={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log'};
+    const sheetName=sheetNames[currentEquipType]||'Equipment Log';
+    const enc=encodeURIComponent(sheetName);
     const res=await fetch(`${APPS_SCRIPT_URL}?action=nextId&sheet=${enc}&prefix=EQL`);
     const data=await res.json();
     if(data.status==='success')display.textContent=data.nextId;
@@ -511,15 +513,22 @@ function selectEquip(type){
 }
 
 function checkTempDev(prefix){
-  const setId=prefix+'-set-temp', actualId=prefix+'-actual-am', devId=prefix+'-deviation';
-  const s=parseFloat(document.getElementById(setId)?.value);
-  const a=parseFloat(document.getElementById(actualId)?.value);
-  const devEl=document.getElementById(devId);
+  const s=parseFloat(document.getElementById(prefix+'-set-temp')?.value);
+  const am=parseFloat(document.getElementById(prefix+'-actual-am')?.value);
+  const pm=parseFloat(document.getElementById(prefix+'-actual-pm')?.value);
+  const devEl=document.getElementById(prefix+'-deviation');
   if(!devEl)return;
-  if(isNaN(s)||isNaN(a)){devEl.value='';devEl.style.color='';return;}
-  const diff=(a-s).toFixed(2);
-  devEl.value=`${diff>0?'+':''}${diff} °C`;
-  const abs=Math.abs(parseFloat(diff));
+  // Use worst deviation between AM and PM vs set temp
+  const diffs=[];
+  if(!isNaN(s)&&!isNaN(am)) diffs.push(am-s);
+  if(!isNaN(s)&&!isNaN(pm)) diffs.push(pm-s);
+  if(!diffs.length){devEl.value='';devEl.style.color='';return;}
+  const worst=diffs.reduce((a,b)=>Math.abs(a)>=Math.abs(b)?a:b);
+  const label=`${worst>0?'+':''}${worst.toFixed(2)} °C`;
+  const amLabel=!isNaN(am-s)?` (AM: ${(am-s)>0?'+':''}${(am-s).toFixed(2)})`:''
+  const pmLabel=!isNaN(pm-s)?` (PM: ${(pm-s)>0?'+':''}${(pm-s).toFixed(2)})`:''
+  devEl.value=diffs.length>1?`Worst: ${label}${amLabel}${pmLabel}`:label;
+  const abs=Math.abs(worst);
   devEl.style.color=abs>2?'#8b1a1a':abs>1?'#c17a1a':'#1a4d2e';
 }
 
@@ -600,49 +609,49 @@ function collectData(){
   };
   if(type==='autoclave'){
     Object.assign(base,{
-      'Autoclave: Chamber Condition': grv('ac-chamber'),
-      'Autoclave: Door Seal':         grv('ac-seal'),
-      'Autoclave: Pre-Vacuum Test':   grv('ac-prevac'),
-      'Autoclave: Drain Condition':   grv('ac-drain'),
-      'Autoclave: Notes':             gv('ac-notes'),
-      'Autoclave: Run Log':           JSON.stringify(collectRunLog()),
+      'Chamber Condition': grv('ac-chamber'),
+      'Door Seal':         grv('ac-seal'),
+      'Pre-Vacuum Test':   grv('ac-prevac'),
+      'Drain Condition':   grv('ac-drain'),
+      'Notes':             gv('ac-notes'),
+      'Run Log':           JSON.stringify(collectRunLog()),
     });
   }
   if(type==='incubator'){
     Object.assign(base,{
-      'Incubator: Set Temp (°C)':  gv('inc-set-temp'),
-      'Incubator: Actual Temp AM': gv('inc-actual-am'),
-      'Incubator: Actual Temp PM': gv('inc-actual-pm'),
-      'Incubator: Temp Deviation': gv('inc-deviation'),
-      'Incubator: Alarm Status':   grv('inc-alarm'),
-      'Incubator: Door Seal':      grv('inc-seal'),
-      'Incubator: Notes':          gv('inc-notes'),
+      'Set Temp (°C)':  gv('inc-set-temp'),
+      'Actual Temp AM': gv('inc-actual-am'),
+      'Actual Temp PM': gv('inc-actual-pm'),
+      'Temp Deviation': gv('inc-deviation'),
+      'Alarm Status':   grv('inc-alarm'),
+      'Door Seal':      grv('inc-seal'),
+      'Notes':          gv('inc-notes'),
     });
   }
   if(type==='refrigerator'){
     Object.assign(base,{
-      'Refrigerator: Unit Sub-Type':  grv('ref-subtype'),
-      'Refrigerator: Set Temp (°C)':  gv('ref-set-temp'),
-      'Refrigerator: Actual Temp AM': gv('ref-actual-am'),
-      'Refrigerator: Actual Temp PM': gv('ref-actual-pm'),
-      'Refrigerator: Temp Deviation': gv('ref-deviation'),
-      'Refrigerator: Alarm Status':   grv('ref-alarm'),
-      'Refrigerator: Door Seal':      grv('ref-seal'),
-      'Refrigerator: Frost Buildup':  grv('ref-frost'),
-      'Refrigerator: Notes':          gv('ref-notes'),
+      'Unit Sub-Type':  grv('ref-subtype'),
+      'Set Temp (°C)':  gv('ref-set-temp'),
+      'Actual Temp AM': gv('ref-actual-am'),
+      'Actual Temp PM': gv('ref-actual-pm'),
+      'Temp Deviation': gv('ref-deviation'),
+      'Alarm Status':   grv('ref-alarm'),
+      'Door Seal':      grv('ref-seal'),
+      'Frost Buildup':  grv('ref-frost'),
+      'Notes':          gv('ref-notes'),
     });
   }
   if(type==='bsc'){
     Object.assign(base,{
-      'BSC: UV Decontamination':  grv('bsc-uv'),
-      'BSC: UV Duration (min)':   gv('bsc-uv-duration'),
-      'BSC: Blower Pre-run':      gv('bsc-blower'),
-      'BSC: Decon Agent':         gv('bsc-agent'),
-      'BSC: Contact Time (min)':  gv('bsc-contact-time'),
-      'BSC: Sash Position':       grv('bsc-sash'),
-      'BSC: Airflow':             grv('bsc-airflow'),
-      'BSC: HEPA Filter':         grv('bsc-hepa'),
-      'BSC: Notes':               gv('bsc-notes'),
+      'UV Decontamination':  grv('bsc-uv'),
+      'UV Duration (min)':   gv('bsc-uv-duration'),
+      'Blower Pre-run':      gv('bsc-blower'),
+      'Decon Agent':         gv('bsc-agent'),
+      'Contact Time (min)':  gv('bsc-contact-time'),
+      'Sash Position':       grv('bsc-sash'),
+      'Airflow':             grv('bsc-airflow'),
+      'HEPA Filter':         grv('bsc-hepa'),
+      'Notes':               gv('bsc-notes'),
     });
   }
   return base;
@@ -667,7 +676,8 @@ async function saveRecord(){
 
   const data=collectData();
   data['Saved At']=new Date().toISOString();
-  data['sheet']='Equipment Log';
+  const sheetMap={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log'};
+  data['sheet']=sheetMap[currentEquipType]||'Equipment Log';
 
   try{
     const res = await fetch(APPS_SCRIPT_URL,{
