@@ -205,7 +205,7 @@ function loadJsPDF(cb) {
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
       <div class="doc-ref">
         <div><strong>REF:</strong> ISO 17025:2017 §6.4</div>
-        <div><strong>REV:</strong> 07</div>
+        <div><strong>REV:</strong> 01</div>
       </div>
       <button class="load-btn-main load-btn-mor" id="load-btn" onclick="loadRecords()">
         <span class="btn-icon">⟳</span><div class="spinner"></div>Refresh Records
@@ -376,6 +376,36 @@ function badge(x){
   return`<span class="badge badge-pending">${x}</span>`;
 }
 function savedDate(x){if(!x)return'—';try{return new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return x;}}
+function fmtDate(x){if(!x||x==='—')return'—';try{const d=new Date(x);if(isNaN(d))return x;return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return x;}}
+function formatRunLog(json){
+  let runs=[];try{runs=JSON.parse(json);}catch(e){return`<span style="color:var(--text-muted);font-size:11px;">${json}</span>`;}
+  if(!runs.length)return'<span style="color:var(--text-muted);">No runs recorded</span>';
+  const rows=runs.map(r=>`
+    <tr>
+      <td style="font-weight:600;color:var(--accent);">#${r.num}</td>
+      <td>${r.load||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;">${r.cycle||'—'}</td>
+      <td style="font-family:var(--mono);">${r.start||'—'} – ${r.end||'—'}</td>
+      <td style="font-family:var(--mono);">${r.temp||'—'}°C / ${r.pressure||'—'}kPa</td>
+      <td>${r.chem||'—'}</td>
+      <td>${r.bi||'—'}</td>
+      <td style="font-weight:600;color:${r.result&&r.result.toLowerCase().startsWith('pass')?'#1a4d2e':'#8b1a1a'}">${r.result||'—'}</td>
+    </tr>`).join('');
+  return`<div style="overflow-x:auto;margin-top:4px;">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#f0ece6;color:var(--text-muted);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;">
+        <th style="padding:5px 6px;text-align:left;">#</th>
+        <th style="padding:5px 6px;text-align:left;">Load</th>
+        <th style="padding:5px 6px;text-align:left;">Cycle</th>
+        <th style="padding:5px 6px;text-align:left;">Time</th>
+        <th style="padding:5px 6px;text-align:left;">Temp/Pressure</th>
+        <th style="padding:5px 6px;text-align:left;">Chem</th>
+        <th style="padding:5px 6px;text-align:left;">BI</th>
+        <th style="padding:5px 6px;text-align:left;">Result</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
 
 function cardMOR(r,idx){
   return`<div class="record-card mor-card" id="card-${idx}">
@@ -463,7 +493,7 @@ function cardGeneric(r,idx){
     const icon={'autoclave':'♨️','incubator':'🌡️','refrigerator':'❄️','bsc':'🗄️'}[eType.toLowerCase()]||'🔧';
     title=`${icon} ${eType}`;
     subtitle=`${v(r['Equipment ID'])} — ${v(r['Equipment Model'])}`;
-    meta=`Date: ${v(r['Record Date'])} &nbsp;|&nbsp; Shift: ${v(r['Shift'])} &nbsp;|&nbsp; Analyst: ${v(r['Analyst Name'])}`;
+    meta=`Date: ${fmtDate(r['Record Date'])} &nbsp;|&nbsp; Shift: ${v(r['Shift'])} &nbsp;|&nbsp; Analyst: ${v(r['Analyst Name'])}`;
     const st=String(r['Overall Status']||'');
     if(st==='Operational') badges='<span class="badge badge-approved">✓ OPERATIONAL</span>';
     else if(st==='Out of Service') badges='<span class="badge badge-fail">✗ OUT OF SERVICE</span>';
@@ -484,9 +514,14 @@ function cardGeneric(r,idx){
 
   // Build detail rows from all non-empty fields
   const skipKeys=new Set(['Saved At','sheet']);
+  const dateKeys=new Set(['Record Date','Checked Date & Time']);
   const detailRows=Object.entries(r)
     .filter(([k,vv])=>!skipKeys.has(k)&&vv!==null&&vv!==undefined&&vv!=='')
-    .map(([k,vv])=>row(k,vv)).join('');
+    .map(([k,vv])=>{
+      if(k==='Run Log') return`<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-key">Run Log</span>${formatRunLog(vv)}</div>`;
+      if(dateKeys.has(k)) return row(k, fmtDate(vv));
+      return row(k,vv);
+    }).join('');
 
   return`<div class="record-card ${accentClass}" id="card-${idx}">
     <div class="card-header" onclick="toggleCard(${idx})">
@@ -731,6 +766,7 @@ async function saveEdit(){
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[editingIdx];if(!r)return;
   const updated={...r};
+  editRunSync();
   document.querySelectorAll('#edit-drawer-body [data-key]').forEach(el=>{updated[el.dataset.key]=el.value;});
   if(activeSheet==='RSR Records')updated['Passage Log']=JSON.stringify(collectPassageRows());
   const btn=document.getElementById('save-edit-btn');
@@ -884,55 +920,76 @@ function buildEqlForm(r){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Autoclave Status</div>
     <div class="edit-field-grid">
-      ${F('Chamber Condition','Chamber Condition','select',['Clean','Needs Cleaning','Damaged'])}
-      ${F('Door Seal / Gasket','Door Seal / Gasket','select',['Intact','Worn','Damaged'])}
-      ${F('Pre-Vacuum / Bowie-Dick','Pre-Vacuum / Bowie-Dick Test','select',['Pass','Fail','Not Performed'])}
-      ${F('Drain / Strainer','Drain / Strainer Condition','select',['Clear','Blocked','Not Checked'])}
-      ${F('Autoclave Notes','Autoclave Notes','textarea',null,true)}
+      ${F('Chamber Condition','Autoclave: Chamber Condition','select',['Clean','Needs Cleaning','Damaged'])}
+      ${F('Door Seal / Gasket','Autoclave: Door Seal','select',['Intact','Worn','Damaged'])}
+      ${F('Pre-Vacuum / Bowie-Dick','Autoclave: Pre-Vacuum Test','select',['Pass','Fail','Not Performed'])}
+      ${F('Drain / Strainer','Autoclave: Drain Condition','select',['Clear','Blocked','Not Checked'])}
+      ${F('Autoclave Notes','Autoclave: Notes','textarea',null,true)}
     </div></div>
     <div class="edit-section"><div class="edit-section-title eql">03 — Run Log</div>
-    <div class="edit-field full"><label class="edit-label">Run Log (JSON)</label>
-    <textarea class="edit-input" id="ef-Run_Log" data-key="Run Log" style="font-family:monospace;font-size:11px;min-height:120px;">${String(r['Run Log']||'[]')}</textarea>
+    <div style="padding:4px 0 8px;">
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-family:var(--mono);">Existing runs are pre-filled. Add more rows or edit values below.</p>
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;" id="edit-run-table">
+        <thead><tr style="background:#f0ece6;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);">
+          <th style="padding:5px 4px;text-align:left;min-width:28px;">#</th>
+          <th style="padding:5px 4px;text-align:left;min-width:100px;">Load</th>
+          <th style="padding:5px 4px;text-align:left;min-width:80px;">Cycle</th>
+          <th style="padding:5px 4px;min-width:68px;">Start</th>
+          <th style="padding:5px 4px;min-width:68px;">End</th>
+          <th style="padding:5px 4px;min-width:50px;">°C</th>
+          <th style="padding:5px 4px;min-width:50px;">kPa</th>
+          <th style="padding:5px 4px;min-width:64px;">Chem</th>
+          <th style="padding:5px 4px;min-width:64px;">BI</th>
+          <th style="padding:5px 4px;min-width:76px;">Result</th>
+          <th style="padding:5px 4px;width:24px;"></th>
+        </tr></thead>
+        <tbody id="edit-run-tbody"></tbody>
+      </table></div>
+      <button type="button" onclick="editRunAddRow()" style="margin-top:10px;padding:6px 14px;background:var(--accent-light);border:1px dashed var(--accent-mid);border-radius:3px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;">+ Add Row</button>
+      <input type="hidden" id="ef-Autoclave__Run_Log" data-key="Autoclave: Run Log">
     </div></div>`;
+  // Populate run table after render
+  setTimeout(()=>editRunInit(r['Autoclave: Run Log']),0);
   } else if(isInc){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Incubator Status</div>
     <div class="edit-field-grid">
-      ${F('Set Temp (°C)','Set Temperature (°C)','number')}
-      ${F('Actual Temp AM (°C)','Actual Temperature AM (°C)','number')}
-      ${F('Actual Temp PM (°C)','Actual Temperature PM (°C)','number')}
-      ${F('Temperature Deviation','Temperature Deviation')}
-      ${F('Alarm Status','Temperature Alarm','select',['Normal','Alarm Triggered','Not Checked'])}
-      ${F('Door Seal','Door Seal','select',['Intact','Worn','Damaged'])}
-      ${F('Incubator Notes','Incubator Notes','textarea',null,true)}
+      ${F('Set Temp (°C)','Incubator: Set Temp (°C)','number')}
+      ${F('Actual Temp AM (°C)','Incubator: Actual Temp AM','number')}
+      ${F('Actual Temp PM (°C)','Incubator: Actual Temp PM','number')}
+      ${F('Temp Deviation','Incubator: Temp Deviation')}
+      ${F('Alarm Status','Incubator: Alarm Status','select',['Normal','Alarm Triggered','Not Checked'])}
+      ${F('Door Seal','Incubator: Door Seal','select',['Intact','Worn','Damaged'])}
+      ${F('Incubator Notes','Incubator: Notes','textarea',null,true)}
     </div></div>`;
   } else if(isFridge){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Refrigerator / Freezer Status</div>
     <div class="edit-field-grid">
-      ${F('Sub-Type','Sub-Type','select',['Refrigerator (2–8°C)','Freezer (-20°C)','ULT Freezer (-80°C)'])}
-      ${F('Set Temp (°C)','Set Temperature (°C)','number')}
-      ${F('Actual Temp AM (°C)','Actual Temperature AM (°C)','number')}
-      ${F('Actual Temp PM (°C)','Actual Temperature PM (°C)','number')}
-      ${F('Temperature Deviation','Temperature Deviation')}
-      ${F('Alarm Status','Temperature Alarm','select',['Normal','Alarm Triggered','Not Checked'])}
-      ${F('Door Seal','Door Seal','select',['Intact','Worn','Damaged'])}
-      ${F('Frost Buildup','Frost Buildup','select',['None','Minimal','Excessive'])}
-      ${F('Fridge Notes','Refrigerator Notes','textarea',null,true)}
+      ${F('Sub-Type','Refrigerator: Unit Sub-Type','select',['Refrigerator (2–8°C)','Freezer (-20°C)','ULT Freezer (-80°C)'])}
+      ${F('Set Temp (°C)','Refrigerator: Set Temp (°C)','number')}
+      ${F('Actual Temp AM (°C)','Refrigerator: Actual Temp AM','number')}
+      ${F('Actual Temp PM (°C)','Refrigerator: Actual Temp PM','number')}
+      ${F('Temp Deviation','Refrigerator: Temp Deviation')}
+      ${F('Alarm Status','Refrigerator: Alarm Status','select',['Normal','Alarm Triggered','Not Checked'])}
+      ${F('Door Seal','Refrigerator: Door Seal','select',['Intact','Worn','Damaged'])}
+      ${F('Frost Buildup','Refrigerator: Frost Buildup','select',['None','Minimal','Excessive'])}
+      ${F('Fridge Notes','Refrigerator: Notes','textarea',null,true)}
     </div></div>`;
   } else if(isBsc){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — BSC Status</div>
     <div class="edit-field-grid">
-      ${F('UV Decontamination','UV Decontamination','select',['Yes','No'])}
-      ${F('UV Duration (min)','UV Duration (min)','number')}
-      ${F('Blower Pre-run','Blower Pre-run','select',['Yes — 5 min','Yes — 10 min','Not Performed'])}
-      ${F('Decon Agent','Decontamination Agent')}
-      ${F('Contact Time (min)','Contact Time (min)','number')}
-      ${F('Sash Position','Sash Position','select',['Correct Operating Height','Incorrect'])}
-      ${F('Airflow Indicator','Airflow Indicator','select',['Normal','Abnormal','Not Checked'])}
-      ${F('HEPA Filter Status','HEPA Filter Status','select',['OK','Due for Change','Replace Immediately'])}
-      ${F('BSC Notes','BSC Notes','textarea',null,true)}
+      ${F('UV Decontamination','BSC: UV Decontamination','select',['Yes','No'])}
+      ${F('UV Duration (min)','BSC: UV Duration (min)','number')}
+      ${F('Blower Pre-run','BSC: Blower Pre-run','select',['Yes — 5 min','Yes — 10 min','Not Performed'])}
+      ${F('Decon Agent','BSC: Decon Agent')}
+      ${F('Contact Time (min)','BSC: Contact Time (min)','number')}
+      ${F('Sash Position','BSC: Sash Position','select',['Correct Operating Height','Incorrect'])}
+      ${F('Airflow Indicator','BSC: Airflow','select',['Normal','Abnormal','Not Checked'])}
+      ${F('HEPA Filter Status','BSC: HEPA Filter','select',['OK','Due for Change','Replace Immediately'])}
+      ${F('BSC Notes','BSC: Notes','textarea',null,true)}
     </div></div>`;
   }
 
@@ -954,6 +1011,90 @@ function buildEqlForm(r){
     ${F('Analyst Name','Analyst Name')}
     ${F('Checked Date & Time','Checked Date & Time','datetime-local')}
   </div></div>`;
+}
+
+// ── Edit Drawer — Run Log table ──
+let editRunCount = 0;
+function editRunInit(json){
+  editRunCount = 0;
+  const tbody = document.getElementById('edit-run-tbody');
+  if(!tbody) return;
+  let runs = [];
+  try { runs = JSON.parse(json||'[]'); } catch(e){}
+  tbody.innerHTML = '';
+  runs.forEach(r => editRunAddRow(r));
+  if(!runs.length) editRunAddRow();
+  editRunSync();
+}
+function editRunAddRow(p){
+  editRunCount++;
+  const n = editRunCount;
+  const tbody = document.getElementById('edit-run-tbody');
+  if(!tbody) return;
+  const tr = document.createElement('tr');
+  tr.id = `er-row-${n}`;
+  tr.style.borderBottom = '1px solid #ece8e0';
+  tr.innerHTML = `
+    <td style="padding:3px 4px;font-size:11px;color:var(--text-muted);font-weight:600;">${n}</td>
+    <td style="padding:3px 2px;"><input type="text" id="er-load-${n}" value="${p?.load||''}" placeholder="e.g. Media" style="width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:3px;font-size:12px;"></td>
+    <td style="padding:3px 2px;"><select id="er-cycle-${n}" style="width:100%;padding:4px 4px;border:1px solid var(--border);border-radius:3px;font-size:11px;">
+      <option value="">—</option>
+      <option ${p?.cycle==='Gravity (121°C/15 min)'?'selected':''}>Gravity (121°C/15 min)</option>
+      <option ${p?.cycle==='Pre-Vacuum (134°C/4 min)'?'selected':''}>Pre-Vacuum (134°C/4 min)</option>
+      <option ${p?.cycle==='Liquid (121°C/20 min)'?'selected':''}>Liquid (121°C/20 min)</option>
+    </select></td>
+    <td style="padding:3px 2px;"><input type="time" id="er-start-${n}" value="${p?.start||''}" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;"></td>
+    <td style="padding:3px 2px;"><input type="time" id="er-end-${n}" value="${p?.end||''}" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;"></td>
+    <td style="padding:3px 2px;"><input type="number" id="er-temp-${n}" value="${p?.temp||''}" placeholder="121" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;"></td>
+    <td style="padding:3px 2px;"><input type="number" id="er-pressure-${n}" value="${p?.pressure||''}" placeholder="103" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;"></td>
+    <td style="padding:3px 2px;"><select id="er-chem-${n}" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;">
+      <option value="">—</option>
+      <option ${p?.chem==='Pass'?'selected':''}>Pass</option>
+      <option ${p?.chem==='Fail'?'selected':''}>Fail</option>
+      <option ${p?.chem==='Not Used'?'selected':''}>Not Used</option>
+    </select></td>
+    <td style="padding:3px 2px;"><select id="er-bi-${n}" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;">
+      <option value="">—</option>
+      <option ${p?.bi==='Pass'?'selected':''}>Pass</option>
+      <option ${p?.bi==='Fail'?'selected':''}>Fail</option>
+      <option ${p?.bi==='Pending'?'selected':''}>Pending</option>
+      <option ${p?.bi==='Not Tested'?'selected':''}>Not Tested</option>
+    </select></td>
+    <td style="padding:3px 2px;"><select id="er-result-${n}" style="width:100%;padding:4px 3px;border:1px solid var(--border);border-radius:3px;font-size:11px;">
+      <option value="">—</option>
+      <option ${p?.result==='Pass'?'selected':''}>Pass</option>
+      <option ${p?.result==='Fail — Cycle Aborted'?'selected':''}>Fail — Cycle Aborted</option>
+      <option ${p?.result==='Fail — Indicators Failed'?'selected':''}>Fail — Indicators Failed</option>
+    </select></td>
+    <td style="padding:3px 2px;"><button type="button" onclick="editRunDelRow(${n})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 5px;">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+function editRunDelRow(n){
+  const r = document.getElementById(`er-row-${n}`);
+  if(r) r.remove();
+  editRunSync();
+}
+function editRunSync(){
+  const rows = [];
+  document.querySelectorAll('#edit-run-tbody tr').forEach(tr=>{
+    const n = tr.id.replace('er-row-','');
+    const load = document.getElementById(`er-load-${n}`)?.value||'';
+    if(!load.trim()) return;
+    rows.push({
+      num: rows.length+1, load,
+      cycle: document.getElementById(`er-cycle-${n}`)?.value||'',
+      start: document.getElementById(`er-start-${n}`)?.value||'',
+      end:   document.getElementById(`er-end-${n}`)?.value||'',
+      temp:  document.getElementById(`er-temp-${n}`)?.value||'',
+      pressure: document.getElementById(`er-pressure-${n}`)?.value||'',
+      chem:  document.getElementById(`er-chem-${n}`)?.value||'',
+      bi:    document.getElementById(`er-bi-${n}`)?.value||'',
+      result:document.getElementById(`er-result-${n}`)?.value||''
+    });
+  });
+  const hidden = document.getElementById('ef-Run_Log');
+  if(hidden) hidden.value = JSON.stringify(rows);
 }
 
 </script>
