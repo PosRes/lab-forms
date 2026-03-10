@@ -488,6 +488,7 @@ function grv(name){const el=document.querySelector(`input[name="${name}"]:checke
 
 async function generateId(){
   const display=document.getElementById('record-id-display');
+  if(!currentEquipType){display.textContent='Select equipment type first';return;}
   display.textContent='EQL-fetching…';
   try{
     const sheetNames={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log'};
@@ -510,6 +511,8 @@ function selectEquip(type){
   const hasRunLog = type==='autoclave';
   document.getElementById('overall-num').textContent = hasRunLog ? '04' : '03';
   document.getElementById('signoff-num').textContent  = hasRunLog ? '05' : '04';
+  // Fetch correct ID for this equipment type's sheet
+  generateId();
 }
 
 function checkTempDev(prefix){
@@ -687,6 +690,7 @@ async function saveRecord(){
     const result = await res.json();
     if(result.status==='success'){
       showToast('✓ Record saved to Equipment Log sheet');
+      await new Promise(r=>setTimeout(r,1500)); await generateId(); // wait for Sheet to commit
       setTimeout(()=>{if(confirm('Record saved! Reset form for a new entry?'))resetForm();},1000);
     } else {
       showToast('✗ Save failed — '+(result.message||'unknown error'),true);
@@ -707,12 +711,11 @@ function resetForm(){
     document.getElementById('btn-'+t).classList.remove('active');
     document.getElementById('sec-'+t).classList.remove('visible');
   });
-  document.getElementById('record-id-display').textContent='EQL-————-————';
+  document.getElementById('record-id-display').textContent='— Select equipment type —';
   document.getElementById('status-banner').className='status-banner';
   const now=new Date();
   document.getElementById('record-date').value=now.toISOString().slice(0,10);
   document.getElementById('analyst-datetime').value=now.toISOString().slice(0,16);
-  generateId();
 }
 
 function downloadPDF(){
@@ -770,7 +773,6 @@ window.addEventListener('load',()=>{
   const now=new Date();
   document.getElementById('record-date').value=now.toISOString().slice(0,10);
   document.getElementById('analyst-datetime').value=now.toISOString().slice(0,16);
-  generateId();
   buildRunLog();
 });
 </script>
