@@ -1120,7 +1120,7 @@ function loadJsPDF(cb) {
 
   // ── Download PDF ──
   function downloadPDF() {
-  loadJsPDF(function() {
+    if (!window.jspdf) { showToast('⚠ PDF library not ready — try again in a moment', true); return; }
     if (!validate()) return;
     const r = collectRecord();
     const { jsPDF } = window.jspdf;
