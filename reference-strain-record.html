@@ -1107,7 +1107,7 @@ function loadJsPDF(cb) {
       const data = await res.json();
       if (data.status === 'success') {
         showToast(`✓ Saved to Google Sheet`);
-        fetchRecordId();
+        setTimeout(fetchRecordId, 1500); // wait for Sheet to commit before re-fetching max ID
       } else {
         showToast('✗ Save failed — ' + (data.message || 'unknown error'), true);
       }
