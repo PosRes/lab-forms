@@ -1100,13 +1100,17 @@ function loadJsPDF(cb) {
     const btn = document.querySelector('.btn-save');
     btn.textContent = '⏳ Saving…'; btn.disabled = true;
     try {
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
         body: JSON.stringify({ ...collectRecord(), sheet: 'RSR Records' })
       });
-      showToast(`✓ Saved to Google Sheet`);
-      fetchRecordId();
+      const data = await res.json();
+      if (data.status === 'success') {
+        showToast(`✓ Saved to Google Sheet`);
+        fetchRecordId();
+      } else {
+        showToast('✗ Save failed — ' + (data.message || 'unknown error'), true);
+      }
     } catch(e) {
       showToast('✗ Save failed — check network or Script URL', true);
     } finally {

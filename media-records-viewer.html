@@ -734,15 +734,19 @@ async function saveEdit(){
   const btn=document.getElementById('save-edit-btn');
   btn.textContent='⏳ Saving…';btn.disabled=true;
   try{
-    await fetch(APPS_SCRIPT_URL,{
-      method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method: 'POST',
       body:JSON.stringify({action:'update',sheetName:activeSheet,recordId:r['Record ID'],data:updated})
     });
-    const gi=allRecords.indexOf(r);
-    if(gi>=0)allRecords[gi]=updated;
-    closeEditDrawer();filterRecords();
-    showToast('✓ Record updated successfully');
+    const result=await res.json();
+    if(result.status==='success'){
+      const gi=allRecords.indexOf(r);
+      if(gi>=0)allRecords[gi]=updated;
+      closeEditDrawer();filterRecords();
+      showToast('✓ Record updated successfully');
+    } else {
+      showToast('✗ Update failed — '+(result.message||'unknown error'),true);
+    }
   }catch(e){showToast('✗ Save failed — check network or redeploy Script',true);}
   finally{btn.textContent='☁ Save Changes';btn.disabled=false;}
 }
@@ -764,16 +768,20 @@ async function confirmDelete(){
   const btn=document.getElementById('confirm-delete-btn');
   btn.textContent='⏳ Deleting…';btn.disabled=true;
   try{
-    await fetch(APPS_SCRIPT_URL,{
-      method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method: 'POST',
       body:JSON.stringify({action:'delete',sheetName:activeSheet,recordId:r['Record ID']})
     });
-    allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
-    closeDeleteModal();filterRecords();
-    const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
-    document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
-    showToast(`🗑 Record ${r['Record ID']} deleted`);
+    const result=await res.json();
+    if(result.status==='success'){
+      allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
+      closeDeleteModal();filterRecords();
+      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
+      document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
+      showToast(`🗑 Record ${r['Record ID']} deleted`);
+    } else {
+      showToast('✗ Delete failed — '+(result.message||'unknown error'),true);
+    }
   }catch(err){showToast('✗ Delete failed',true);}
   finally{btn.textContent='Yes, Delete';btn.disabled=false;}
 }

@@ -674,13 +674,17 @@ async function saveRecord(){
   data['sheet']='Equipment Log';
 
   try{
-    await fetch(APPS_SCRIPT_URL,{
-      method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+    const res = await fetch(APPS_SCRIPT_URL,{
+      method: 'POST',
       body:JSON.stringify(data)
     });
-    showToast('✓ Record saved to Equipment Log sheet');
-    setTimeout(()=>{if(confirm('Record saved! Reset form for a new entry?'))resetForm();},1000);
+    const result = await res.json();
+    if(result.status==='success'){
+      showToast('✓ Record saved to Equipment Log sheet');
+      setTimeout(()=>{if(confirm('Record saved! Reset form for a new entry?'))resetForm();},1000);
+    } else {
+      showToast('✗ Save failed — '+(result.message||'unknown error'),true);
+    }
   }catch(err){
     showToast('✗ Save failed — check network or redeploy Script',true);
   }finally{
