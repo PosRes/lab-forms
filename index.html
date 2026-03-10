@@ -421,6 +421,46 @@
     </div>
   </div>
 
+  <!-- Reference -->
+  <div class="section-heading" style="margin-bottom:30px;"><h2>Quick Reference</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Record ID Format</div>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--green);font-weight:600;">MOR-20260310-0001</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6;">
+        <b>MOR/RSR/EQL</b> — form type<br>
+        <b>YYYYMMDD</b> — date created<br>
+        <b>0001</b> — resets each month
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">QC Dispositions</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <span style="color:#1a5c35;font-weight:600;">✓ Approved — fit for use</span>
+        <span style="color:#7d6608;font-weight:600;">⚠ Conditional — restricted use</span>
+        <span style="color:#8b1a1a;font-weight:600;">✗ Rejected — do not use</span>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Passage Limit (ISO 11133)</div>
+      <div style="font-family:var(--mono);font-size:22px;color:var(--brown);font-weight:600;">≤ P5</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6;">Maximum 5 passages from master stock. Document each subculture in the passage log.</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Autoclave Cycles</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--text-muted);">
+        <span>Gravity &nbsp;&nbsp;121°C / 15 min</span>
+        <span>Pre-Vac &nbsp;134°C / 4 min</span>
+        <span>Liquid &nbsp;&nbsp;121°C / 20 min</span>
+      </div>
+    </div>
+
+  </div>
+
   <!-- Data Entry -->
   <div class="section-heading"><h2>Data Entry Forms</h2></div>
   <div class="card-grid">
@@ -492,46 +532,6 @@
     </div>
     <div class="viewer-card-arrow">→</div>
   </a>
-
-  <!-- Reference -->
-  <div class="section-heading" style="margin-top:40px;"><h2>Quick Reference</h2></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Record ID Format</div>
-      <div style="font-family:var(--mono);font-size:13px;color:var(--green);font-weight:600;">MOR-20260310-0001</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6;">
-        <b>MOR/RSR/EQL</b> — form type<br>
-        <b>YYYYMMDD</b> — date created<br>
-        <b>0001</b> — resets each month
-      </div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">QC Dispositions</div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
-        <span style="color:#1a5c35;font-weight:600;">✓ Approved — fit for use</span>
-        <span style="color:#7d6608;font-weight:600;">⚠ Conditional — restricted use</span>
-        <span style="color:#8b1a1a;font-weight:600;">✗ Rejected — do not use</span>
-      </div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Passage Limit (ISO 11133)</div>
-      <div style="font-family:var(--mono);font-size:22px;color:var(--brown);font-weight:600;">≤ P5</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6;">Maximum 5 passages from master stock. Document each subculture in the passage log.</div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Autoclave Cycles</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--text-muted);">
-        <span>Gravity &nbsp;&nbsp;121°C / 15 min</span>
-        <span>Pre-Vac &nbsp;134°C / 4 min</span>
-        <span>Liquid &nbsp;&nbsp;121°C / 20 min</span>
-      </div>
-    </div>
-
-  </div>
 
 </div>
 
