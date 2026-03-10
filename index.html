@@ -379,6 +379,15 @@
 #login-error{color:#8b1a1a;font-size:12px;margin-top:8px;display:none;}
 #login-box .lock{font-size:36px;margin-bottom:16px;}
 </style>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('[SW] registered', r.scope))
+      .catch(e => console.warn('[SW] failed', e));
+  });
+}
+</script>
 </head>
 <body>
 <div id="login-overlay">
