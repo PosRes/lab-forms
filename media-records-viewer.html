@@ -513,7 +513,7 @@ function cardGeneric(r,idx){
 }
 
 function downloadPDF_Generic(idx){
-  loadJsPDF(function() {
+  if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
   const isEql=activeSheet==='Equipment Log';
@@ -843,7 +843,7 @@ function makePDF(r,title,formCode,sections,rgb){
 }
 
 function downloadPDF_MOR(idx){
-  loadJsPDF(function() {
+  if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
   makePDF(r,'Media Opening Record','QC-MOR-001',[
@@ -857,7 +857,7 @@ function downloadPDF_MOR(idx){
 }
 
 function downloadPDF_RSR(idx){
-  loadJsPDF(function() {
+  if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
   makePDF(r,'Reference Strain Record','QC-RSR-001',[
