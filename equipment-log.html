@@ -590,7 +590,7 @@ function collectData(){
   const type=currentEquipType;
   const base={
     'Record ID':       document.getElementById('record-id-display').textContent,
-    'Equipment Type':  type.charAt(0).toUpperCase()+type.slice(1),
+    'Equipment Type':  type==='bsc'?'Biosafety Cabinet':type.charAt(0).toUpperCase()+type.slice(1),
     'Record Date':     gv('record-date'),
     'Shift':           grv('shift'),
     'Overall Status':  grv('overall-status'),
@@ -600,49 +600,49 @@ function collectData(){
   };
   if(type==='autoclave'){
     Object.assign(base,{
-      'Chamber Condition':grv('ac-chamber'),
-      'Door Seal':        grv('ac-seal'),
-      'Pre-Vacuum Test':  grv('ac-prevac'),
-      'Drain Condition':  grv('ac-drain'),
-      'Notes':            gv('ac-notes'),
-      'Run Log':          JSON.stringify(collectRunLog()),
+      'Autoclave: Chamber Condition': grv('ac-chamber'),
+      'Autoclave: Door Seal':         grv('ac-seal'),
+      'Autoclave: Pre-Vacuum Test':   grv('ac-prevac'),
+      'Autoclave: Drain Condition':   grv('ac-drain'),
+      'Autoclave: Notes':             gv('ac-notes'),
+      'Autoclave: Run Log':           JSON.stringify(collectRunLog()),
     });
   }
   if(type==='incubator'){
     Object.assign(base,{
-      'Set Temp (°C)':    gv('inc-set-temp'),
-      'Actual Temp AM':   gv('inc-actual-am'),
-      'Actual Temp PM':   gv('inc-actual-pm'),
-      'Temp Deviation':   gv('inc-deviation'),
-      'Alarm Status':     grv('inc-alarm'),
-      'Door Seal':        grv('inc-seal'),
-      'Notes':            gv('inc-notes'),
+      'Incubator: Set Temp (°C)':  gv('inc-set-temp'),
+      'Incubator: Actual Temp AM': gv('inc-actual-am'),
+      'Incubator: Actual Temp PM': gv('inc-actual-pm'),
+      'Incubator: Temp Deviation': gv('inc-deviation'),
+      'Incubator: Alarm Status':   grv('inc-alarm'),
+      'Incubator: Door Seal':      grv('inc-seal'),
+      'Incubator: Notes':          gv('inc-notes'),
     });
   }
   if(type==='refrigerator'){
     Object.assign(base,{
-      'Unit Sub-Type':    grv('ref-subtype'),
-      'Set Temp (°C)':    gv('ref-set-temp'),
-      'Actual Temp AM':   gv('ref-actual-am'),
-      'Actual Temp PM':   gv('ref-actual-pm'),
-      'Temp Deviation':   gv('ref-deviation'),
-      'Alarm Status':     grv('ref-alarm'),
-      'Door Seal':        grv('ref-seal'),
-      'Frost Buildup':    grv('ref-frost'),
-      'Notes':            gv('ref-notes'),
+      'Refrigerator: Unit Sub-Type':  grv('ref-subtype'),
+      'Refrigerator: Set Temp (°C)':  gv('ref-set-temp'),
+      'Refrigerator: Actual Temp AM': gv('ref-actual-am'),
+      'Refrigerator: Actual Temp PM': gv('ref-actual-pm'),
+      'Refrigerator: Temp Deviation': gv('ref-deviation'),
+      'Refrigerator: Alarm Status':   grv('ref-alarm'),
+      'Refrigerator: Door Seal':      grv('ref-seal'),
+      'Refrigerator: Frost Buildup':  grv('ref-frost'),
+      'Refrigerator: Notes':          gv('ref-notes'),
     });
   }
   if(type==='bsc'){
     Object.assign(base,{
-      'UV Decon':         grv('bsc-uv'),
-      'UV Duration (min)':gv('bsc-uv-duration'),
-      'Blower Pre-run':   gv('bsc-blower'),
-      'Decon Agent':      gv('bsc-agent'),
-      'Contact Time':     gv('bsc-contact-time'),
-      'Sash Position':    grv('bsc-sash'),
-      'Airflow':          grv('bsc-airflow'),
-      'HEPA Filter':      grv('bsc-hepa'),
-      'Notes':            gv('bsc-notes'),
+      'BSC: UV Decontamination':  grv('bsc-uv'),
+      'BSC: UV Duration (min)':   gv('bsc-uv-duration'),
+      'BSC: Blower Pre-run':      gv('bsc-blower'),
+      'BSC: Decon Agent':         gv('bsc-agent'),
+      'BSC: Contact Time (min)':  gv('bsc-contact-time'),
+      'BSC: Sash Position':       grv('bsc-sash'),
+      'BSC: Airflow':             grv('bsc-airflow'),
+      'BSC: HEPA Filter':         grv('bsc-hepa'),
+      'BSC: Notes':               gv('bsc-notes'),
     });
   }
   return base;
