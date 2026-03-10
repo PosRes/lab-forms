@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Records Viewer — ISO 17025:2017</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script>
+function loadJsPDF(cb) {
+  if (window.jspdf) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+</script>
+<style>
+  :root {
+    --bg:#f4f3ef;--surface:#fff;--border:#d5d0c8;--text:#1a1916;--text-muted:#6b6760;
+    --accent:#1d4e5f;--accent-light:#e8f0f3;--accent-mid:#2d7a9a;
+    --accent-rsr:#3d2b1f;--accent-rsr-light:#f0ebe4;
+    --warn:#8b3a1e;--warn-light:#fdf0eb;--pass:#1a5c35;--pass-light:#eaf4ee;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--radius:4px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px 60px;}
+  .page-wrap{max-width:1000px;margin:0 auto;}
+
+  .page-header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .page-header h1{font-size:20px;font-weight:600;color:var(--accent);}
+  .page-header p{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px;}
+  .doc-ref{font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:1.7;text-align:right;}
+  .doc-ref strong{color:var(--text);}
+
+  .tab-bar{display:flex;margin-bottom:18px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);}
+  .tab-btn{flex:1;padding:10px 16px;font-size:13px;font-weight:600;font-family:var(--sans);border:none;cursor:pointer;transition:all 0.15s;background:var(--surface);color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:8px;}
+  .tab-btn+.tab-btn{border-left:1px solid var(--border);}
+  .tab-btn .tab-count{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--bg);padding:1px 6px;border-radius:10px;}
+  .tab-btn.active-mor{background:var(--accent);color:#fff;}
+  .tab-btn.active-mor .tab-count{background:rgba(255,255,255,0.2);color:#fff;}
+  .tab-btn.active-rsr{background:var(--accent-rsr);color:#fff;}
+  .tab-btn.active-rsr .tab-count{background:rgba(255,255,255,0.2);color:#fff;}
+  .tab-btn.active-eql{background:#1a4d2e;color:#fff;}
+  .tab-btn.active-eql .tab-count{background:rgba(255,255,255,0.2);color:#fff;}
+  .tab-btn.active-arl{background:#5c3b1a;color:#fff;}
+  .tab-btn.active-arl .tab-count{background:rgba(255,255,255,0.2);color:#fff;}
+
+  .load-btn-main{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer;transition:background 0.15s,transform 0.1s;white-space:nowrap;min-height:42px;box-shadow:0 2px 8px rgba(29,78,95,0.25);}
+  .load-btn-mor{background:var(--accent);color:#fff;}
+  .load-btn-mor:hover{background:#163d4c;transform:translateY(-1px);}
+  .load-btn-rsr{background:var(--accent-rsr);color:#fff;box-shadow:0 2px 8px rgba(61,43,31,0.25);}
+  .load-btn-rsr:hover{background:#2a1d14;transform:translateY(-1px);}
+  .load-btn-eql{background:#1a4d2e;color:#fff;box-shadow:0 2px 8px rgba(26,77,46,0.25);}
+  .load-btn-eql:hover{background:#113320;transform:translateY(-1px);}
+  .load-btn-arl{background:#5c3b1a;color:#fff;box-shadow:0 2px 8px rgba(92,59,26,0.25);}
+  .load-btn-arl:hover{background:#3d2710;transform:translateY(-1px);}
+  .load-btn-main:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .load-btn-main .spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;}
+  .load-btn-main.loading .spinner{display:block;}
+  .load-btn-main.loading .btn-icon{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .last-loaded{font-family:var(--mono);font-size:10px;color:var(--text-muted);white-space:nowrap;}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+  .search-box{display:flex;align-items:center;gap:8px;flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;}
+  .search-box input{flex:1;border:none;background:transparent;outline:none;font-size:13px;font-family:var(--sans);color:var(--text);padding:9px 0;}
+  .search-icon{color:var(--text-muted);font-size:14px;}
+  .filter-select{padding:9px 28px 9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:var(--sans);color:var(--text);background:var(--surface);cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6760' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+  .count-badge{font-family:var(--mono);font-size:11px;font-weight:600;padding:5px 10px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);color:var(--text-muted);white-space:nowrap;}
+
+  .state-box{text-align:center;padding:60px 20px;color:var(--text-muted);}
+  .state-box .icon{font-size:40px;margin-bottom:14px;}
+  .state-box div{font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px;}
+  .state-box p{font-size:13px;}
+
+  .records-grid{display:flex;flex-direction:column;gap:10px;}
+  .record-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .record-card.mor-card{border-left:3px solid var(--accent);}
+  .record-card.rsr-card{border-left:3px solid var(--accent-rsr);}
+  .record-card.eql-card{border-left:3px solid #1a4d2e;}
+  .record-card.arl-card{border-left:3px solid #5c3b1a;}
+  .eql-card .record-id{color:#1a4d2e;background:#eaf2ee;}
+  .arl-card .record-id{color:#5c3b1a;background:#f5ede4;}
+  .eql-card .detail-section h4{color:#1a4d2e;}
+  .arl-card .detail-section h4{color:#5c3b1a;}
+  .btn-eql{background:#1a4d2e;color:#fff;} .btn-eql:hover{background:#113320;}
+  .btn-arl{background:#5c3b1a;color:#fff;} .btn-arl:hover{background:#3d2710;}
+  .card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;gap:12px;flex-wrap:wrap;}
+  .card-header-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .record-id{font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 8px;border-radius:2px;white-space:nowrap;}
+  .mor-card .record-id{color:var(--accent);background:var(--accent-light);}
+  .rsr-card .record-id{color:var(--accent-rsr);background:var(--accent-rsr-light);}
+  .media-name{font-size:14px;font-weight:600;color:var(--text);}
+  .card-meta{font-size:11px;color:var(--text-muted);font-family:var(--mono);}
+  .card-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:2px;font-family:var(--mono);letter-spacing:0.3px;white-space:nowrap;}
+  .badge-pass{background:var(--pass-light);color:var(--pass);}
+  .badge-fail{background:var(--warn-light);color:var(--warn);}
+  .badge-pending{background:#f0ede8;color:var(--text-muted);}
+  .badge-approved{background:var(--pass-light);color:var(--pass);}
+  .badge-rejected{background:var(--warn-light);color:var(--warn);}
+  .badge-conditional{background:#fef9e7;color:#7d6608;}
+  .expand-icon{color:var(--text-muted);font-size:18px;flex-shrink:0;transition:transform 0.2s;}
+  .record-card.open .expand-icon{transform:rotate(180deg);}
+
+  .card-detail{display:none;border-top:1px solid var(--border);background:var(--bg);}
+  .record-card.open .card-detail{display:block;}
+  .detail-sections{display:grid;grid-template-columns:1fr 1fr;}
+  @media(max-width:600px){.detail-sections{grid-template-columns:1fr;}}
+  .detail-section{padding:14px 16px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .detail-section:nth-child(even){border-right:none;}
+  .detail-section.full-width{grid-column:1/-1;border-right:none;}
+  .detail-section h4{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);font-family:var(--mono);margin-bottom:10px;}
+  .rsr-card .detail-section h4{color:var(--accent-rsr);}
+  .detail-row{display:flex;gap:8px;margin-bottom:6px;align-items:baseline;}
+  .detail-key{font-size:11px;color:var(--text-muted);min-width:130px;flex-shrink:0;}
+  .detail-val{font-size:12px;color:var(--text);font-family:var(--mono);word-break:break-word;}
+  .detail-val.approved{color:var(--pass);font-weight:600;}
+  .detail-val.rejected{color:var(--warn);font-weight:600;}
+  .detail-val.defect{color:var(--warn);}
+
+  .passage-mini{width:100%;border-collapse:collapse;margin-top:6px;font-size:11px;}
+  .passage-mini th{background:#f0ede8;color:var(--accent-rsr);font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;padding:5px 7px;text-align:left;border-bottom:1px solid var(--border);}
+  .passage-mini td{padding:5px 7px;border-bottom:1px solid #ebe8e2;font-family:var(--mono);font-size:10px;}
+  .passage-mini tr:last-child td{border-bottom:none;}
+  .p-pass{color:var(--pass);font-weight:600;} .p-fail{color:var(--warn);font-weight:600;}
+
+  .card-actions{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);flex-wrap:wrap;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer;border:none;transition:all 0.15s;min-height:36px;}
+  .btn-primary{background:var(--accent);color:#fff;} .btn-primary:hover{background:#163d4c;}
+  .btn-primary-rsr{background:var(--accent-rsr);color:#fff;} .btn-primary-rsr:hover{background:#2a1d14;}
+  .btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);} .btn-ghost:hover{border-color:#a09890;color:var(--text);}
+  .btn-edit{background:#f0f4f0;border:1px solid #b8d0b8;color:#1a5c35;} .btn-edit:hover{background:var(--pass-light);}
+  .btn-delete{background:var(--warn-light);border:1px solid #e0a090;color:var(--warn);} .btn-delete:hover{background:#fae0d8;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
+  .modal-backdrop.show{display:flex;}
+  .modal{background:var(--surface);border-radius:var(--radius);padding:28px 24px 20px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);animation:modalIn 0.2s ease;}
+  @keyframes modalIn{from{transform:scale(0.95);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal-icon{font-size:32px;margin-bottom:12px;}
+  .modal h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+  .modal p{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:6px;}
+  .modal-record-id{font-family:var(--mono);font-size:12px;background:var(--warn-light);color:var(--warn);padding:6px 10px;border-radius:var(--radius);margin:10px 0 20px;display:inline-block;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+  /* Edit drawer */
+  .edit-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;}
+  .edit-backdrop.show{display:block;}
+  .edit-drawer{position:fixed;top:0;right:-100%;width:min(640px,100vw);height:100vh;background:var(--surface);box-shadow:-8px 0 40px rgba(0,0,0,0.2);z-index:301;display:flex;flex-direction:column;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);overflow:hidden;}
+  .edit-drawer.open{right:0;}
+  .edit-drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid var(--accent);flex-shrink:0;}
+  .edit-drawer-header.rsr{border-color:var(--accent-rsr);}
+  .edit-drawer-title{font-size:15px;font-weight:600;}
+  .edit-drawer-subtitle{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;}
+  .close-drawer-btn{background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;padding:4px 8px;border-radius:var(--radius);transition:background 0.12s;line-height:1;}
+  .close-drawer-btn:hover{background:var(--bg);color:var(--text);}
+  .edit-drawer-body{flex:1;overflow-y:auto;padding:20px;}
+  .edit-drawer-footer{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+  .edit-drawer-footer .btn{flex:1;padding:11px;font-size:14px;}
+
+  .edit-section{margin-bottom:24px;}
+  .edit-section-title{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;font-family:var(--mono);color:var(--text-muted);padding:6px 10px;background:var(--bg);border-radius:var(--radius);margin-bottom:14px;}
+  .edit-section-title.mor{color:var(--accent);background:var(--accent-light);}
+  .edit-section-title.rsr{color:var(--accent-rsr);background:var(--accent-rsr-light);}
+  .edit-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:440px){.edit-field-grid{grid-template-columns:1fr;}}
+  .edit-field{display:flex;flex-direction:column;gap:5px;}
+  .edit-field.full{grid-column:1/-1;}
+  .edit-label{font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--text-muted);font-family:var(--mono);}
+  .edit-input{font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;width:100%;outline:none;appearance:none;-webkit-appearance:none;transition:border-color 0.15s;}
+  .edit-input:focus{border-color:var(--accent-mid);background:var(--surface);box-shadow:0 0 0 3px rgba(45,122,154,0.12);}
+  .edit-input.mono{font-family:var(--mono);font-size:13px;}
+  textarea.edit-input{resize:vertical;min-height:64px;line-height:1.5;}
+  select.edit-input{cursor:pointer;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6760' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+
+  .passage-editor-wrap{overflow-x:auto;margin-top:8px;}
+  .passage-editor-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;}
+  .passage-editor-table th{background:var(--accent-rsr-light);color:var(--accent-rsr);font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;padding:7px 6px;text-align:left;border-bottom:1px solid var(--border);}
+  .passage-editor-table td{padding:5px 4px;border-bottom:1px solid #ece8e2;vertical-align:middle;}
+  .passage-editor-table tr:last-child td{border-bottom:none;}
+  .passage-editor-table input,.passage-editor-table select{font-size:12px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);border-radius:3px;width:100%;outline:none;font-family:var(--sans);}
+  .passage-editor-table input:focus,.passage-editor-table select:focus{border-color:var(--accent-mid);background:var(--surface);}
+  .add-passage-btn{margin-top:8px;padding:6px 12px;background:var(--accent-rsr-light);border:1px dashed #a08070;border-radius:var(--radius);color:var(--accent-rsr);font-size:12px;font-weight:600;font-family:var(--mono);cursor:pointer;transition:background 0.12s;}
+  .add-passage-btn:hover{background:#e4dcd4;}
+  .del-p-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:3px;transition:color 0.12s,background 0.12s;}
+  .del-p-btn:hover{color:var(--warn);background:var(--warn-light);}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-family:var(--mono);box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;transition:all 0.3s;pointer-events:none;z-index:400;white-space:nowrap;max-width:90vw;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <div class="page-header">
+    <div>
+      <h1>Lab Records Viewer</h1>
+      <p>ISO 17025:2017 — Submitted Entries</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="doc-ref">
+        <div><strong>REF:</strong> ISO 17025:2017 §6.4</div>
+        <div><strong>REV:</strong> 01</div>
+      </div>
+      <button class="load-btn-main load-btn-mor" id="load-btn" onclick="loadRecords()">
+        <span class="btn-icon">⟳</span><div class="spinner"></div>Refresh Records
+      </button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active-mor" id="tab-mor" onclick="switchTab('MOR Records')">
+      🧫 Media Opening Records<span class="tab-count" id="tab-count-mor">0</span>
+    </button>
+    <button class="tab-btn" id="tab-rsr" onclick="switchTab('RSR Records')">
+      🦠 Reference Strain Records<span class="tab-count" id="tab-count-rsr">0</span>
+    </button>
+    <button class="tab-btn" id="tab-eql" onclick="switchTab('Equipment Log')">
+      🔧 Equipment Log<span class="tab-count" id="tab-count-eql">0</span>
+    </button>
+    <button class="tab-btn" id="tab-arl" onclick="switchTab('Autoclave Run Log')">
+      ♨️ Autoclave Runs<span class="tab-count" id="tab-count-arl">0</span>
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Search records…" oninput="filterRecords()">
+    </div>
+    <select class="filter-select" id="filter-disposition" onchange="filterRecords()">
+      <option value="">All Dispositions</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="conditional">Conditional</option>
+    </select>
+    <span class="count-badge" id="count-badge">0 records</span>
+    <span class="last-loaded" id="last-loaded"></span>
+  </div>
+
+  <div id="content">
+    <div class="state-box"><div class="icon">📋</div><div>Loading records…</div></div>
+  </div>
+</div>
+
+<!-- Delete modal -->
+<div class="modal-backdrop" id="delete-modal">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <h3>Delete this record?</h3>
+    <p>This will permanently remove the record from your Google Sheet. This action cannot be undone.</p>
+    <div class="modal-record-id" id="modal-record-id"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-delete" id="confirm-delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit drawer -->
+<div class="edit-backdrop" id="edit-backdrop" onclick="closeEditDrawer()"></div>
+<div class="edit-drawer" id="edit-drawer">
+  <div class="edit-drawer-header" id="edit-drawer-header">
+    <div>
+      <div class="edit-drawer-title" id="edit-drawer-title">Edit Record</div>
+      <div class="edit-drawer-subtitle" id="edit-drawer-subtitle"></div>
+    </div>
+    <button class="close-drawer-btn" onclick="closeEditDrawer()">✕</button>
+  </div>
+  <div class="edit-drawer-body" id="edit-drawer-body"></div>
+  <div class="edit-drawer-footer">
+    <button class="btn btn-ghost" onclick="closeEditDrawer()">Cancel</button>
+    <button class="btn btn-primary" id="save-edit-btn" onclick="saveEdit()">☁ Save Changes</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
+
+let allRecords=[],activeSheet='MOR Records',editingIdx=null,passRowCount=0;
+
+window.addEventListener('load',()=>{
+  if(APPS_SCRIPT_URL!=='YOUR_APPS_SCRIPT_URL_HERE'){loadBothCounts();loadRecords();}
+});
+
+async function loadBothCounts(){
+  try{
+    const sheets=['MOR%20Records','RSR%20Records','Equipment%20Log','Autoclave%20Run%20Log'];
+    const counts=['tab-count-mor','tab-count-rsr','tab-count-eql','tab-count-arl'];
+    const results=await Promise.all(sheets.map(s=>fetch(APPS_SCRIPT_URL+'?sheet='+s).then(r=>r.json()).catch(()=>({status:'error'}))));
+    results.forEach((r,i)=>{ document.getElementById(counts[i]).textContent=r.status==='success'?r.records.length:'—'; });
+  }catch(e){}
+}
+
+function switchTab(sheet){
+  activeSheet=sheet;
+  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Equipment Log':'tab-eql','Autoclave Run Log':'tab-arl'};
+  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Equipment Log':'active-eql','Autoclave Run Log':'active-arl'};
+  Object.entries(tabMap).forEach(([s,id])=>{
+    document.getElementById(id).className='tab-btn'+(s===sheet?' '+activeClass[s]:'');
+  });
+  const isMor=sheet==='MOR Records';const isRsr=sheet==='RSR Records';
+  const isEql=sheet==='Equipment Log';
+  document.getElementById('load-btn').className=`load-btn-main ${isMor?'load-btn-mor':isRsr?'load-btn-rsr':isEql?'load-btn-eql':'load-btn-arl'}`;
+  document.getElementById('filter-disposition').value='';
+  document.getElementById('search').value='';
+  loadRecords();
+}
+
+function showToast(msg,isError){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=isError?'#8b3a1e':'#1d4e5f';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+async function loadRecords(){
+  const btn=document.getElementById('load-btn');
+  btn.classList.add('loading');btn.disabled=true;
+  document.getElementById('content').innerHTML='<div class="state-box"><div class="icon">⏳</div><div>Fetching records…</div></div>';
+  try{
+    const enc=encodeURIComponent(activeSheet);
+    const res=await fetch(`${APPS_SCRIPT_URL}?sheet=${enc}`);
+    const data=await res.json();
+    if(data.status!=='success')throw new Error(data.message||'Unknown error');
+    allRecords=data.records;
+    renderRecords(allRecords);
+    const now=new Date();
+    document.getElementById('last-loaded').textContent='Updated '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
+    document.getElementById(tabCountMap[activeSheet]||'tab-count-mor').textContent=allRecords.length;
+    showToast(`✓ ${allRecords.length} record(s) loaded`);
+  }catch(err){
+    document.getElementById('content').innerHTML=`<div class="state-box"><div class="icon">⚠️</div><div>Failed to load</div><p>${err.message}</p></div>`;
+    showToast('✗ Load failed — check URL or redeploy Script',true);
+  }finally{btn.classList.remove('loading');btn.disabled=false;}
+}
+
+function filterRecords(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const dis=document.getElementById('filter-disposition').value.toLowerCase();
+  const filtered=allRecords.filter(r=>{
+    const ms=!q||Object.values(r).some(v=>String(v||'').toLowerCase().includes(q));
+    const md=!dis||String(r['QC Disposition']||'').toLowerCase()===dis;
+    return ms&&md;
+  });
+  renderRecords(filtered);
+}
+
+function renderRecords(records){
+  const content=document.getElementById('content');
+  document.getElementById('count-badge').textContent=`${records.length} record${records.length!==1?'s':''}`;
+  if(!records.length){content.innerHTML='<div class="state-box"><div class="icon">🔍</div><div>No records found</div><p>Try adjusting your search or filter</p></div>';return;}
+  const sorted=[...records].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const isMor=activeSheet==='MOR Records';const isRsr=activeSheet==='RSR Records';
+  content.innerHTML=`<div class="records-grid">${sorted.map((r,i)=>isMor?cardMOR(r,i):isRsr?cardRSR(r,i):cardGeneric(r,i)).join('')}</div>`;
+}
+
+function v(x){return(x===null||x===undefined||x==='')?'—':String(x);}
+function vcls(x){const s=String(x||'').toLowerCase();return s==='pass'||s==='approved'?'approved':s==='fail'||s==='rejected'?'rejected':'';}
+function row(k,x){
+  if(!x||x==='—')return'';
+  const cls=vcls(x);const s=String(x);
+  const d=cls==='approved'?'✓ '+s.toUpperCase():cls==='rejected'?'✗ '+s.toUpperCase():s;
+  return`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val ${cls}">${d}</span></div>`;
+}
+function badge(x){
+  if(!x)return'';const s=String(x).toLowerCase();
+  if(s==='approved')return'<span class="badge badge-approved">✓ APPROVED</span>';
+  if(s==='rejected')return'<span class="badge badge-fail">✗ REJECTED</span>';
+  if(s==='conditional')return'<span class="badge badge-conditional">⚠ CONDITIONAL</span>';
+  return`<span class="badge badge-pending">${x}</span>`;
+}
+function savedDate(x){if(!x)return'—';try{return new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return x;}}
+
+function cardMOR(r,idx){
+  return`<div class="record-card mor-card" id="card-${idx}">
+    <div class="card-header" onclick="toggleCard(${idx})">
+      <div class="card-header-left">
+        <span class="record-id">${v(r['Record ID'])}</span>
+        <span class="media-name">${v(r['Media Name / Type'])||'Unnamed'}</span>
+        <span class="card-meta">Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Opened: ${v(r['Date Opened'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
+      </div>
+      <div class="card-badges">
+        ${badge(r['QC Disposition'])}
+        ${r['Physical Result']?`<span class="badge ${String(r['Physical Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Physical Result']).toLowerCase()==='pass'?'✓ PHYS OK':'✗ PHYS FAIL'}</span>`:''}
+        <span class="expand-icon">⌄</span>
+      </div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-sections">
+        <div class="detail-section"><h4>Identification</h4>${row('Media Name',r['Media Name / Type'])}${row('Catalog No.',r['Catalog No.'])}${row('Supplier',r['Manufacturer / Supplier'])}${row('Lot',r['Lot / Batch Number'])}${row('Container',r['Container Size'])}${row('Intended Use',r['Intended Use'])}</div>
+        <div class="detail-section"><h4>Dates</h4>${row('Receipt',r['Date of Receipt'])}${row('Opened',r['Date Opened'])}${row('Mfr. Expiry',r['Expiration Date (Mfr)'])}${row('In-House Expiry',r['In-House Expiry'])}${row('Prepared',r['Prepared / Poured Date'])}${row('QC Test Date',r['Date of QC Test'])}</div>
+        <div class="detail-section"><h4>Storage</h4>${row('Location',r['Storage Location'])}${row('Temp at Receipt',r['Temp at Receipt (°C)']?r['Temp at Receipt (°C)']+'°C':'')}${row('Humidity',r['Humidity Condition'])}${row('Equipment ID',r['Storage Equipment ID'])}</div>
+        <div class="detail-section"><h4>Physical Inspection</h4>${row('Result',r['Physical Result'])}<div class="detail-row"><span class="detail-key">Defects</span><span class="detail-val ${r['Defects Observed']&&r['Defects Observed']!=='None'?'defect':''}">${v(r['Defects Observed'])}</span></div>${row('Action',r['Action if Unsatisfactory'])}</div>
+        <div class="detail-section"><h4>QC — Growth Promotion</h4>${row('Organism 1',r['GPT Organism 1'])}${row('Result 1',r['GPT Result 1'])}${row('Organism 2',r['GPT Organism 2'])}${row('Result 2',r['GPT Result 2'])}${row('Organism 3',r['GPT Organism 3'])}${row('Result 3',r['GPT Result 3'])}${row('Sterility',r['Sterility Result'])}</div>
+        <div class="detail-section"><h4>Disposition & Sign-Off</h4>${row('Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Ref'])}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary" onclick="downloadPDF_MOR(${idx})">⬇ PDF</button>
+        <button class="btn btn-edit"    onclick="openEditDrawer(${idx})">✏ Edit</button>
+        <button class="btn btn-ghost"   onclick="copyRecord(${idx})">⎘ Copy</button>
+        <button class="btn btn-delete"  onclick="deleteRecord(${idx})">🗑 Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function cardRSR(r,idx){
+  let passHTML='';
+  try{
+    const rows=JSON.parse(r['Passage Log']||'[]');
+    if(rows.length){passHTML=`<table class="passage-mini"><thead><tr><th>P#</th><th>Date</th><th>From</th><th>Medium</th><th>Incubation</th><th>Result</th><th>Analyst</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${p.date||'—'}</td><td>${p.from||'—'}</td><td>${p.medium||'—'}</td><td>${p.incubation||'—'}</td><td class="${String(p.result||'').toLowerCase()==='pass'?'p-pass':String(p.result||'').toLowerCase()==='fail'?'p-fail':''}">${p.result||'—'}</td><td>${p.analyst||'—'}</td></tr>`).join('')}</tbody></table>`;}
+  }catch(e){}
+  return`<div class="record-card rsr-card" id="card-${idx}">
+    <div class="card-header" onclick="toggleCard(${idx})">
+      <div class="card-header-left">
+        <span class="record-id">${v(r['Record ID'])}</span>
+        <span class="media-name">${v(r['Organism Name'])||'Unknown Organism'}</span>
+        <span class="card-meta">Strain: ${v(r['Strain Designation'])} &nbsp;|&nbsp; Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
+      </div>
+      <div class="card-badges">
+        ${badge(r['QC Disposition'])}
+        ${r['Purity Check Result']?`<span class="badge ${String(r['Purity Check Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Purity Check Result']).toLowerCase()==='pass'?'✓ PURE':'✗ IMPURE'}</span>`:''}
+        ${r['Viability Check Result']?`<span class="badge ${String(r['Viability Check Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Viability Check Result']).toLowerCase()==='pass'?'✓ VIABLE':'✗ NO GROWTH'}</span>`:''}
+        <span class="expand-icon">⌄</span>
+      </div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-sections">
+        <div class="detail-section"><h4>Strain Identification</h4>${row('Organism',r['Organism Name'])}${row('Strain Code',r['Strain Designation'])}${row('Collection',r['Culture Collection'])}${row('Gram / Type',r['Gram / Organism Type'])}${row('BSL',r['Biosafety Level'])}${row('Application',r['Primary Application'])}${row('Internal ID',r['Internal Lab Strain ID'])}</div>
+        <div class="detail-section"><h4>Receipt & Storage</h4>${row('Supplier',r['Supplier / Vendor'])}${row('Lot No.',r['Lot / Batch Number'])}${row('Format',r['Format Received'])}${row('Date of Receipt',r['Date of Receipt'])}${row('Expiration',r['Expiration Date'])}${row('Stock Type',r['Stock Type'])}${row('Storage',r['Storage Location'])}${row('Equipment ID',r['Storage Equipment ID'])}${row('Position',r['Storage Position / Box'])}${row('Vials',r['Number of Vials'])}</div>
+        <div class="detail-section"><h4>Identity & QC</h4>${row('Colony Morphology',r['Colony Morphology'])}${row('Gram Stain',r['Gram Stain Result'])}${row('Biochemical',r['Biochemical Results'])}${row('MALDI',r['Molecular / MALDI Confirmation'])}${row('Purity',r['Purity Check Result'])}${row('Viability',r['Viability Check Result'])}${row('QC Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Reference'])}</div>
+        <div class="detail-section"><h4>Passage Summary</h4>${row('Current Passage',r['Current Passage Number']?'P'+r['Current Passage Number']:'')}${row('Max Allowed',r['Max Passages Allowed']?'≤ P'+r['Max Passages Allowed']:'')}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}${r['Disposal Reason']?row('Disposal',r['Disposal Reason']):''}</div>
+        ${passHTML?`<div class="detail-section full-width"><h4>Passage / Subculture Log</h4>${passHTML}</div>`:''}
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-primary-rsr" onclick="downloadPDF_RSR(${idx})">⬇ PDF</button>
+        <button class="btn btn-edit"        onclick="openEditDrawer(${idx})">✏ Edit</button>
+        <button class="btn btn-ghost"       onclick="copyRecord(${idx})">⎘ Copy</button>
+        <button class="btn btn-delete"      onclick="deleteRecord(${idx})">🗑 Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(idx){document.getElementById(`card-${idx}`).classList.toggle('open');}
+
+// ── Generic card for Equipment Log and Autoclave Run Log ──
+function cardGeneric(r,idx){
+  const isEql=activeSheet==='Equipment Log';
+  const isArl=activeSheet==='Autoclave Run Log';
+  const accentClass=isEql?'eql-card':'arl-card';
+
+  // Primary fields per sheet type
+  let title='', subtitle='', meta='', badges='';
+  if(isEql){
+    const eType=v(r['Equipment Type']);
+    const icon={'autoclave':'♨️','incubator':'🌡️','refrigerator':'❄️','bsc':'🗄️'}[eType.toLowerCase()]||'🔧';
+    title=`${icon} ${eType}`;
+    subtitle=`${v(r['Equipment ID'])} — ${v(r['Equipment Model'])}`;
+    meta=`Date: ${v(r['Record Date'])} &nbsp;|&nbsp; Shift: ${v(r['Shift'])} &nbsp;|&nbsp; Analyst: ${v(r['Analyst Name'])}`;
+    const st=String(r['Overall Status']||'');
+    if(st==='Operational') badges='<span class="badge badge-approved">✓ OPERATIONAL</span>';
+    else if(st==='Out of Service') badges='<span class="badge badge-fail">✗ OUT OF SERVICE</span>';
+    else if(st==='Requires Maintenance') badges='<span class="badge badge-conditional">⚠ MAINTENANCE</span>';
+  }
+  if(isArl){
+    title=`${v(r['Run Type'])}`;
+    subtitle=`${v(r['Autoclave Equipment ID'])} — Cycle: ${v(r['Cycle No.'])}`;
+    meta=`Date: ${v(r['Run Date'])} &nbsp;|&nbsp; Operator: ${v(r['Operator Name'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}`;
+    const rel=String(r['Released for Use']||'');
+    if(rel.startsWith('Yes')) badges='<span class="badge badge-approved">✓ RELEASED</span>';
+    else if(rel.startsWith('No')) badges='<span class="badge badge-fail">✗ REJECTED</span>';
+    else if(rel.startsWith('Pending')) badges='<span class="badge badge-conditional">⏳ PENDING BI</span>';
+    const bi=String(r['Biological Indicator']||'');
+    if(bi.startsWith('Pass')) badges+='<span class="badge badge-approved">✓ BI PASS</span>';
+    else if(bi.startsWith('Fail')) badges+='<span class="badge badge-fail">✗ BI FAIL</span>';
+  }
+
+  // Build detail rows from all non-empty fields
+  const skipKeys=new Set(['Saved At','sheet']);
+  const detailRows=Object.entries(r)
+    .filter(([k,vv])=>!skipKeys.has(k)&&vv!==null&&vv!==undefined&&vv!=='')
+    .map(([k,vv])=>row(k,vv)).join('');
+
+  return`<div class="record-card ${accentClass}" id="card-${idx}">
+    <div class="card-header" onclick="toggleCard(${idx})">
+      <div class="card-header-left">
+        <span class="record-id">${v(r['Record ID'])}</span>
+        <span class="media-name">${title}</span>
+        <span class="card-meta">${subtitle}</span>
+        <span class="card-meta">${meta}</span>
+      </div>
+      <div class="card-badges">${badges}<span class="expand-icon">⌄</span></div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-sections" style="grid-template-columns:1fr;">
+        <div class="detail-section full-width">${detailRows}</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn ${isEql?'btn-eql':'btn-arl'}" onclick="downloadPDF_Generic(${idx})">⬇ PDF</button>
+        <button class="btn btn-ghost" onclick="copyRecord(${idx})">⎘ Copy</button>
+        <button class="btn btn-delete" onclick="deleteRecord(${idx})">🗑 Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function downloadPDF_Generic(idx){
+  loadJsPDF(function() {
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  const isEql=activeSheet==='Equipment Log';
+  const rgb=isEql?[26,77,46]:[92,59,26];
+  const title=isEql?'Equipment Monitoring Log':'Autoclave Run Log';
+  const form=isEql?'QC-EQL-001':'QC-ARL-001';
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight();
+  const margin=14,colV=margin+72,colVW=pageW-colV-margin;let y=margin;
+  function chk(h){if(y+h>pageH-margin){doc.addPage();y=margin;}}
+  doc.setFillColor(...rgb);doc.rect(0,0,pageW,18,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text(title,margin,11);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(`ISO 17025:2017  |  ${form}  |  REV 01`,pageW-margin,11,{align:'right'});
+  y=24;doc.setTextColor(100,100,100);doc.setFontSize(8);
+  doc.text(`Record ID: ${r['Record ID']}`,margin,y);
+  doc.text(`Generated: ${new Date().toLocaleString('en-GB')}`,pageW-margin,y,{align:'right'});y+=8;
+  Object.entries(r).forEach(([k,vv])=>{
+    if(k==='Saved At'||k==='sheet'||vv===null||vv===undefined||vv==='')return;
+    const val=String(vv);
+    const lines=doc.splitTextToSize(val,colVW);
+    const rowH=Math.max(6,lines.length*5+2);chk(rowH+1);
+    doc.setFillColor(250,249,247);doc.rect(margin,y-1,pageW-margin*2,rowH,'F');
+    doc.setDrawColor(213,208,200);doc.rect(margin,y-1,pageW-margin*2,rowH,'S');
+    doc.setTextColor(100,95,90);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text(k,margin+1,y+3.5);
+    const vl=val.toLowerCase();
+    if(vl.startsWith('pass')||vl==='operational'||vl.startsWith('yes')||vl.startsWith('dry')&&!vl.includes('no')) doc.setTextColor(26,77,46);
+    else if(vl.startsWith('fail')||vl==='out of service'||vl.includes('reject')) doc.setTextColor(139,26,26);
+    else doc.setTextColor(26,25,22);
+    doc.setFont('helvetica','normal');doc.text(lines,colV,y+3.5);
+    doc.line(colV-2,y-1,colV-2,y-1+rowH);y+=rowH+1;
+  });
+  const total=doc.internal.getNumberOfPages();
+  for(let i=1;i<=total;i++){
+    doc.setPage(i);doc.setFillColor(...rgb);doc.rect(0,pageH-8,pageW,8,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','normal');
+    doc.text('CONTROLLED DOCUMENT — ISO 17025:2017 Compliant',margin,pageH-3);
+    doc.text(`Page ${i} of ${total}`,pageW-margin,pageH-3,{align:'right'});
+  }
+  doc.save(`${String(r['Record ID']||'REC').replace(/[^a-zA-Z0-9-]/g,'_')}.pdf`);
+  showToast('✓ PDF downloaded');
+}
+function openEditDrawer(idx){
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  editingIdx=idx;passRowCount=0;
+  const isMor=activeSheet==='MOR Records';
+  document.getElementById('edit-drawer-header').className='edit-drawer-header'+(isMor?'':' rsr');
+  document.getElementById('edit-drawer-title').textContent='Edit Record';
+  document.getElementById('edit-drawer-subtitle').textContent=r['Record ID']+' — '+(isMor?(r['Media Name / Type']||''):(r['Organism Name']||''));
+  document.getElementById('save-edit-btn').className='btn '+(isMor?'btn-primary':'btn-primary-rsr');
+  document.getElementById('edit-drawer-body').innerHTML=isMor?buildMorForm(r):buildRsrForm(r);
+  document.getElementById('edit-backdrop').classList.add('show');
+  document.getElementById('edit-drawer').classList.add('open');
+}
+function closeEditDrawer(){
+  document.getElementById('edit-backdrop').classList.remove('show');
+  document.getElementById('edit-drawer').classList.remove('open');
+  editingIdx=null;
+}
+
+function f(label,key,r,type,opts,full){
+  const id='ef-'+key.replace(/[^a-zA-Z0-9]/g,'_');
+  const raw=r[key];const val=(raw===null||raw===undefined||raw==='')?'':String(raw);
+  const fc=full?' full':'';
+  if(type==='select'){
+    const oh=opts.map(o=>`<option ${val===o||val.toLowerCase()===o.toLowerCase()?'selected':''}>${o}</option>`).join('');
+    return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><select class="edit-input" id="${id}" data-key="${key}"><option value="">—</option>${oh}</select></div>`;
+  }
+  if(type==='textarea'){
+    return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><textarea class="edit-input" id="${id}" data-key="${key}">${val}</textarea></div>`;
+  }
+  return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><input type="${type||'text'}" class="edit-input" id="${id}" data-key="${key}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+}
+
+function buildMorForm(r){
+  const F=(a,b,c,d,e)=>f(a,b,r,c,d,e);
+  return`
+  <div class="edit-section"><div class="edit-section-title mor">01 — Identification</div>
+  <div class="edit-field-grid">
+    ${F('Media Name / Type','Media Name / Type')}${F('Catalog No.','Catalog No.')}
+    ${F('Supplier','Manufacturer / Supplier')}${F('Lot / Batch No.','Lot / Batch Number')}
+    ${F('Container Size','Container Size')}${F('Intended Use','Intended Use')}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title mor">02 — Dates</div>
+  <div class="edit-field-grid">
+    ${F('Date of Receipt','Date of Receipt','date')}${F('Date Opened','Date Opened','date')}
+    ${F('Mfr. Expiry','Expiration Date (Mfr)','date')}${F('In-House Expiry','In-House Expiry','date')}
+    ${F('Prepared / Poured','Prepared / Poured Date','date')}${F('Date of QC Test','Date of QC Test','date')}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title mor">03 — Storage</div>
+  <div class="edit-field-grid">
+    ${F('Storage Location','Storage Location')}${F('Temp at Receipt (°C)','Temp at Receipt (°C)','number')}
+    ${F('Humidity','Humidity Condition')}${F('Equipment ID','Storage Equipment ID')}
+    ${F('Storage Notes','Storage Notes','textarea',null,true)}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title mor">04 — QC & Disposition</div>
+  <div class="edit-field-grid">
+    ${F('Physical Result','Physical Result','select',['pass','fail'])}
+    ${F('QC Disposition','QC Disposition','select',['Approved','Rejected','Conditional'])}
+    ${F('Sterility Result','Sterility Result','select',['pass','fail'])}
+    ${F('QC Report Ref','QC Report Ref')}
+    ${F('GPT Organism 1','GPT Organism 1')}${F('GPT Result 1','GPT Result 1','select',['pass','fail'])}
+    ${F('GPT Organism 2','GPT Organism 2')}${F('GPT Result 2','GPT Result 2','select',['pass','fail'])}
+    ${F('GPT Organism 3','GPT Organism 3')}${F('GPT Result 3','GPT Result 3','select',['pass','fail'])}
+    ${F('QC Notes','QC Notes','textarea',null,true)}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title mor">05 — Sign-Off</div>
+  <div class="edit-field-grid">
+    ${F('Analyst Name','Analyst Name')}${F('Analyst Date','Analyst Date','date')}
+    ${F('QC Verifier Name','QC Verifier Name')}${F('QC Verifier Date','QC Verifier Date','date')}
+    ${F('Supervisor Name','Supervisor Name')}${F('Supervisor Date','Supervisor Date','date')}
+    ${F('Additional Comments','Additional Comments','textarea',null,true)}
+  </div></div>`;
+}
+
+function buildRsrForm(r){
+  const F=(a,b,c,d,e)=>f(a,b,r,c,d,e);
+  let existingRows=[];try{existingRows=JSON.parse(r['Passage Log']||'[]');}catch(e){}
+  const pRows=existingRows.map(p=>buildPassageRow(p)).join('');
+  return`
+  <div class="edit-section"><div class="edit-section-title rsr">01 — Strain Identification</div>
+  <div class="edit-field-grid">
+    ${F('Organism Name','Organism Name')}${F('Strain Designation','Strain Designation')}
+    ${F('Culture Collection','Culture Collection')}${F('Gram / Type','Gram / Organism Type')}
+    ${F('BSL','Biosafety Level','select',['BSL-1','BSL-2','BSL-3'])}${F('Application','Primary Application')}
+    ${F('Internal Lab ID','Internal Lab Strain ID')}${F('CoA No.','Certificate of Analysis No.')}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title rsr">02 — Receipt & Storage</div>
+  <div class="edit-field-grid">
+    ${F('Supplier','Supplier / Vendor')}${F('Lot / Batch No.','Lot / Batch Number')}
+    ${F('Date of Receipt','Date of Receipt','date')}${F('Expiration Date','Expiration Date','date')}
+    ${F('Temp at Receipt (°C)','Temp at Receipt (°C)','number')}
+    ${F('Format Received','Format Received','select',['Lyophilized / Freeze-dried (vial)','Frozen bead stock','Cryovial (liquid N₂)','Agar slope / slant','Broth culture','Swab'])}
+    ${F('Stock Type','Stock Type','select',['master','working','both'])}
+    ${F('Storage Location','Storage Location','select',['Ultra-Low Freezer –70 °C or below','Freezer –20 °C','Liquid Nitrogen (–196 °C)','Refrigerator 2–8 °C','Room Temperature 15–25 °C'])}
+    ${F('Equipment ID','Storage Equipment ID')}${F('Storage Position','Storage Position / Box')}
+    ${F('No. of Vials','Number of Vials','number')}${F('Cryoprotectant','Cryoprotectant')}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title rsr">03 — Passage / Subculture Log</div>
+  <div class="edit-field-grid" style="margin-bottom:12px;">
+    ${F('Current Passage No.','Current Passage Number','number')}${F('Max Passages Allowed','Max Passages Allowed','number')}
+  </div>
+  <div class="passage-editor-wrap">
+    <table class="passage-editor-table">
+      <thead><tr><th style="width:42px">P#</th><th style="width:100px">Date</th><th style="width:110px">From</th><th>Medium</th><th>Incubation</th><th style="width:80px">Result</th><th>Analyst</th><th style="width:28px"></th></tr></thead>
+      <tbody id="passage-edit-tbody">${pRows}</tbody>
+    </table>
+  </div>
+  <button class="add-passage-btn" onclick="addEditPassageRow()">+ Add Row</button>
+  </div>
+  <div class="edit-section"><div class="edit-section-title rsr">04 — Identity & QC</div>
+  <div class="edit-field-grid">
+    ${F('Colony Morphology','Colony Morphology','textarea',null,true)}
+    ${F('Gram Stain Result','Gram Stain Result','textarea',null,true)}
+    ${F('Biochemical Results','Biochemical Results','textarea',null,true)}
+    ${F('MALDI / Molecular','Molecular / MALDI Confirmation','textarea',null,true)}
+    ${F('Purity Check','Purity Check Result','select',['pass','fail','na'])}
+    ${F('Viability Check','Viability Check Result','select',['pass','fail','na'])}
+    ${F('Viability Medium','Viability Medium')}${F('Incubation Conditions','Incubation Conditions')}
+    ${F('QC Disposition','QC Disposition','select',['Approved','Rejected','Conditional'])}
+    ${F('QC Report Ref','QC Report Reference')}
+    ${F('QC Notes','QC Notes','textarea',null,true)}
+  </div></div>
+  <div class="edit-section"><div class="edit-section-title rsr">05 — Sign-Off</div>
+  <div class="edit-field-grid">
+    ${F('Analyst Name','Analyst Name')}${F('Analyst Date','Analyst Date','date')}
+    ${F('QC Verifier Name','QC Verifier Name')}${F('QC Verifier Date','QC Verifier Date','date')}
+    ${F('Supervisor Name','Supervisor Name')}${F('Supervisor Date','Supervisor Date','date')}
+    ${F('Additional Comments','Additional Comments','textarea',null,true)}
+  </div></div>`;
+}
+
+function buildPassageRow(p){
+  passRowCount++;const n=passRowCount;
+  return`<tr id="pedit-row-${n}">
+    <td><input type="number" id="pe-num-${n}" value="${p?.num||''}" min="1" style="width:38px;"></td>
+    <td><input type="date" id="pe-date-${n}" value="${p?.date||''}"></td>
+    <td><select id="pe-from-${n}"><option value="">—</option><option ${p?.from==='Master Stock'?'selected':''}>Master Stock</option><option ${p?.from==='Working Stock'?'selected':''}>Working Stock</option><option ${p?.from==='Previous Passage'?'selected':''}>Previous Passage</option></select></td>
+    <td><input type="text" id="pe-medium-${n}" value="${p?.medium||''}" placeholder="TSA"></td>
+    <td><input type="text" id="pe-incubation-${n}" value="${p?.incubation||''}" placeholder="37°C/24h"></td>
+    <td><select id="pe-result-${n}"><option value="">—</option><option ${p?.result==='Pass'?'selected':''}>Pass</option><option ${p?.result==='Fail'?'selected':''}>Fail</option><option ${p?.result==='Pending'?'selected':''}>Pending</option></select></td>
+    <td><input type="text" id="pe-analyst-${n}" value="${p?.analyst||''}" placeholder="Initials"></td>
+    <td><button class="del-p-btn" onclick="delEditPassageRow(${n})">✕</button></td>
+  </tr>`;
+}
+function addEditPassageRow(){
+  const tbody=document.getElementById('passage-edit-tbody');
+  const tmp=document.createElement('tbody');
+  tmp.innerHTML=buildPassageRow({});
+  tbody.appendChild(tmp.firstChild);
+}
+function delEditPassageRow(n){const row=document.getElementById(`pedit-row-${n}`);if(row)row.remove();}
+function collectPassageRows(){
+  const rows=[];
+  document.querySelectorAll('#passage-edit-tbody tr').forEach(tr=>{
+    const n=tr.id.replace('pedit-row-','');
+    rows.push({
+      num:document.getElementById(`pe-num-${n}`)?.value||'',
+      date:document.getElementById(`pe-date-${n}`)?.value||'',
+      from:document.getElementById(`pe-from-${n}`)?.value||'',
+      medium:document.getElementById(`pe-medium-${n}`)?.value||'',
+      incubation:document.getElementById(`pe-incubation-${n}`)?.value||'',
+      result:document.getElementById(`pe-result-${n}`)?.value||'',
+      analyst:document.getElementById(`pe-analyst-${n}`)?.value||''
+    });
+  });
+  return rows;
+}
+
+async function saveEdit(){
+  if(editingIdx===null)return;
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[editingIdx];if(!r)return;
+  const updated={...r};
+  document.querySelectorAll('#edit-drawer-body [data-key]').forEach(el=>{updated[el.dataset.key]=el.value;});
+  if(activeSheet==='RSR Records')updated['Passage Log']=JSON.stringify(collectPassageRows());
+  const btn=document.getElementById('save-edit-btn');
+  btn.textContent='⏳ Saving…';btn.disabled=true;
+  try{
+    await fetch(APPS_SCRIPT_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'update',sheetName:activeSheet,recordId:r['Record ID'],data:updated})
+    });
+    const gi=allRecords.indexOf(r);
+    if(gi>=0)allRecords[gi]=updated;
+    closeEditDrawer();filterRecords();
+    showToast('✓ Record updated successfully');
+  }catch(e){showToast('✗ Save failed — check network or redeploy Script',true);}
+  finally{btn.textContent='☁ Save Changes';btn.disabled=false;}
+}
+
+// ── DELETE ──
+let pendingDeleteIdx=null;
+function deleteRecord(idx){
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  pendingDeleteIdx=idx;
+  document.getElementById('modal-record-id').textContent=r['Record ID']+' — '+(r['Media Name / Type']||r['Organism Name']||'');
+  document.getElementById('delete-modal').classList.add('show');
+}
+function closeDeleteModal(){document.getElementById('delete-modal').classList.remove('show');pendingDeleteIdx=null;}
+async function confirmDelete(){
+  if(pendingDeleteIdx===null)return;
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[pendingDeleteIdx];if(!r)return;
+  const btn=document.getElementById('confirm-delete-btn');
+  btn.textContent='⏳ Deleting…';btn.disabled=true;
+  try{
+    await fetch(APPS_SCRIPT_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'delete',sheetName:activeSheet,recordId:r['Record ID']})
+    });
+    allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
+    closeDeleteModal();filterRecords();
+    const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql','Autoclave Run Log':'tab-count-arl'};
+    document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
+    showToast(`🗑 Record ${r['Record ID']} deleted`);
+  }catch(err){showToast('✗ Delete failed',true);}
+  finally{btn.textContent='Yes, Delete';btn.disabled=false;}
+}
+document.getElementById('delete-modal').addEventListener('click',function(e){if(e.target===this)closeDeleteModal();});
+
+// ── COPY ──
+function copyRecord(idx){
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  const lines=Object.entries(r).map(([k,v])=>`${k.padEnd(32)} ${String(v||'—')}`);
+  const text=`${activeSheet==='MOR Records'?'MEDIA OPENING RECORD':'REFERENCE STRAIN RECORD'} — ${r['Record ID']}\n${'─'.repeat(60)}\n`+lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>showToast('✓ Copied')).catch(()=>showToast('✗ Copy failed',true));
+}
+
+// ── PDF ──
+function makePDF(r,title,formCode,sections,rgb){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight();
+  const margin=14,colV=margin+72,colVW=pageW-colV-margin;let y=margin;
+  function chk(h){if(y+h>pageH-margin){doc.addPage();y=margin;}}
+  doc.setFillColor(...rgb);doc.rect(0,0,pageW,18,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text(title,margin,11);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(`ISO 17025:2017  |  ${formCode}  |  REV 01`,pageW-margin,11,{align:'right'});
+  y=24;doc.setTextColor(100,100,100);doc.setFontSize(8);
+  doc.text(`Record ID: ${r['Record ID']}`,margin,y);
+  doc.text(`Generated: ${new Date().toLocaleString('en-GB')}`,pageW-margin,y,{align:'right'});y+=8;
+  sections.forEach(sec=>{
+    chk(14);
+    const lr=Math.min(rgb[0]+180,240),lg=Math.min(rgb[1]+190,245),lb=Math.min(rgb[2]+190,245);
+    doc.setFillColor(lr,lg,lb);doc.rect(margin,y,pageW-margin*2,7,'F');
+    doc.setTextColor(...rgb);doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.text(sec.title,margin+2,y+5);y+=10;
+    sec.keys.forEach(key=>{
+      let raw=r[key];
+      if(key==='Passage Log'&&raw){try{raw=JSON.parse(raw).map(p=>`P${p.num}|${p.date}|${p.medium}|${p.incubation}|${p.result}|${p.analyst}`).join('\n');}catch(e){}}
+      const val=(raw===null||raw===undefined||raw==='')?'—':String(raw);
+      const lines=doc.splitTextToSize(val,colVW);
+      const rowH=Math.max(6,lines.length*5+2);chk(rowH+1);
+      doc.setFillColor(250,249,247);doc.rect(margin,y-1,pageW-margin*2,rowH,'F');
+      doc.setDrawColor(213,208,200);doc.rect(margin,y-1,pageW-margin*2,rowH,'S');
+      doc.setTextColor(100,95,90);doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.text(key,margin+1,y+3.5);
+      const vl=val.toLowerCase();
+      if(vl==='pass'||vl==='approved')doc.setTextColor(26,92,53);
+      else if(vl==='fail'||vl==='rejected')doc.setTextColor(139,58,30);
+      else doc.setTextColor(26,25,22);
+      doc.setFont('helvetica','normal');doc.text(lines,colV,y+3.5);
+      doc.line(colV-2,y-1,colV-2,y-1+rowH);y+=rowH+1;
+    });y+=3;
+  });
+  const total=doc.internal.getNumberOfPages();
+  for(let i=1;i<=total;i++){
+    doc.setPage(i);doc.setFillColor(...rgb);doc.rect(0,pageH-8,pageW,8,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','normal');
+    doc.text('CONTROLLED DOCUMENT — ISO 17025:2017 Compliant',margin,pageH-3);
+    doc.text(`Page ${i} of ${total}`,pageW-margin,pageH-3,{align:'right'});
+  }
+  doc.save(`${String(r['Record ID']||'REC').replace(/[^a-zA-Z0-9-]/g,'_')}.pdf`);
+  showToast('✓ PDF downloaded');
+}
+
+function downloadPDF_MOR(idx){
+  loadJsPDF(function() {
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  makePDF(r,'Media Opening Record','QC-MOR-001',[
+    {title:'01 — Identification & Traceability',keys:['Media Name / Type','Catalog No.','Manufacturer / Supplier','Lot / Batch Number','Container Size','Intended Use']},
+    {title:'02 — Critical Dates',keys:['Date of Receipt','Date Opened','Expiration Date (Mfr)','In-House Expiry','Prepared / Poured Date','Date of QC Test']},
+    {title:'03 — Storage',keys:['Storage Location','Temp at Receipt (°C)','Humidity Condition','Storage Equipment ID','Storage Notes']},
+    {title:'04 — Physical Inspection',keys:['Defects Observed','Physical Result','Action if Unsatisfactory','Physical Notes']},
+    {title:'05 — QC Performance & Sterility',keys:['GPT Organism 1','GPT Result 1','GPT Organism 2','GPT Result 2','GPT Organism 3','GPT Result 3','Sterility Result','QC Disposition','QC Report Ref','QC Notes']},
+    {title:'06 — Sign-Off',keys:['Analyst Name','Analyst Date','QC Verifier Name','QC Verifier Date','Supervisor Name','Supervisor Date','Additional Comments']}
+  ],[29,78,95]);
+}
+
+function downloadPDF_RSR(idx){
+  loadJsPDF(function() {
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const r=sorted[idx];if(!r)return;
+  makePDF(r,'Reference Strain Record','QC-RSR-001',[
+    {title:'01 — Strain Identification',keys:['Organism Name','Strain Designation','Culture Collection','Gram / Organism Type','Biosafety Level','Primary Application','Internal Lab Strain ID']},
+    {title:'02 — Receipt & Storage',keys:['Supplier / Vendor','Lot / Batch Number','Date of Receipt','Expiration Date','Format Received','Stock Type','Storage Location','Storage Equipment ID','Number of Vials']},
+    {title:'03 — Passage Log',keys:['Passage Log','Current Passage Number','Max Passages Allowed']},
+    {title:'04 — Identity & QC',keys:['Colony Morphology','Gram Stain Result','Biochemical Results','Molecular / MALDI Confirmation','Purity Check Result','Viability Check Result','QC Disposition','QC Report Reference','QC Notes']},
+    {title:'05 — Disposal',keys:['Disposal Date','Disposal Reason','Decontamination Method','Disposal Performed By']},
+    {title:'06 — Sign-Off',keys:['Analyst Name','Analyst Date','QC Verifier Name','QC Verifier Date','Supervisor Name','Supervisor Date','Additional Comments']}
+  ],[61,43,31]);
+}
+</script>
+<script>
+// Preload jsPDF on first user interaction so PDF is ready when needed
+(function(){
+  function preload(){
+    if(!window.jspdf){
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      document.head.appendChild(s);
+    }
+    ['mousedown','touchstart'].forEach(e=>document.removeEventListener(e,preload));
+  }
+  ['mousedown','touchstart'].forEach(e=>document.addEventListener(e,preload,{once:true}));
+})();
+</script>
+</body>
+</html>

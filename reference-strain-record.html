@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Reference Strain Record — ISO 17025:2017</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script>
+function loadJsPDF(cb) {
+  if (window.jspdf) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+</script>
+<style>
+  :root {
+    --bg: #f2f0eb;
+    --surface: #ffffff;
+    --border: #d8d2c8;
+    --border-dark: #a89f94;
+    --text: #1c1a17;
+    --text-muted: #6e6760;
+    --accent: #3d2b1f;
+    --accent-light: #f0ebe4;
+    --accent-mid: #7a5c47;
+    --warn: #8b1a1a;
+    --warn-light: #fdf0f0;
+    --pass: #1a4d2e;
+    --pass-light: #eaf2ee;
+    --info: #1a3d5c;
+    --info-light: #e8f0f5;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --radius: 3px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 160px;
+  }
+  @media (min-width: 600px) { body { padding: 36px 24px 120px; } }
+
+  .page-wrap { max-width: 840px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .form-header-left h1 {
+    font-size: 21px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.3px;
+  }
+  .form-header-left p {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    margin-top: 4px;
+  }
+  .doc-ref {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .doc-ref strong { color: var(--text); font-weight: 500; }
+
+  /* ── Record ID bar ── */
+  .record-id-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--accent);
+    color: rgba(255,255,255,0.75);
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 22px;
+    font-family: var(--mono);
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .record-id-bar strong { color: #fff; letter-spacing: 1px; }
+
+  /* ── Section ── */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+  .section-title .num {
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+    padding: 1px 6px;
+    font-size: 10px;
+  }
+  .section-body { padding: 18px; }
+
+  /* ── Grid ── */
+  .field-grid { display: grid; gap: 14px; }
+  .col-2 { grid-template-columns: 1fr 1fr; }
+  .col-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 580px) { .col-2, .col-3 { grid-template-columns: 1fr; } }
+
+  /* ── Field ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  label .req { color: var(--warn); font-size: 13px; line-height: 1; }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select, textarea {
+    font-family: var(--sans);
+    font-size: 16px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    width: 100%;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  @media (min-width: 600px) {
+    input[type="text"], input[type="date"], input[type="number"], select, textarea { font-size: 14px; padding: 9px 12px; }
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(122,92,71,0.12);
+    background: var(--surface);
+  }
+  input.mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0.5px; }
+  textarea { resize: vertical; min-height: 68px; line-height: 1.55; }
+  select {
+    cursor: pointer;
+    padding-right: 30px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236e6760' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .hint { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
+
+  /* ── Passage table ── */
+  .passage-table-wrap { overflow-x: auto; }
+  .passage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 560px;
+  }
+  .passage-table th {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .passage-table td {
+    padding: 6px 6px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .passage-table tr:last-child td { border-bottom: none; }
+  .passage-table input, .passage-table select {
+    font-size: 13px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    min-width: 80px;
+  }
+  .passage-table input:focus, .passage-table select:focus {
+    border-color: var(--accent-mid);
+    background: var(--surface);
+    outline: none;
+  }
+  .add-row-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 7px 14px;
+    background: var(--accent-light);
+    border: 1px dashed var(--accent-mid);
+    border-radius: var(--radius);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .add-row-btn:hover { background: #e4dcd4; }
+  .del-row-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    transition: color 0.12s, background 0.12s;
+  }
+  .del-row-btn:hover { color: var(--warn); background: var(--warn-light); }
+
+  /* ── Radio group ── */
+  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radio-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    background: var(--bg);
+    user-select: none;
+    transition: all 0.12s;
+    min-height: 44px;
+  }
+  .radio-btn input { accent-color: var(--accent); width: 16px; height: 16px; min-width: 16px; }
+  .radio-btn:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .radio-btn:has(input:checked) { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); font-weight: 600; }
+
+  /* ── Checklist ── */
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  @media (max-width: 480px) { .checklist { grid-template-columns: 1fr; } }
+  .check-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 12px;
+    cursor: pointer; user-select: none; min-height: 44px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .check-item:hover { background: var(--accent-light); border-color: var(--accent-mid); }
+  .check-item input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; accent-color: var(--accent); }
+  .check-item span { font-size: 13px; line-height: 1.3; }
+  .check-item.warn-item:has(input:checked) { background: var(--warn-light); border-color: var(--warn); }
+
+  /* ── Sign-off ── */
+  .signoff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 580px) { .signoff-grid { grid-template-columns: 1fr; } }
+  .sig-box { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .sig-box-label {
+    padding: 7px 12px;
+    font-size: 10px; font-family: var(--mono); font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    background: var(--accent-light); color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .sig-box-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── Status bar ── */
+  .status-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px;
+    background: var(--info-light);
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--info);
+    font-family: var(--mono);
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--info); flex-shrink: 0; }
+
+  /* ── Sticky footer ── */
+  .form-actions {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 50;
+  }
+  .form-actions .btn { flex: 1; justify-content: center; }
+  @media (max-width: 480px) { .form-actions { flex-direction: column; gap: 8px; } }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 7px; padding: 12px 20px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; font-family: var(--sans);
+    cursor: pointer; border: none; transition: all 0.15s;
+    min-height: 48px; letter-spacing: 0.2px;
+  }
+  .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); }
+  .btn-ghost:hover { border-color: var(--border-dark); color: var(--text); }
+  .btn-pdf { background: var(--accent); color: #fff; }
+  .btn-pdf:hover { background: #2a1d14; }
+  .btn-save { background: var(--pass); color: #fff; }
+  .btn-save:hover { background: #123520; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--accent); color: #fff;
+    padding: 11px 20px; border-radius: 24px;
+    font-size: 13px; font-family: var(--mono);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    opacity: 0; transition: all 0.3s; pointer-events: none;
+    z-index: 200; white-space: nowrap; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Print overlay ── */
+  #print-overlay { display: none; }
+  @media print {
+    body > * { display: none !important; }
+    #print-overlay { display: block !important; position: fixed; inset: 0; background: #fff; z-index: 9999; padding: 20px; font-family: Arial, sans-serif; font-size: 12px; overflow-y: auto; }
+  }
+
+  /* ── Info tag ── */
+  .info-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 2px;
+    background: var(--info-light); color: var(--info);
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="form-header">
+    <div class="form-header-left">
+      <h1>Reference Strain Record</h1>
+      <p>Receipt · Subculture · Working Stock · QC Verification</p>
+    </div>
+    <div class="doc-ref">
+      <div><strong>REF:</strong> ISO 17025:2017 §6.4</div>
+      <div><strong>FORM:</strong> QC-RSR-001</div>
+      <div><strong>REV:</strong> 01</div>
+    </div>
+  </div>
+
+  <!-- Record ID -->
+  <div class="record-id-bar">
+    <span>Record ID: <strong id="record-id">RSR-—</strong></span>
+    <span id="timestamp-display" style="font-size:11px;opacity:0.65;"></span>
+  </div>
+
+  <!-- 01. Strain Identification -->
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> Strain Identification</div>
+    <div class="section-body">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label><span class="req">*</span> Organism Name</label>
+          <input type="text" id="organism-name" placeholder="e.g. Staphylococcus aureus">
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Strain Designation / Code</label>
+          <input type="text" class="mono" id="strain-code" placeholder="e.g. ATCC 6538 / NCTC 12981">
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Culture Collection Source</label>
+          <select id="culture-collection">
+            <option value="">— Select —</option>
+            <option>ATCC (American Type Culture Collection)</option>
+            <option>NCTC (National Collection of Type Cultures)</option>
+            <option>WDCM / CCUG</option>
+            <option>DSMZ</option>
+            <option>CIP (Collection Institut Pasteur)</option>
+            <option>In-house certified reference</option>
+            <option>Other certified source</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Gram Stain / Organism Type</label>
+          <select id="gram-type">
+            <option value="">— Select —</option>
+            <option>Gram-positive Coccus</option>
+            <option>Gram-positive Rod (Bacillus)</option>
+            <option>Gram-negative Coccus</option>
+            <option>Gram-negative Rod</option>
+            <option>Anaerobe</option>
+            <option>Yeast / Fungus</option>
+            <option>Mould</option>
+            <option>Mycobacterium</option>
+            <option>Spore-forming</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Biosafety Level</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="bsl" value="BSL-1"> BSL-1</label>
+            <label class="radio-btn"><input type="radio" name="bsl" value="BSL-2"> BSL-2</label>
+            <label class="radio-btn"><input type="radio" name="bsl" value="BSL-3"> BSL-3</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Primary Application</label>
+          <select id="application">
+            <option value="">— Select —</option>
+            <option>Growth Promotion Testing (GPT)</option>
+            <option>Sterility Testing</option>
+            <option>Antimicrobial Susceptibility</option>
+            <option>Water Testing (ISO 9308)</option>
+            <option>Food Testing (ISO 4833 / ISO 21528)</option>
+            <option>Cosmetics Testing (ISO 21149 / ISO 18416)</option>
+            <option>Environmental Monitoring</option>
+            <option>Method Validation</option>
+            <option>Proficiency Testing</option>
+            <option>Multiple / General QC</option>
+          </select>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label>Internal Lab Strain ID</label>
+          <input type="text" class="mono" id="internal-id" placeholder="e.g. RS-SA-001">
+          <span class="hint">Your lab's own reference number for this strain</span>
+        </div>
+        <div class="field">
+          <label>Certificate of Analysis No.</label>
+          <input type="text" class="mono" id="coa-no" placeholder="e.g. COA-2025-00123">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02. Receipt & Source -->
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> Receipt & Source Documentation</div>
+    <div class="section-body">
+      <div class="field-grid col-3">
+        <div class="field">
+          <label><span class="req">*</span> Supplier / Vendor</label>
+          <input type="text" id="supplier" placeholder="e.g. Oxoid, Thermo Fisher">
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Lot / Batch Number</label>
+          <input type="text" class="mono" id="lot-no" placeholder="e.g. 71034562">
+        </div>
+        <div class="field">
+          <label>Passage Number at Receipt</label>
+          <input type="number" id="passage-at-receipt" placeholder="e.g. 1" min="0">
+          <span class="hint">P0 = original stock</span>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Date of Receipt</label>
+          <input type="date" id="date-receipt">
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Expiration Date</label>
+          <input type="date" id="date-expiry">
+        </div>
+        <div class="field">
+          <label>Format Received</label>
+          <select id="format-received">
+            <option value="">— Select —</option>
+            <option>Lyophilized / Freeze-dried (vial)</option>
+            <option>Frozen bead stock</option>
+            <option>Cryovial (liquid N₂)</option>
+            <option>Agar slope / slant</option>
+            <option>Broth culture</option>
+            <option>Swab</option>
+          </select>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label>Shipping Condition</label>
+          <select id="shipping-condition">
+            <option value="">— Select —</option>
+            <option>Ambient (room temperature)</option>
+            <option>Refrigerated (2–8 °C)</option>
+            <option>Dry ice / Frozen</option>
+            <option>Liquid nitrogen</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Recorded Temp at Receipt (°C)</label>
+          <input type="number" id="temp-receipt" placeholder="e.g. 6.4" step="0.1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03. Receipt Inspection -->
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> Receipt Inspection</div>
+    <div class="section-body">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:var(--mono);">Tick all defects observed. Leave unchecked if not present.</p>
+      <div class="checklist">
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="damaged-vial">
+          <span>Damaged / cracked vial or container</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="seal-broken">
+          <span>Broken or compromised seal</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="label-missing">
+          <span>Label missing or illegible</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="wrong-temp">
+          <span>Received outside specified temperature</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="color-change">
+          <span>Abnormal color or appearance</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="moisture">
+          <span>Excessive moisture / condensation</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="expired">
+          <span>Received at or past expiration date</span>
+        </label>
+        <label class="check-item warn-item">
+          <input type="checkbox" name="receipt-defect" value="coa-missing">
+          <span>Certificate of Analysis absent</span>
+        </label>
+      </div>
+      <hr class="divider">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label><span class="req">*</span> Receipt Inspection Result</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="receipt-result" value="pass"> ✓ Satisfactory</label>
+            <label class="radio-btn"><input type="radio" name="receipt-result" value="fail"> ✗ Unsatisfactory</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Action if Unsatisfactory</label>
+          <select id="receipt-action">
+            <option value="">— N/A —</option>
+            <option>Quarantined — awaiting review</option>
+            <option>Returned to supplier</option>
+            <option>Discarded</option>
+            <option>Escalated to QA Manager</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>Receipt Notes</label>
+        <textarea id="receipt-notes" placeholder="Any observations about the condition of the shipment…"></textarea>
+      </div>
+    </div>
+    <div class="status-bar" id="receipt-status-bar">
+      <div class="status-dot"></div>
+      <span>No defects flagged — shipment appears satisfactory</span>
+    </div>
+  </div>
+
+  <!-- 04. Storage -->
+  <div class="section">
+    <div class="section-title"><span class="num">04</span> Storage Assignment</div>
+    <div class="section-body">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label><span class="req">*</span> Stock Type</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="stock-type" value="master"> 🔒 Master Stock</label>
+            <label class="radio-btn"><input type="radio" name="stock-type" value="working"> 🔬 Working Stock</label>
+            <label class="radio-btn"><input type="radio" name="stock-type" value="both"> Both</label>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Storage Location</label>
+          <select id="storage-location">
+            <option value="">— Select —</option>
+            <option>Ultra-Low Freezer –70 °C or below</option>
+            <option>Freezer –20 °C</option>
+            <option>Liquid Nitrogen (–196 °C)</option>
+            <option>Refrigerator 2–8 °C</option>
+            <option>Room Temperature 15–25 °C</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Storage Equipment ID</label>
+          <input type="text" class="mono" id="storage-equip-id" placeholder="e.g. ULT-01, FRZ-03">
+        </div>
+        <div class="field">
+          <label>Storage Position / Box</label>
+          <input type="text" class="mono" id="storage-position" placeholder="e.g. Cryobox B2, Pos. A3">
+        </div>
+        <div class="field">
+          <label>Number of Vials / Aliquots</label>
+          <input type="number" id="vial-count" placeholder="e.g. 10" min="1">
+        </div>
+        <div class="field">
+          <label>Cryoprotectant Used</label>
+          <select id="cryoprotectant">
+            <option value="">— N/A / Not applicable —</option>
+            <option>Glycerol 10–15%</option>
+            <option>DMSO 5–10%</option>
+            <option>Skim milk 10–20%</option>
+            <option>Tryptone Soy Broth (TSB)</option>
+            <option>Commercial bead system</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>Storage Notes</label>
+        <textarea id="storage-notes" placeholder="Any special handling instructions, location details, or notes…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05. Passage / Subculture Log -->
+  <div class="section">
+    <div class="section-title"><span class="num">05</span> Passage / Subculture Log</div>
+    <div class="section-body">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:var(--mono);">
+        Record each subculture event. ISO 11133 recommends ≤ 5 passages from the original certified stock.
+      </p>
+      <div class="passage-table-wrap">
+        <table class="passage-table" id="passage-table">
+          <thead>
+            <tr>
+              <th>Passage #</th>
+              <th>Date</th>
+              <th>From Stock</th>
+              <th>Medium Used</th>
+              <th>Incubation</th>
+              <th>Result</th>
+              <th>Analyst</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="passage-tbody">
+            <!-- rows added by JS -->
+          </tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" onclick="addPassageRow()">+ Add Passage Entry</button>
+
+      <hr class="divider">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label>Current Passage Number</label>
+          <input type="number" id="current-passage" placeholder="e.g. 3" min="0">
+          <span class="hint">Total passages from original certified stock</span>
+        </div>
+        <div class="field">
+          <label>Maximum Passages Allowed</label>
+          <input type="number" id="max-passage" value="5" min="1">
+          <span class="hint">Per SOP / ISO 11133 (typically ≤ 5)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06. Identity Confirmation & QC -->
+  <div class="section">
+    <div class="section-title"><span class="num">06</span> Identity Confirmation & QC Verification</div>
+    <div class="section-body">
+      <p style="font-size:11px;font-family:var(--mono);color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Morphological & Biochemical Characterization</p>
+      <div class="field-grid col-2">
+        <div class="field">
+          <label>Colony Morphology</label>
+          <textarea id="colony-morphology" style="min-height:56px;" placeholder="e.g. Golden-yellow, smooth, circular, convex, entire edge…"></textarea>
+        </div>
+        <div class="field">
+          <label>Gram Stain Result</label>
+          <textarea id="gram-stain" style="min-height:56px;" placeholder="e.g. Gram-positive cocci in clusters, no spores observed…"></textarea>
+        </div>
+        <div class="field">
+          <label>Key Biochemical / API Results</label>
+          <textarea id="biochemical" style="min-height:56px;" placeholder="e.g. Catalase +, Coagulase +, DNase +, Mannitol fermentation +…"></textarea>
+        </div>
+        <div class="field">
+          <label>Molecular / MALDI-ToF Confirmation</label>
+          <textarea id="molecular" style="min-height:56px;" placeholder="e.g. MALDI-ToF: S. aureus (score 2.31), 16S rRNA — N/A…"></textarea>
+        </div>
+      </div>
+      <hr class="divider">
+      <p style="font-size:11px;font-family:var(--mono);color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Purity & Viability Check</p>
+      <div class="field-grid col-2">
+        <div class="field">
+          <label><span class="req">*</span> Purity Check Result</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="purity" value="pass"> ✓ Pure culture</label>
+            <label class="radio-btn"><input type="radio" name="purity" value="fail"> ✗ Mixed / contaminated</label>
+            <label class="radio-btn"><input type="radio" name="purity" value="na"> N/A</label>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> Viability Check Result</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="viability" value="pass"> ✓ Viable growth</label>
+            <label class="radio-btn"><input type="radio" name="viability" value="fail"> ✗ No growth</label>
+            <label class="radio-btn"><input type="radio" name="viability" value="na"> N/A</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Viability Medium</label>
+          <input type="text" id="viability-medium" placeholder="e.g. TSA, BHI Agar, Columbia Agar">
+        </div>
+        <div class="field">
+          <label>Incubation Conditions</label>
+          <input type="text" id="viability-incubation" placeholder="e.g. 35–37 °C / 18–24 h aerobic">
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label><span class="req">*</span> Overall QC Disposition</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="qc-disposition" value="approved"> ✓ Approved</label>
+            <label class="radio-btn"><input type="radio" name="qc-disposition" value="rejected"> ✗ Rejected</label>
+            <label class="radio-btn"><input type="radio" name="qc-disposition" value="conditional"> ⚠ Conditional</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>QC Report Reference</label>
+          <input type="text" class="mono" id="qc-ref" placeholder="e.g. QC-2025-0112">
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label>QC Notes / Remarks</label>
+        <textarea id="qc-notes" placeholder="Any deviations, unexpected results, or additional observations…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07. Disposal -->
+  <div class="section">
+    <div class="section-title"><span class="num">07</span> Disposal / Decommission (if applicable)</div>
+    <div class="section-body">
+      <div class="field-grid col-2">
+        <div class="field">
+          <label>Disposal Date</label>
+          <input type="date" id="disposal-date">
+        </div>
+        <div class="field">
+          <label>Reason for Disposal</label>
+          <select id="disposal-reason">
+            <option value="">— N/A (strain still active) —</option>
+            <option>Expired / exceeded shelf life</option>
+            <option>Maximum passage number reached</option>
+            <option>QC failure — failed identity confirmation</option>
+            <option>QC failure — contamination detected</option>
+            <option>QC failure — no viable growth</option>
+            <option>Replaced by new lot</option>
+            <option>No longer required</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Decontamination Method</label>
+          <select id="decontamination">
+            <option value="">— N/A —</option>
+            <option>Autoclaving (121 °C / 15 min)</option>
+            <option>Chemical disinfection (10% bleach)</option>
+            <option>Incineration</option>
+            <option>Autoclave + incineration</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Disposal Performed By</label>
+          <input type="text" id="disposal-by" placeholder="Name / Staff ID">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08. Sign-off -->
+  <div class="section">
+    <div class="section-title"><span class="num">08</span> Authorization & Sign-Off</div>
+    <div class="section-body">
+      <div class="signoff-grid">
+        <div class="sig-box">
+          <div class="sig-box-label">Received / Prepared By</div>
+          <div class="sig-box-body">
+            <div class="field"><label>Full Name</label><input type="text" id="analyst-name" placeholder="Name"></div>
+            <div class="field"><label>Staff ID</label><input type="text" class="mono" id="analyst-id" placeholder="e.g. KAR-007"></div>
+            <div class="field"><label>Date</label><input type="date" id="analyst-date"></div>
+          </div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-box-label">QC Verified By</div>
+          <div class="sig-box-body">
+            <div class="field"><label>Full Name</label><input type="text" id="qc-name" placeholder="Name"></div>
+            <div class="field"><label>Staff ID</label><input type="text" class="mono" id="qc-id" placeholder="e.g. JDW-003"></div>
+            <div class="field"><label>Date</label><input type="date" id="qc-date"></div>
+          </div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-box-label">Reviewed By (Supervisor)</div>
+          <div class="sig-box-body">
+            <div class="field"><label>Full Name</label><input type="text" id="sup-name" placeholder="Name"></div>
+            <div class="field"><label>Staff ID</label><input type="text" class="mono" id="sup-id" placeholder="e.g. MH-001"></div>
+            <div class="field"><label>Date</label><input type="date" id="sup-date"></div>
+          </div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="field">
+        <label>Additional Comments / NCR Reference</label>
+        <textarea id="additional-notes" placeholder="Reference any non-conformance report, deviation, or CAPA number if applicable…"></textarea>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<div id="print-overlay"></div>
+<div id="toast"></div>
+
+<!-- Sticky footer -->
+<div class="form-actions">
+  <button class="btn btn-ghost" onclick="resetForm()">↺ Reset</button>
+  <button class="btn btn-pdf"  onclick="downloadPDF()">⬇ Download PDF</button>
+  <button class="btn btn-save" onclick="saveToSheet()">☁ Save to Sheet</button>
+</div>
+
+<script>
+  // ── PASTE YOUR APPS SCRIPT URL HERE ──
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
+
+  // ── Record ID ──
+  async function fetchRecordId() {
+    const el = document.getElementById('record-id');
+    el.textContent = 'RSR-fetching…';
+    try {
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=nextId&sheet=RSR%20Records&prefix=RSR');
+      const data = await res.json();
+      el.textContent = data.status === 'success' ? data.nextId : 'RSR-ERROR';
+    } catch(e) { el.textContent = 'RSR-OFFLINE'; }
+  }
+  fetchRecordId();
+
+  function updateClock() {
+    const n = new Date();
+    document.getElementById('timestamp-display').textContent =
+      n.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' · ' +
+      n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }
+  updateClock(); setInterval(updateClock, 30000);
+
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('analyst-date').value = today;
+
+  // ── Expiry warning ──
+  document.getElementById('date-expiry').addEventListener('change', function() {
+    const expired = new Date(this.value) < new Date();
+    this.style.borderColor = expired ? 'var(--warn)' : '';
+    this.style.background  = expired ? 'var(--warn-light)' : '';
+  });
+
+  // ── Receipt defect status bar ──
+  const defectBoxes = document.querySelectorAll('input[name="receipt-defect"]');
+  const statusBar   = document.getElementById('receipt-status-bar');
+  function updateDefectStatus() {
+    const n   = [...defectBoxes].filter(c => c.checked).length;
+    const dot = statusBar.querySelector('.status-dot');
+    const txt = statusBar.querySelector('span');
+    if (n === 0) {
+      statusBar.style.background = 'var(--info-light)'; statusBar.style.color = 'var(--info)';
+      dot.style.background = 'var(--info)';
+      txt.textContent = 'No defects flagged — shipment appears satisfactory';
+    } else {
+      statusBar.style.background = 'var(--warn-light)'; statusBar.style.color = 'var(--warn)';
+      dot.style.background = 'var(--warn)';
+      txt.textContent = `⚠ ${n} defect(s) flagged — review required before use`;
+    }
+  }
+  defectBoxes.forEach(c => c.addEventListener('change', updateDefectStatus));
+
+  // ── Passage table ──
+  let passageRowCount = 0;
+  function addPassageRow(data) {
+    passageRowCount++;
+    const n = passageRowCount;
+    const tr = document.createElement('tr');
+    tr.id = `passage-row-${n}`;
+    tr.innerHTML = `
+      <td><input type="number" id="p-num-${n}" value="${data?.num||''}" min="1" placeholder="${n}" style="width:60px;"></td>
+      <td><input type="date" id="p-date-${n}" value="${data?.date||''}"></td>
+      <td>
+        <select id="p-from-${n}" style="min-width:110px;">
+          <option value="">—</option>
+          <option ${data?.from==='Master Stock'?'selected':''}>Master Stock</option>
+          <option ${data?.from==='Working Stock'?'selected':''}>Working Stock</option>
+          <option ${data?.from==='Previous Passage'?'selected':''}>Previous Passage</option>
+        </select>
+      </td>
+      <td><input type="text" id="p-medium-${n}" value="${data?.medium||''}" placeholder="e.g. TSA"></td>
+      <td><input type="text" id="p-incubation-${n}" value="${data?.incubation||''}" placeholder="e.g. 37°C/24h"></td>
+      <td>
+        <select id="p-result-${n}" style="min-width:90px;">
+          <option value="">—</option>
+          <option ${data?.result==='Pass'?'selected':''}>Pass</option>
+          <option ${data?.result==='Fail'?'selected':''}>Fail</option>
+          <option ${data?.result==='Pending'?'selected':''}>Pending</option>
+        </select>
+      </td>
+      <td><input type="text" id="p-analyst-${n}" value="${data?.analyst||''}" placeholder="Initials"></td>
+      <td><button class="del-row-btn" onclick="delPassageRow(${n})" title="Remove">✕</button></td>
+    `;
+    document.getElementById('passage-tbody').appendChild(tr);
+  }
+  function delPassageRow(n) {
+    const row = document.getElementById(`passage-row-${n}`);
+    if (row) row.remove();
+  }
+  // Start with one empty row
+  addPassageRow();
+
+  function collectPassageRows() {
+    const rows = [];
+    document.querySelectorAll('#passage-tbody tr').forEach(tr => {
+      const id = tr.id.replace('passage-row-','');
+      rows.push({
+        num:        document.getElementById(`p-num-${id}`)?.value        || '',
+        date:       document.getElementById(`p-date-${id}`)?.value       || '',
+        from:       document.getElementById(`p-from-${id}`)?.value       || '',
+        medium:     document.getElementById(`p-medium-${id}`)?.value     || '',
+        incubation: document.getElementById(`p-incubation-${id}`)?.value || '',
+        result:     document.getElementById(`p-result-${id}`)?.value     || '',
+        analyst:    document.getElementById(`p-analyst-${id}`)?.value    || ''
+      });
+    });
+    return rows;
+  }
+
+  // ── Toast ──
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? 'var(--warn)' : 'var(--accent)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── Reset ──
+  function resetForm() {
+    if (!confirm('Reset all fields? This cannot be undone.')) return;
+    document.querySelectorAll('input[type="text"],input[type="date"],input[type="number"],select,textarea')
+      .forEach(el => el.value = '');
+    document.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(el => el.checked = false);
+    document.getElementById('passage-tbody').innerHTML = '';
+    passageRowCount = 0;
+    addPassageRow();
+    document.getElementById('analyst-date').value = today;
+    document.getElementById('max-passage').value = '5';
+    fetchRecordId();
+    updateDefectStatus();
+    showToast('Form reset');
+  }
+
+  // ── Collect all data ──
+  function collectRecord() {
+    const passages = collectPassageRows();
+    return {
+      'Record ID':                    document.getElementById('record-id').textContent,
+      'Organism Name':                document.getElementById('organism-name').value,
+      'Strain Designation':           document.getElementById('strain-code').value,
+      'Culture Collection':           document.getElementById('culture-collection').value,
+      'Gram / Organism Type':         document.getElementById('gram-type').value,
+      'Biosafety Level':              document.querySelector('input[name="bsl"]:checked')?.value || '',
+      'Primary Application':          document.getElementById('application').value,
+      'Internal Lab Strain ID':       document.getElementById('internal-id').value,
+      'Certificate of Analysis No.':  document.getElementById('coa-no').value,
+      'Supplier / Vendor':            document.getElementById('supplier').value,
+      'Lot / Batch Number':           document.getElementById('lot-no').value,
+      'Passage No. at Receipt':       document.getElementById('passage-at-receipt').value,
+      'Date of Receipt':              document.getElementById('date-receipt').value,
+      'Expiration Date':              document.getElementById('date-expiry').value,
+      'Format Received':              document.getElementById('format-received').value,
+      'Shipping Condition':           document.getElementById('shipping-condition').value,
+      'Temp at Receipt (°C)':         document.getElementById('temp-receipt').value,
+      'Receipt Defects':              [...document.querySelectorAll('input[name="receipt-defect"]:checked')].map(c=>c.value).join('; ') || 'None',
+      'Receipt Inspection Result':    document.querySelector('input[name="receipt-result"]:checked')?.value || '',
+      'Action if Unsatisfactory':     document.getElementById('receipt-action').value,
+      'Receipt Notes':                document.getElementById('receipt-notes').value,
+      'Stock Type':                   document.querySelector('input[name="stock-type"]:checked')?.value || '',
+      'Storage Location':             document.getElementById('storage-location').value,
+      'Storage Equipment ID':         document.getElementById('storage-equip-id').value,
+      'Storage Position / Box':       document.getElementById('storage-position').value,
+      'Number of Vials':              document.getElementById('vial-count').value,
+      'Cryoprotectant':               document.getElementById('cryoprotectant').value,
+      'Storage Notes':                document.getElementById('storage-notes').value,
+      'Passage Log':                  JSON.stringify(passages),
+      'Current Passage Number':       document.getElementById('current-passage').value,
+      'Max Passages Allowed':         document.getElementById('max-passage').value,
+      'Colony Morphology':            document.getElementById('colony-morphology').value,
+      'Gram Stain Result':            document.getElementById('gram-stain').value,
+      'Biochemical Results':          document.getElementById('biochemical').value,
+      'Molecular / MALDI Confirmation': document.getElementById('molecular').value,
+      'Purity Check Result':          document.querySelector('input[name="purity"]:checked')?.value || '',
+      'Viability Check Result':       document.querySelector('input[name="viability"]:checked')?.value || '',
+      'Viability Medium':             document.getElementById('viability-medium').value,
+      'Incubation Conditions':        document.getElementById('viability-incubation').value,
+      'QC Disposition':               document.querySelector('input[name="qc-disposition"]:checked')?.value || '',
+      'QC Report Reference':          document.getElementById('qc-ref').value,
+      'QC Notes':                     document.getElementById('qc-notes').value,
+      'Disposal Date':                document.getElementById('disposal-date').value,
+      'Disposal Reason':              document.getElementById('disposal-reason').value,
+      'Decontamination Method':       document.getElementById('decontamination').value,
+      'Disposal Performed By':        document.getElementById('disposal-by').value,
+      'Analyst Name':                 document.getElementById('analyst-name').value,
+      'Analyst ID':                   document.getElementById('analyst-id').value,
+      'Analyst Date':                 document.getElementById('analyst-date').value,
+      'QC Verifier Name':             document.getElementById('qc-name').value,
+      'QC Verifier ID':               document.getElementById('qc-id').value,
+      'QC Verifier Date':             document.getElementById('qc-date').value,
+      'Supervisor Name':              document.getElementById('sup-name').value,
+      'Supervisor ID':                document.getElementById('sup-id').value,
+      'Supervisor Date':              document.getElementById('sup-date').value,
+      'Additional Comments':          document.getElementById('additional-notes').value,
+      'Saved At':                     new Date().toISOString()
+    };
+  }
+
+  // ── Validate ──
+  function validate() {
+    const required = ['organism-name','strain-code','date-receipt','date-expiry'];
+    let missing = 0;
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderColor = 'var(--warn)';
+        el.style.boxShadow   = '0 0 0 3px rgba(139,26,26,0.1)';
+        missing++;
+        el.addEventListener('input', () => { el.style.borderColor=''; el.style.boxShadow=''; }, {once:true});
+      }
+    });
+    if (missing > 0) { showToast(`⚠ ${missing} required field(s) missing`, true); return false; }
+    return true;
+  }
+
+  // ── Save to Google Sheet ──
+  async function saveToSheet() {
+    if (!validate()) return;
+    if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+      showToast('⚠ Paste your Apps Script URL in the code first', true); return;
+    }
+    const btn = document.querySelector('.btn-save');
+    btn.textContent = '⏳ Saving…'; btn.disabled = true;
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...collectRecord(), sheet: 'RSR Records' })
+      });
+      showToast(`✓ Saved to Google Sheet`);
+      fetchRecordId();
+    } catch(e) {
+      showToast('✗ Save failed — check network or Script URL', true);
+    } finally {
+      btn.textContent = '☁ Save to Sheet'; btn.disabled = false;
+    }
+  }
+
+  // ── Download PDF ──
+  function downloadPDF() {
+  loadJsPDF(function() {
+    if (!validate()) return;
+    const r = collectRecord();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    const colValue = margin + 72;
+    const colValueW = pageW - colValue - margin;
+    let y = margin;
+
+    function checkPage(needed) {
+      if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
+    }
+
+    // Header
+    doc.setFillColor(61, 43, 31);
+    doc.rect(0, 0, pageW, 18, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('Reference Strain Record', margin, 11);
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('ISO 17025:2017  |  QC-RSR-001  |  REV 01', pageW - margin, 11, { align:'right' });
+    y = 24;
+
+    doc.setTextColor(100,100,100); doc.setFontSize(8);
+    doc.text(`Record ID: ${r['Record ID']}`, margin, y);
+    doc.text(`Generated: ${new Date().toLocaleString('en-GB')}`, pageW - margin, y, { align:'right' });
+    y += 8;
+
+    const sections = [
+      { title: '01 — Strain Identification', keys: ['Organism Name','Strain Designation','Culture Collection','Gram / Organism Type','Biosafety Level','Primary Application','Internal Lab Strain ID','Certificate of Analysis No.'] },
+      { title: '02 — Receipt & Source', keys: ['Supplier / Vendor','Lot / Batch Number','Passage No. at Receipt','Date of Receipt','Expiration Date','Format Received','Shipping Condition','Temp at Receipt (°C)'] },
+      { title: '03 — Receipt Inspection', keys: ['Receipt Defects','Receipt Inspection Result','Action if Unsatisfactory','Receipt Notes'] },
+      { title: '04 — Storage Assignment', keys: ['Stock Type','Storage Location','Storage Equipment ID','Storage Position / Box','Number of Vials','Cryoprotectant','Storage Notes'] },
+      { title: '05 — Passage Log', keys: ['Passage Log','Current Passage Number','Max Passages Allowed'] },
+      { title: '06 — Identity & QC', keys: ['Colony Morphology','Gram Stain Result','Biochemical Results','Molecular / MALDI Confirmation','Purity Check Result','Viability Check Result','Viability Medium','Incubation Conditions','QC Disposition','QC Report Reference','QC Notes'] },
+      { title: '07 — Disposal', keys: ['Disposal Date','Disposal Reason','Decontamination Method','Disposal Performed By'] },
+      { title: '08 — Sign-Off', keys: ['Analyst Name','Analyst ID','Analyst Date','QC Verifier Name','QC Verifier ID','QC Verifier Date','Supervisor Name','Supervisor ID','Supervisor Date','Additional Comments'] }
+    ];
+
+    sections.forEach(section => {
+      checkPage(14);
+      doc.setFillColor(240, 235, 228);
+      doc.rect(margin, y, pageW - margin*2, 7, 'F');
+      doc.setTextColor(61,43,31); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+      doc.text(section.title, margin+2, y+5);
+      y += 10;
+
+      section.keys.forEach(key => {
+        let raw = r[key];
+        // Pretty-print passage log JSON
+        if (key === 'Passage Log' && raw) {
+          try {
+            const rows = JSON.parse(raw);
+            raw = rows.map(p => `P${p.num} | ${p.date} | From: ${p.from} | Medium: ${p.medium} | ${p.incubation} | ${p.result} | ${p.analyst}`).join('\n');
+          } catch(e) {}
+        }
+        const val = (raw === null || raw === undefined || raw === '') ? '—' : String(raw);
+        const lines = doc.splitTextToSize(val, colValueW);
+        const rowH  = Math.max(6, lines.length * 5 + 2);
+        checkPage(rowH + 1);
+        doc.setFillColor(250,248,245);
+        doc.rect(margin, y-1, pageW-margin*2, rowH, 'F');
+        doc.setDrawColor(216,210,200);
+        doc.rect(margin, y-1, pageW-margin*2, rowH, 'S');
+        doc.setTextColor(110,103,96); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+        doc.text(key, margin+1, y+3.5);
+        const vl = val.toLowerCase();
+        if (vl === 'pass' || vl === 'approved' || vl === 'pure culture' || vl === 'viable growth') doc.setTextColor(26,77,46);
+        else if (vl === 'fail' || vl === 'rejected') doc.setTextColor(139,26,26);
+        else doc.setTextColor(28,26,23);
+        doc.setFont('helvetica','normal');
+        doc.text(lines, colValue, y+3.5);
+        doc.setDrawColor(216,210,200);
+        doc.line(colValue-2, y-1, colValue-2, y-1+rowH);
+        y += rowH+1;
+      });
+      y += 4;
+    });
+
+    // Footer
+    const total = doc.internal.getNumberOfPages();
+    for (let i=1; i<=total; i++) {
+      doc.setPage(i);
+      doc.setFillColor(61,43,31);
+      doc.rect(0, pageH-8, pageW, 8, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','normal');
+      doc.text('CONTROLLED DOCUMENT — ISO 17025:2017 Compliant', margin, pageH-3);
+      doc.text(`Page ${i} of ${total}`, pageW-margin, pageH-3, { align:'right' });
+    }
+
+    doc.save(`${r['Record ID'].replace(/[^a-zA-Z0-9-]/g,'_')}.pdf`);
+    showToast('✓ PDF downloaded');
+  }
+</script>
+<script>
+// Preload jsPDF on first user interaction so PDF is ready when needed
+(function(){
+  function preload(){
+    if(!window.jspdf){
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      document.head.appendChild(s);
+    }
+    ['mousedown','touchstart'].forEach(e=>document.removeEventListener(e,preload));
+  }
+  ['mousedown','touchstart'].forEach(e=>document.addEventListener(e,preload,{once:true}));
+})();
+</script>
+</body>
+</html>
