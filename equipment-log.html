@@ -174,6 +174,18 @@ if('serviceWorker' in navigator){
         <button type="button" class="equip-btn" id="btn-bsc" onclick="selectEquip('bsc')">
           <span class="eq-icon">🗄️</span><span class="eq-label">BSC</span><span class="eq-sub">Safety Cabinet</span>
         </button>
+        <button type="button" class="equip-btn" id="btn-waterbath" onclick="selectEquip('waterbath')">
+          <span class="eq-icon">🌊</span><span class="eq-label">Waterbath</span><span class="eq-sub">Temperature Bath</span>
+        </button>
+        <button type="button" class="equip-btn" id="btn-colonycount" onclick="selectEquip('colonycount')">
+          <span class="eq-icon">🔢</span><span class="eq-label">Colony Counter</span><span class="eq-sub">Cell Counter</span>
+        </button>
+        <button type="button" class="equip-btn" id="btn-balance" onclick="selectEquip('balance')">
+          <span class="eq-icon">⚖️</span><span class="eq-label">Analytical Balance</span><span class="eq-sub">Weighing Scale</span>
+        </button>
+        <button type="button" class="equip-btn" id="btn-microscope" onclick="selectEquip('microscope')">
+          <span class="eq-icon">🔬</span><span class="eq-label">Microscope</span><span class="eq-sub">Optical Microscope</span>
+        </button>
       </div>
     </div>
   </div>
@@ -500,8 +512,8 @@ async function generateId(){
   if(!currentEquipType){display.textContent='Select equipment type first';return;}
   display.textContent='EQL-fetching…';
   try{
-    const sheetNames={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log'};
-    const prefixMap={'autoclave':'EQL-AUT','incubator':'EQL-INC','refrigerator':'EQL-REF','bsc':'EQL-BSC'};
+    const sheetNames={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log','waterbath':'Waterbath Log','colonycount':'Colony Counter Log','balance':'Balance Log','microscope':'Microscope Log'};
+    const prefixMap={'autoclave':'EQL-AUT','incubator':'EQL-INC','refrigerator':'EQL-REF','bsc':'EQL-BSC','waterbath':'EQL-WTB','colonycount':'EQL-COL','balance':'EQL-BAL','microscope':'EQL-MIC'};
     const sheetName=sheetNames[currentEquipType]||'Equipment Log';
     const prefix=prefixMap[currentEquipType]||'EQL';
     const enc=encodeURIComponent(sheetName);
@@ -515,7 +527,7 @@ async function generateId(){
 
 function selectEquip(type){
   currentEquipType=type;
-  ['autoclave','incubator','refrigerator','bsc'].forEach(t=>{
+  ['autoclave','incubator','refrigerator','bsc','waterbath','colonycount','balance','microscope'].forEach(t=>{
     document.getElementById('btn-'+t).classList.toggle('active',t===type);
     document.getElementById('sec-'+t).classList.toggle('visible',t===type);
   });
@@ -614,7 +626,7 @@ function collectData(){
   const type=currentEquipType;
   const base={
     'Record ID':       document.getElementById('record-id-display').textContent,
-    'Equipment Type':  type==='bsc'?'Biosafety Cabinet':type.charAt(0).toUpperCase()+type.slice(1),
+    'Equipment Type':  type==='bsc'?'Biosafety Cabinet':type==='waterbath'?'Waterbath':type==='colonycount'?'Colony Counter':type==='balance'?'Analytical Balance':type==='microscope'?'Microscope':type.charAt(0).toUpperCase()+type.slice(1),
     'Record Date':     gv('record-date'),
     'Shift':           grv('shift'),
     'Overall Status':  grv('overall-status'),
@@ -656,6 +668,48 @@ function collectData(){
       'Notes':          gv('ref-notes'),
     });
   }
+  if(type==='waterbath'){
+    Object.assign(base,{
+      'Set Temp (°C)':    gv('wb-set-temp'),
+      'Actual Temp AM':   gv('wb-actual-am'),
+      'Actual Temp PM':   gv('wb-actual-pm'),
+      'Temp Deviation':   gv('wb-deviation'),
+      'Water Level':      grv('wb-level'),
+      'Water Clarity':    grv('wb-clarity'),
+      'Alarm Status':     grv('wb-alarm'),
+      'Notes':            gv('wb-notes'),
+    });
+  }
+  if(type==='colonycount'){
+    Object.assign(base,{
+      'Illumination':         grv('cc-light'),
+      'Counting Grid':        grv('cc-grid'),
+      'Display Function':     grv('cc-display'),
+      'Surface Cleanliness':  grv('cc-clean'),
+      'Notes':                gv('cc-notes'),
+    });
+  }
+  if(type==='balance'){
+    Object.assign(base,{
+      'Leveling Bubble':      grv('bal-level'),
+      'Zero / Tare Check':    grv('bal-zero'),
+      'Cal Weight (g)':       gv('bal-cal-weight'),
+      'Balance Reading (g)':  gv('bal-reading'),
+      'Calibration Result':   grv('bal-cal'),
+      'Draft Shield':         grv('bal-shield'),
+      'Notes':                gv('bal-notes'),
+    });
+  }
+  if(type==='microscope'){
+    Object.assign(base,{
+      'Illumination':         grv('mic-light'),
+      'Objective Lenses':     grv('mic-lens'),
+      'Stage Movement':       grv('mic-stage'),
+      'Eyepiece Condition':   grv('mic-ocular'),
+      'Immersion Oil Cleaned':grv('mic-oil'),
+      'Notes':                gv('mic-notes'),
+    });
+  }
   if(type==='bsc'){
     Object.assign(base,{
       'UV Decontamination':  grv('bsc-uv'),
@@ -691,7 +745,7 @@ async function saveRecord(){
 
   const data=collectData();
   data['Saved At']=new Date().toISOString();
-  const sheetMap={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log'};
+  const sheetMap={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log','waterbath':'Waterbath Log','colonycount':'Colony Counter Log','balance':'Balance Log','microscope':'Microscope Log'};
   data['sheet']=sheetMap[currentEquipType]||'Equipment Log';
 
   try{
@@ -719,7 +773,7 @@ function resetForm(){
   document.querySelectorAll('input[type=radio]').forEach(el=>el.checked=false);
   buildRunLog();
   currentEquipType='';
-  ['autoclave','incubator','refrigerator','bsc'].forEach(t=>{
+  ['autoclave','incubator','refrigerator','bsc','waterbath','colonycount','balance','microscope'].forEach(t=>{
     document.getElementById('btn-'+t).classList.remove('active');
     document.getElementById('sec-'+t).classList.remove('visible');
   });
