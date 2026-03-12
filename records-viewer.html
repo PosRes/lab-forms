@@ -243,6 +243,18 @@ if('serviceWorker' in navigator){
     <button class="tab-btn" id="tab-bsc" onclick="switchTab('BSC Log')">
       🗄️ Biosafety Cabinet<span class="tab-count" id="tab-count-bsc">0</span>
     </button>
+    <button class="tab-btn" id="tab-wb" onclick="switchTab('Waterbath Log')">
+      🌊 Waterbath<span class="tab-count" id="tab-count-wb">0</span>
+    </button>
+    <button class="tab-btn" id="tab-col" onclick="switchTab('Colony Counter Log')">
+      🔢 Colony Counter<span class="tab-count" id="tab-count-col">0</span>
+    </button>
+    <button class="tab-btn" id="tab-bal" onclick="switchTab('Balance Log')">
+      ⚖️ Balance<span class="tab-count" id="tab-count-bal">0</span>
+    </button>
+    <button class="tab-btn" id="tab-mic" onclick="switchTab('Microscope Log')">
+      🔬 Microscope<span class="tab-count" id="tab-count-mic">0</span>
+    </button>
 
   </div>
 
@@ -310,15 +322,15 @@ window.addEventListener('load',()=>{
 
 async function loadBothCounts(){
   try{
-    const sheets=['MOR%20Records','RSR%20Records','Autoclave%20Log','Incubator%20Log','Refrigerator%20Log','BSC%20Log'];
-    const counts=['tab-count-mor','tab-count-rsr','tab-count-ac','tab-count-inc','tab-count-ref','tab-count-bsc'];
+    const sheets=['MOR%20Records','RSR%20Records','Autoclave%20Log','Incubator%20Log','Refrigerator%20Log','BSC%20Log','Waterbath%20Log','Colony%20Counter%20Log','Balance%20Log','Microscope%20Log'];
+    const counts=['tab-count-mor','tab-count-rsr','tab-count-ac','tab-count-inc','tab-count-ref','tab-count-bsc','tab-count-wb','tab-count-col','tab-count-bal','tab-count-mic'];
     const results=await Promise.all(sheets.map(s=>fetch(APPS_SCRIPT_URL+'?sheet='+s).then(r=>r.json()).catch(()=>({status:'error'}))));
     results.forEach((r,i)=>{ document.getElementById(counts[i]).textContent=r.status==='success'?r.records.length:'—'; });
   }catch(e){}
 }
 
 function updateFilterOptions(sheet){
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(sheet);
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(sheet);
   const sel=document.getElementById('filter-disposition');
   sel.innerHTML=isEql?
     `<option value="">All Status</option>
@@ -332,14 +344,14 @@ function updateFilterOptions(sheet){
 }
 function switchTab(sheet){
   activeSheet=sheet;
-  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Autoclave Log':'tab-ac','Incubator Log':'tab-inc','Refrigerator Log':'tab-ref','BSC Log':'tab-bsc'};
-  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Autoclave Log':'active-eql','Incubator Log':'active-eql','Refrigerator Log':'active-eql','BSC Log':'active-eql'};
+  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Autoclave Log':'tab-ac','Incubator Log':'tab-inc','Refrigerator Log':'tab-ref','BSC Log':'tab-bsc','Waterbath Log':'tab-wb','Colony Counter Log':'tab-col','Balance Log':'tab-bal','Microscope Log':'tab-mic'};
+  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Autoclave Log':'active-eql','Incubator Log':'active-eql','Refrigerator Log':'active-eql','BSC Log':'active-eql','Waterbath Log':'active-eql','Colony Counter Log':'active-eql','Balance Log':'active-eql','Microscope Log':'active-eql'};
   Object.entries(tabMap).forEach(([s,id])=>{
     document.getElementById(id).className='tab-btn'+(s===sheet?' '+activeClass[s]:'');
   });
   const isMor=sheet==='MOR Records';const isRsr=sheet==='RSR Records';
   const isEql=sheet==='Equipment Log';
-  const isEqlTab=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(sheet);
+  const isEqlTab=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(sheet);
   document.getElementById('load-btn').className=`load-btn-main ${isMor?'load-btn-mor':isRsr?'load-btn-rsr':'load-btn-eql'}`;
   document.getElementById('filter-disposition').value='';
   document.getElementById('search').value='';
@@ -365,7 +377,7 @@ async function loadRecords(){
     renderRecords(allRecords);
     const now=new Date();
     document.getElementById('last-loaded').textContent='Updated '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc'};
+    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
     document.getElementById(tabCountMap[activeSheet]||'tab-count-mor').textContent=allRecords.length;
     showToast(`✓ ${allRecords.length} record(s) loaded`);
   }catch(err){
@@ -377,7 +389,7 @@ async function loadRecords(){
 function filterRecords(){
   const q=document.getElementById('search').value.toLowerCase();
   const dis=document.getElementById('filter-disposition').value.toLowerCase();
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
   const filterField=isEql?'Overall Status':'QC Disposition';
   const filtered=allRecords.filter(r=>{
     const ms=!q||Object.values(r).some(v=>String(v||'').toLowerCase().includes(q));
@@ -393,7 +405,7 @@ function renderRecords(records){
   if(!records.length){content.innerHTML='<div class="state-box"><div class="icon">🔍</div><div>No records found</div><p>Try adjusting your search or filter</p></div>';return;}
   const sorted=[...records].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const isMor=activeSheet==='MOR Records';const isRsr=activeSheet==='RSR Records';
-  const isEqlSheet=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const isEqlSheet=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
   content.innerHTML=`<div class="records-grid">${sorted.map((r,i)=>isMor?cardMOR(r,i):isRsr?cardRSR(r,i):cardGeneric(r,i)).join('')}</div>`;
 }
 
@@ -519,7 +531,7 @@ function toggleCard(idx){document.getElementById(`card-${idx}`).classList.toggle
 
 // ── Generic card for Equipment Log and Autoclave Run Log ──
 function cardGeneric(r,idx){
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
   const isArl=activeSheet==='Autoclave Run Log';
   const accentClass=isEql?'eql-card':'arl-card';
 
@@ -527,7 +539,7 @@ function cardGeneric(r,idx){
   let title='', subtitle='', meta='', badges='';
   if(isEql){
     const eType=v(r['Equipment Type'])||activeSheet.replace(' Log','');
-    const iconMap={'autoclave':'♨️','incubator':'🌡️','refrigerator':'❄️','bsc':'🗄️','biosafety cabinet':'🗄️','refrigerator log':'❄️'};
+    const iconMap={'autoclave':'♨️','incubator':'🌡️','refrigerator':'❄️','bsc':'🗄️','biosafety cabinet':'🗄️','refrigerator log':'❄️','waterbath':'🌊','colony counter':'🔢','analytical balance':'⚖️','microscope':'🔬'};
     const icon=iconMap[eType.toLowerCase()]||'🔧';
     title=`${icon} ${eType}`;
     subtitle=`${v(r['Equipment ID'])} — ${v(r['Equipment Model'])}`;
@@ -589,7 +601,7 @@ function downloadPDF_Generic(idx){
   if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
   const rgb=isEql?[26,77,46]:[92,59,26];
   const title=isEql?'Equipment Monitoring Log':'Autoclave Run Log';
   const form=isEql?'QC-EQL-001':'QC-ARL-001';
@@ -634,7 +646,7 @@ function openEditDrawer(idx){
   const r=sorted[idx];if(!r)return;
   editingIdx=idx;passRowCount=0;
   const isMor=activeSheet==='MOR Records';
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log'].includes(activeSheet);
+  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
   const headerCls=isMor?'':isEql?' eql':' rsr';
   document.getElementById('edit-drawer-header').className='edit-drawer-header'+headerCls;
   document.getElementById('edit-drawer-title').textContent='Edit Record';
@@ -852,7 +864,7 @@ async function confirmDelete(){
     if(result.status==='success'){
       allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
       closeDeleteModal();filterRecords();
-      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc'};
+      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
       document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
       showToast(`🗑 Record ${r['Record ID']} deleted`);
     } else {
@@ -1015,6 +1027,52 @@ function buildEqlForm(r){
       ${F('Door Seal','Door Seal','select',['Intact','Worn','Damaged'])}
       ${F('Frost Buildup','Frost Buildup','select',['None','Minimal','Excessive'])}
       ${F('Fridge Notes','Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(activeSheet==='Waterbath Log'){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Waterbath Status</div>
+    <div class="edit-field-grid">
+      ${F('Set Temp (°C)','Set Temp (°C)','number')}
+      ${F('Actual Temp AM (°C)','Actual Temp AM','number')}
+      ${F('Actual Temp PM (°C)','Actual Temp PM','number')}
+      ${F('Temp Deviation','Temp Deviation')}
+      ${F('Water Level','Water Level','select',['Adequate','Low — Topped Up','Low — Action Required'])}
+      ${F('Water Clarity','Water Clarity','select',['Clear','Turbid','Contaminated'])}
+      ${F('Alarm Status','Alarm Status','select',['Normal','Alarm Triggered','Not Checked'])}
+      ${F('Waterbath Notes','Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(activeSheet==='Colony Counter Log'){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Colony Counter Status</div>
+    <div class="edit-field-grid">
+      ${F('Illumination','Illumination','select',['Functional','Faulty'])}
+      ${F('Counting Grid','Counting Grid','select',['Functional','Faulty'])}
+      ${F('Display Function','Display Function','select',['Normal','Error'])}
+      ${F('Surface Cleanliness','Surface Cleanliness','select',['Clean','Needs Cleaning'])}
+      ${F('Colony Counter Notes','Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(activeSheet==='Balance Log'){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Analytical Balance Status</div>
+    <div class="edit-field-grid">
+      ${F('Leveling Bubble','Leveling Bubble','select',['Centered','Off-Center — Adjusted','Off-Center — Not Fixed'])}
+      ${F('Zero / Tare Check','Zero / Tare Check','select',['Pass','Fail'])}
+      ${F('Cal Weight (g)','Cal Weight (g)','number')}
+      ${F('Balance Reading (g)','Balance Reading (g)','number')}
+      ${F('Calibration Result','Calibration Result','select',['Pass — Within Tolerance','Fail — Out of Tolerance'])}
+      ${F('Draft Shield','Draft Shield','select',['Intact','Damaged'])}
+      ${F('Balance Notes','Notes','textarea',null,true)}
+    </div></div>`;
+  } else if(activeSheet==='Microscope Log'){
+    sec2=`
+    <div class="edit-section"><div class="edit-section-title eql">02 — Microscope Status</div>
+    <div class="edit-field-grid">
+      ${F('Illumination','Illumination','select',['Functional','Dim','Faulty'])}
+      ${F('Objective Lenses','Objective Lenses','select',['Clean & Intact','Needs Cleaning','Damaged'])}
+      ${F('Stage Movement','Stage Movement','select',['Smooth','Stiff','Faulty'])}
+      ${F('Eyepiece Condition','Eyepiece Condition','select',['Clean','Needs Cleaning','Damaged'])}
+      ${F('Immersion Oil Cleaned','Immersion Oil Cleaned','select',['Yes','No','N/A'])}
+      ${F('Microscope Notes','Notes','textarea',null,true)}
     </div></div>`;
   } else if(isBsc){
     sec2=`
