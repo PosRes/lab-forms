@@ -977,8 +977,8 @@ function resetForm(){
   document.getElementById('record-id-display').textContent='— Select equipment type —';
   document.getElementById('status-banner').className='status-banner';
   const now=new Date();
-  document.getElementById('record-date').value=now.toISOString().slice(0,10);
-  document.getElementById('analyst-datetime').value=now.toISOString().slice(0,16);
+  document.getElementById('record-date').value=localDate(now);
+  document.getElementById('analyst-datetime').value=localISO(now);
 }
 
 function downloadPDF(){
@@ -1032,10 +1032,16 @@ function downloadPDF(){
   showToast('✓ PDF downloaded');
 }
 
+function localISO(d){
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function localDate(d){return localISO(d).slice(0,10);}
+
 window.addEventListener('load',()=>{
   const now=new Date();
-  document.getElementById('record-date').value=now.toISOString().slice(0,10);
-  document.getElementById('analyst-datetime').value=now.toISOString().slice(0,16);
+  document.getElementById('record-date').value=localDate(now);
+  document.getElementById('analyst-datetime').value=localISO(now);
   buildRunLog();
 });
 </script>
