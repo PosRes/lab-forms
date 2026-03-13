@@ -366,6 +366,28 @@
     .main { padding: 24px 16px 60px; }
     .viewer-card { flex-direction: column; align-items: flex-start; gap: 12px; }
   }
+
+  /* ── Equipment Alert Panel ── */
+  .alert-panel { margin-bottom: 30px; }
+  .alert-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .alert-panel-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .alert-panel-header .refresh-time { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+  .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .alert-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; transition: box-shadow 0.15s; }
+  .alert-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .alert-card.status-ok { border-left: 3px solid #1a5c35; }
+  .alert-card.status-warn { border-left: 3px solid #c17a1a; background: #fffdf5; }
+  .alert-card.status-bad { border-left: 3px solid #8b1a1a; background: #fff8f8; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alert-body { flex: 1; min-width: 0; }
+  .alert-equip { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+  .alert-status { font-size: 14px; font-weight: 600; color: var(--text); margin: 2px 0; }
+  .alert-card.status-bad .alert-status { color: #8b1a1a; }
+  .alert-card.status-warn .alert-status { color: #c17a1a; }
+  .alert-card.status-ok .alert-status { color: #1a5c35; }
+  .alert-date { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+  .alert-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; font-family: var(--mono); }
+  .alert-empty { display: none; }
 </style>
 <style>
 #login-overlay{position:fixed;inset:0;background:#1d3d2f;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'IBM Plex Sans',sans-serif;}
@@ -378,6 +400,28 @@
 #login-box button:hover{background:#163d4c;}
 #login-error{color:#8b1a1a;font-size:12px;margin-top:8px;display:none;}
 #login-box .lock{font-size:36px;margin-bottom:16px;}
+
+  /* ── Equipment Alert Panel ── */
+  .alert-panel { margin-bottom: 30px; }
+  .alert-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .alert-panel-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .alert-panel-header .refresh-time { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+  .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .alert-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; transition: box-shadow 0.15s; }
+  .alert-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .alert-card.status-ok { border-left: 3px solid #1a5c35; }
+  .alert-card.status-warn { border-left: 3px solid #c17a1a; background: #fffdf5; }
+  .alert-card.status-bad { border-left: 3px solid #8b1a1a; background: #fff8f8; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alert-body { flex: 1; min-width: 0; }
+  .alert-equip { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+  .alert-status { font-size: 14px; font-weight: 600; color: var(--text); margin: 2px 0; }
+  .alert-card.status-bad .alert-status { color: #8b1a1a; }
+  .alert-card.status-warn .alert-status { color: #c17a1a; }
+  .alert-card.status-ok .alert-status { color: #1a5c35; }
+  .alert-date { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+  .alert-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; font-family: var(--mono); }
+  .alert-empty { display: none; }
 </style>
 <script>
 if('serviceWorker' in navigator){
@@ -449,7 +493,7 @@ function checkLogin(){
       </div>
       <div class="hero-divider"></div>
       <div class="hero-stat">
-        <div class="hero-stat-num">10</div>
+        <div class="hero-stat-num">3</div>
         <div class="hero-stat-label">Record Types</div>
       </div>
       <div class="hero-divider"></div>
@@ -469,6 +513,17 @@ function checkLogin(){
     <div class="iso-notice-text">
       <strong>All records are saved to Google Sheets via Apps Script.</strong>
       Use the Records Viewer to search, edit, export PDF, or delete any saved entry. Each record is assigned a sequential ID that resets monthly — e.g. <code>MOR-20260310-0003</code>.
+    </div>
+  </div>
+
+  <!-- Equipment Alert Panel -->
+  <div class="alert-panel">
+    <div class="alert-panel-header">
+      <div class="section-heading" style="margin:0;"><h2>Equipment Status</h2></div>
+      <span class="refresh-time" id="alert-refresh-time">Loading…</span>
+    </div>
+    <div class="alert-grid" id="alert-grid">
+      <div class="alert-loading">⏳ Fetching equipment status…</div>
     </div>
   </div>
 
@@ -602,5 +657,95 @@ function checkLogin(){
   setInterval(updateClock, 30000);
 </script>
 
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
+
+const EQUIPMENT_SHEETS = [
+  { sheet: 'Autoclave Log',      icon: '♨️',  label: 'Autoclave' },
+  { sheet: 'Incubator Log',      icon: '🌡️', label: 'Incubator' },
+  { sheet: 'Refrigerator Log',   icon: '❄️',  label: 'Refrigerator' },
+  { sheet: 'BSC Log',            icon: '🗄️',  label: 'Biosafety Cabinet' },
+  { sheet: 'Waterbath Log',      icon: '🌊',  label: 'Waterbath' },
+  { sheet: 'Colony Counter Log', icon: '🔢',  label: 'Colony Counter' },
+  { sheet: 'Balance Log',        icon: '⚖️',  label: 'Analytical Balance' },
+  { sheet: 'Microscope Log',     icon: '🔬',  label: 'Microscope' },
+];
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+async function fetchLatestRecord(sheet) {
+  try {
+    const enc = encodeURIComponent(sheet);
+    const res = await fetch(`${APPS_SCRIPT_URL}?sheet=${enc}`);
+    const data = await res.json();
+    if (!data.records || data.records.length === 0) return null;
+    // Sort by Saved At descending, take latest
+    const sorted = data.records.sort((a, b) => new Date(b['Saved At'] || 0) - new Date(a['Saved At'] || 0));
+    return sorted[0];
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadEquipmentAlerts() {
+  const grid = document.getElementById('alert-grid');
+  const timeEl = document.getElementById('alert-refresh-time');
+
+  const results = await Promise.all(
+    EQUIPMENT_SHEETS.map(async (eq) => {
+      const record = await fetchLatestRecord(eq.sheet);
+      return { ...eq, record };
+    })
+  );
+
+  // Filter: only show equipment that has records
+  const withRecords = results.filter(eq => eq.record !== null);
+
+  if (withRecords.length === 0) {
+    grid.innerHTML = '<div class="alert-loading">No equipment records found.</div>';
+    timeEl.textContent = 'No data';
+    return;
+  }
+
+  grid.innerHTML = withRecords.map(eq => {
+    const r = eq.record;
+    const status = r['Overall Status'] || '—';
+    const date = fmtDate(r['Record Date'] || r['Saved At']);
+    
+    let cls = 'status-ok';
+    let statusIcon = '✅';
+    if (status.toLowerCase().includes('maintenance')) { cls = 'status-warn'; statusIcon = '⚠️'; }
+    else if (status.toLowerCase().includes('out of service') || status.toLowerCase() === 'fail') { cls = 'status-bad'; statusIcon = '🚨'; }
+    else if (status === '—') { cls = 'status-warn'; statusIcon = '❓'; }
+
+    return `<div class="alert-card ${cls}">
+      <div class="alert-icon">${eq.icon}</div>
+      <div class="alert-body">
+        <div class="alert-equip">${eq.label}</div>
+        <div class="alert-status">${statusIcon} ${status}</div>
+        <div class="alert-date">Last record: ${date}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const now = new Date();
+  timeEl.textContent = 'Updated ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Only load alerts after login is cleared
+(function waitForAuth() {
+  const overlay = document.getElementById('login-overlay');
+  if (overlay && overlay.style.display !== 'none' && sessionStorage.getItem('qms_auth') !== '1') {
+    setTimeout(waitForAuth, 300);
+    return;
+  }
+  loadEquipmentAlerts();
+})();
+</script>
 </body>
 </html>
