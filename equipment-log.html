@@ -451,6 +451,203 @@ if('serviceWorker' in navigator){
     </div>
   </div>
 
+  <!-- Colony Counter -->
+  <div id="sec-colonycount" class="cond-section">
+    <div class="section">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Colony Counter — Condition Check</span></div>
+      <div class="section-body">
+        <div class="field full">
+          <label>Illumination</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="cc-light" value="Functional"><span>Functional</span></label>
+            <label class="rpill warn"><input type="radio" name="cc-light" value="Faulty"><span>Faulty</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Counting Grid / Marker</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="cc-grid" value="Functional"><span>Functional</span></label>
+            <label class="rpill warn"><input type="radio" name="cc-grid" value="Faulty"><span>Faulty</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Display / Counter Function</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="cc-display" value="Normal"><span>Normal</span></label>
+            <label class="rpill warn"><input type="radio" name="cc-display" value="Error"><span>Error</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Surface Cleanliness</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="cc-clean" value="Clean"><span>Clean</span></label>
+            <label class="rpill amber"><input type="radio" name="cc-clean" value="Needs Cleaning"><span>Needs Cleaning</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Colony Counter Notes</label>
+          <textarea id="cc-notes" placeholder="Observations, faults, maintenance…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytical Balance -->
+  <div id="sec-balance" class="cond-section">
+    <div class="section">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Analytical Balance — Calibration & Condition Check</span></div>
+      <div class="section-body">
+        <div class="field full">
+          <label>Leveling Bubble</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="bal-level" value="Centered"><span>Centered</span></label>
+            <label class="rpill amber"><input type="radio" name="bal-level" value="Off-Center — Adjusted"><span>Off-Center — Adjusted</span></label>
+            <label class="rpill warn"><input type="radio" name="bal-level" value="Off-Center — Not Fixed"><span>Off-Center — Not Fixed</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Zero / Tare Check</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="bal-zero" value="Pass"><span>Pass</span></label>
+            <label class="rpill warn"><input type="radio" name="bal-zero" value="Fail"><span>Fail</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Calibration Weight Used (g)</label>
+          <input type="number" id="bal-cal-weight" step="0.0001" placeholder="e.g. 100.0000">
+        </div>
+        <div class="field">
+          <label>Balance Reading (g)</label>
+          <input type="number" id="bal-reading" step="0.0001" placeholder="e.g. 100.0002">
+        </div>
+        <div class="field full">
+          <label>Calibration Result</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="bal-cal" value="Pass"><span>Pass — Within Tolerance</span></label>
+            <label class="rpill warn"><input type="radio" name="bal-cal" value="Fail"><span>Fail — Out of Tolerance</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Draft Shield Condition</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="bal-shield" value="Intact"><span>Intact</span></label>
+            <label class="rpill warn"><input type="radio" name="bal-shield" value="Damaged"><span>Damaged</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Balance Notes</label>
+          <textarea id="bal-notes" placeholder="Calibration details, deviations, corrective action…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Microscope -->
+  <div id="sec-microscope" class="cond-section">
+    <div class="section">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Microscope — Condition & Optics Check</span></div>
+      <div class="section-body">
+        <div class="field full">
+          <label>Illumination / Light Source</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="mic-light" value="Functional"><span>Functional</span></label>
+            <label class="rpill amber"><input type="radio" name="mic-light" value="Dim"><span>Dim</span></label>
+            <label class="rpill warn"><input type="radio" name="mic-light" value="Faulty"><span>Faulty</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Objective Lenses Condition</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="mic-lens" value="Clean &amp; Intact"><span>Clean &amp; Intact</span></label>
+            <label class="rpill amber"><input type="radio" name="mic-lens" value="Needs Cleaning"><span>Needs Cleaning</span></label>
+            <label class="rpill warn"><input type="radio" name="mic-lens" value="Damaged"><span>Damaged</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Stage Movement</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="mic-stage" value="Smooth"><span>Smooth</span></label>
+            <label class="rpill amber"><input type="radio" name="mic-stage" value="Stiff"><span>Stiff</span></label>
+            <label class="rpill warn"><input type="radio" name="mic-stage" value="Faulty"><span>Faulty</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Eyepiece / Ocular Condition</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="mic-ocular" value="Clean"><span>Clean</span></label>
+            <label class="rpill amber"><input type="radio" name="mic-ocular" value="Needs Cleaning"><span>Needs Cleaning</span></label>
+            <label class="rpill warn"><input type="radio" name="mic-ocular" value="Damaged"><span>Damaged</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Immersion Oil Residue Cleaned</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="mic-oil" value="Yes"><span>Yes</span></label>
+            <label class="rpill"><input type="radio" name="mic-oil" value="No"><span>No</span></label>
+            <label class="rpill"><input type="radio" name="mic-oil" value="N/A"><span>N/A</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Microscope Notes</label>
+          <textarea id="mic-notes" placeholder="Observations, cleaning performed, faults…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Waterbath -->
+  <div id="sec-waterbath" class="cond-section">
+    <div class="section">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Waterbath — Temperature & Condition Check</span></div>
+      <div class="section-body">
+        <div class="field">
+          <label>Set Temperature (°C) <span class="req">*</span></label>
+          <input type="number" id="wb-set-temp" step="0.1" placeholder="e.g. 37" oninput="checkTempDev('wb')">
+        </div>
+        <div class="field">
+          <label>Actual Temperature AM (°C)</label>
+          <input type="number" id="wb-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
+        </div>
+        <div class="field">
+          <label>Actual Temperature PM (°C)</label>
+          <input type="number" id="wb-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
+        </div>
+        <div class="field">
+          <label>Temperature Deviation</label>
+          <input type="text" id="wb-deviation" readonly placeholder="Auto-calculated">
+        </div>
+        <div class="field full">
+          <label>Water Level</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="wb-level" value="Adequate"><span>Adequate</span></label>
+            <label class="rpill amber"><input type="radio" name="wb-level" value="Low — Topped Up"><span>Low — Topped Up</span></label>
+            <label class="rpill warn"><input type="radio" name="wb-level" value="Low — Action Required"><span>Low — Action Required</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Water Clarity</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="wb-clarity" value="Clear"><span>Clear</span></label>
+            <label class="rpill amber"><input type="radio" name="wb-clarity" value="Turbid"><span>Turbid</span></label>
+            <label class="rpill warn"><input type="radio" name="wb-clarity" value="Contaminated"><span>Contaminated</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Alarm Status</label>
+          <div class="radio-group">
+            <label class="rpill pass"><input type="radio" name="wb-alarm" value="Normal"><span>Normal</span></label>
+            <label class="rpill warn"><input type="radio" name="wb-alarm" value="Alarm Triggered"><span>Alarm Triggered</span></label>
+            <label class="rpill"><input type="radio" name="wb-alarm" value="Not Checked"><span>Not Checked</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Waterbath Notes</label>
+          <textarea id="wb-notes" placeholder="Observations, water change, maintenance…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Overall Status -->
   <div class="section">
     <div class="section-header"><span class="section-num" id="overall-num">03</span><span class="section-title">Overall Equipment Status</span></div>
