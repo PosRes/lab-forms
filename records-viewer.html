@@ -964,7 +964,11 @@ function buildEqlForm(r){
   const isAutoclave=eType==='autoclave';
   const isInc=eType==='incubator';
   const isFridge=eType==='refrigerator';
-  const isBsc=eType==='bsc';
+  const isBsc=eType==='bsc'||eType==='biosafety cabinet';
+  const isWb=eType==='waterbath'||activeSheet==='Waterbath Log';
+  const isCol=eType==='colony counter'||activeSheet==='Colony Counter Log';
+  const isBal=eType==='analytical balance'||activeSheet==='Balance Log';
+  const isMic=eType==='microscope'||activeSheet==='Microscope Log';
 
   let sec2='';
   if(isAutoclave){
@@ -1028,7 +1032,7 @@ function buildEqlForm(r){
       ${F('Frost Buildup','Frost Buildup','select',['None','Minimal','Excessive'])}
       ${F('Fridge Notes','Notes','textarea',null,true)}
     </div></div>`;
-  } else if(activeSheet==='Waterbath Log'){
+  } else if(isWb){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Waterbath Status</div>
     <div class="edit-field-grid">
@@ -1041,7 +1045,7 @@ function buildEqlForm(r){
       ${F('Alarm Status','Alarm Status','select',['Normal','Alarm Triggered','Not Checked'])}
       ${F('Waterbath Notes','Notes','textarea',null,true)}
     </div></div>`;
-  } else if(activeSheet==='Colony Counter Log'){
+  } else if(isCol){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Colony Counter Status</div>
     <div class="edit-field-grid">
@@ -1051,7 +1055,7 @@ function buildEqlForm(r){
       ${F('Surface Cleanliness','Surface Cleanliness','select',['Clean','Needs Cleaning'])}
       ${F('Colony Counter Notes','Notes','textarea',null,true)}
     </div></div>`;
-  } else if(activeSheet==='Balance Log'){
+  } else if(isBal){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Analytical Balance Status</div>
     <div class="edit-field-grid">
@@ -1063,7 +1067,7 @@ function buildEqlForm(r){
       ${F('Draft Shield','Draft Shield','select',['Intact','Damaged'])}
       ${F('Balance Notes','Notes','textarea',null,true)}
     </div></div>`;
-  } else if(activeSheet==='Microscope Log'){
+  } else if(isMic){
     sec2=`
     <div class="edit-section"><div class="edit-section-title eql">02 — Microscope Status</div>
     <div class="edit-field-grid">
