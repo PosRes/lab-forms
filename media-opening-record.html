@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Media Opening Record — ISO 17025:2017</title>
+<title>Media Opening Log — ISO 17025:2017</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
@@ -68,18 +68,18 @@ if('serviceWorker' in navigator){
 
   <div class="form-header">
     <div class="form-header-left">
-      <h1>Media Opening Record</h1>
+      <h1>Media Opening Log</h1>
       <p>Culture Media &amp; Reagent Control Log</p>
     </div>
     <div class="form-header-right doc-ref">
       <div><strong>REF:</strong> ISO 17025:2017 §6.4</div>
-      <div><strong>FORM:</strong> QC-MOR-001</div>
+      <div><strong>FORM:</strong> QC-MOL-001</div>
       <div><strong>REV:</strong> 03</div>
     </div>
   </div>
 
   <div class="record-id-bar">
-    <span>Record ID: <strong id="record-id">MOR-—</strong></span>
+    <span>Record ID: <strong id="record-id">MOL-—</strong></span>
     <span id="timestamp-display" style="font-size:11px;opacity:0.7;"></span>
   </div>
 
@@ -494,19 +494,19 @@ if('serviceWorker' in navigator){
   function generateTempId() {
     const n = new Date();
     const pad = v => String(v).padStart(2, '0');
-    return `MOR-${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
+    return `MOL-${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
   }
 
   async function fetchRecordId() {
     const el = document.getElementById('record-id');
-    if (el.textContent.startsWith('MOR-—') || el.textContent.startsWith('MOR-fetching')) {
+    if (el.textContent.startsWith('MOL-—') || el.textContent.startsWith('MOL-fetching')) {
       el.textContent = generateTempId();
     }
     try {
       const n = new Date();
       const pad = v => String(v).padStart(2, '0');
       const dateStr = `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}`;
-      const nextId = await supabaseNextId('MOR-' + dateStr, 'mor_seq');
+      const nextId = await supabaseNextId('MOL-' + dateStr, 'mor_seq');
       el.textContent = nextId;
     } catch(e) { /* keep temp ID — still unique */ }
   }
@@ -705,10 +705,10 @@ if('serviceWorker' in navigator){
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('Media Opening Record', margin, 11);
+    doc.text('Media Opening Log', margin, 11);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text('ISO 17025:2017  |  QC-MOR-001  |  REV 03', pageW - margin, 11, { align: 'right' });
+    doc.text('ISO 17025:2017  |  QC-MOL-001  |  REV 03', pageW - margin, 11, { align: 'right' });
     y = 24;
 
     // Record ID row
@@ -813,7 +813,7 @@ if('serviceWorker' in navigator){
 
 <canvas id="bg-canvas"></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="3d-bg.js"></script>
+<script src="3d-bg-media.js"></script>
 
 <script src="animations.js"></script>
 </body>

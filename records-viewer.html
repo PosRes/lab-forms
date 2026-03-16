@@ -43,10 +43,10 @@ if('serviceWorker' in navigator){
 
   <div class="tab-bar scroll-animate delay-2" style="display:flex; gap:12px; margin-bottom:24px; overflow-x:auto; padding-bottom:8px;">
     <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;" active-mor" id="tab-mor" onclick="switchTab('MOR Records')">
-      🧫 Media Opening Records<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-mor">0</span>
+      🧫 Media Opening Logs<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-mor">0</span>
     </button>
     <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;"" id="tab-rsr" onclick="switchTab('RSR Records')">
-      🦠 Reference Strain Records<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-rsr">0</span>
+      🦠 Reference Strain Logs<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-rsr">0</span>
     </button>
     <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;"" id="tab-eql" onclick="switchTab('Equipment Log')">
       ⚙️ Equipment Log<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-eql">0</span>
@@ -824,7 +824,7 @@ function downloadPDF_MOR(idx){
   if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
-  makePDF(r,'Media Opening Record','QC-MOR-001',[
+  makePDF(r,'Media Opening Log','QC-MOL-001',[
     {title:'01 — Identification & Traceability',keys:['Media Name / Type','Catalog No.','Manufacturer / Supplier','Lot / Batch Number','Container Size','Intended Use']},
     {title:'02 — Critical Dates',keys:['Date of Receipt','Date Opened','Expiration Date (Mfr)','In-House Expiry','Prepared / Poured Date','Date of QC Test']},
     {title:'03 — Storage',keys:['Storage Location','Temp at Receipt (°C)','Humidity Condition','Storage Equipment ID','Storage Notes']},
@@ -838,7 +838,7 @@ function downloadPDF_RSR(idx){
   if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
-  makePDF(r,'Reference Strain Record','QC-RSR-001',[
+  makePDF(r,'Reference Strain Log','QC-RSL-001',[
     {title:'01 — Strain Identification',keys:['Organism Name','Strain Designation','Culture Collection','Gram / Organism Type','Biosafety Level','Primary Application','Internal Lab Strain ID']},
     {title:'02 — Receipt & Storage',keys:['Supplier / Vendor','Lot / Batch Number','Date of Receipt','Expiration Date','Format Received','Stock Type','Storage Location','Storage Equipment ID','Number of Vials']},
     {title:'03 — Passage Log',keys:['Passage Log','Current Passage Number','Max Passages Allowed']},
