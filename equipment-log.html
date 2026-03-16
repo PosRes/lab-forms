@@ -26,21 +26,21 @@
   .req { color: var(--danger); font-weight: 700; }
   
   .radio-group, .checkbox-group { display: flex; gap: 12px; flex-wrap: wrap; }
-  .rpill { display: flex; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; background: rgba(10,15,30,0.65); color: var(--text-main); transition: all 0.2s; user-select: none; }
+  .rpill { display: flex; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 20px; background: rgba(255,255,255,0.85); color: var(--text-main); transition: all 0.2s; user-select: none; }
   .rpill input { display: none; }
   .rpill:has(input:checked) { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px var(--primary-glow); }
-  .cpill { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; padding: 10px 16px; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; background: rgba(10,15,30,0.65); color: var(--text-main); transition: all 0.2s; }
-  .cpill:has(input:checked) { background: rgba(16,185,129,0.25); border-color: var(--success); color: #fff; }
+  .cpill { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; background: rgba(255,255,255,0.85); color: var(--text-main); transition: all 0.2s; }
+  .cpill:has(input:checked) { background: rgba(16,185,129,0.12); border-color: var(--success); }
   
   .equip-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-  .equip-btn { background: rgba(10,15,30,0.65); color: var(--text-main); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+  .equip-btn { background: rgba(255,255,255,0.85); color: var(--text-main); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 16px; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
   .eq-icon { font-size: 28px; margin-bottom: 12px; }
   .eq-label { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
   .eq-sub { font-size: 11px; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
-  .equip-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: rgba(255,255,255,0.1); }
+  .equip-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: rgba(255,255,255,0.85); }
   .equip-btn.active { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary-light); }
   
-  .run-log-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .run-log-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; background: rgba(255,255,255,0.85); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
   .run-log-table th { background: rgba(0,0,0,0.02); padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .run-log-table td { padding: 10px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
   .run-log-table input, .run-log-table select { width: 100%; border: none; background: transparent; font-family: var(--sans); font-size: 13px; outline: none; padding: 4px; }
@@ -51,6 +51,10 @@
   #toast.show { bottom: 32px; }
   
   .full-width { grid-column: 1 / -1; }
+
+  /* Equipment sections: hide by default, show only the selected one */
+  .cond-section { display: none; }
+  .cond-section.visible { display: block; }
 </style>
 
 <script>
@@ -88,7 +92,7 @@ if('serviceWorker' in navigator){
 
   <!-- 00 Equipment Selector -->
   <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
+    <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
       <span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">00</span>
       <span style="color:var(--text-main); font-size:16px;">Select Equipment Type</span>
     </div>
@@ -124,7 +128,7 @@ if('serviceWorker' in navigator){
 
   <!-- 01 Record Info (simplified — no model/location since only one unit) -->
   <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
+    <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
       <span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">01</span>
       <span style="color:var(--text-main); font-size:16px;">Record Information</span>
     </div>
@@ -147,7 +151,7 @@ if('serviceWorker' in navigator){
   <!-- ── AUTOCLAVE ── -->
   <div id="sec-autoclave" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Autoclave — Daily Status Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Autoclave — Daily Status Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="input-group">
           <label>Chamber Condition</label>
@@ -190,7 +194,7 @@ if('serviceWorker' in navigator){
 
     <!-- Autoclave Run Log (embedded — static 8-row fill table) -->
     <div class="section run-log-section">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">03</span><span style="color:var(--text-main); font-size:16px;">Autoclave Run Log — Cycles This Session</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">03</span><span style="color:var(--text-main); font-size:16px;">Autoclave Run Log — Cycles This Session</span></div>
       <div style="padding:16px;">
         <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-bottom:10px;">Fill in each cycle as runs are completed. Leave unused rows blank.</p>
         <div class="run-table-wrap">
@@ -219,7 +223,7 @@ if('serviceWorker' in navigator){
   <!-- ── INCUBATOR ── -->
   <div id="sec-incubator" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Incubator — Daily Status Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Incubator — Daily Status Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="input-group">
           <label>Set Temperature (°C) <span class="req">*</span></label>
@@ -264,7 +268,7 @@ if('serviceWorker' in navigator){
   <!-- ── REFRIGERATOR / FREEZER ── -->
   <div id="sec-refrigerator" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Refrigerator / Freezer — Daily Status Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Refrigerator / Freezer — Daily Status Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Unit Sub-Type</label>
@@ -327,7 +331,7 @@ if('serviceWorker' in navigator){
   <!-- ── BSC ── -->
   <div id="sec-bsc" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">BSC — Pre/Post Use Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">BSC — Pre/Post Use Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Pre-Use UV Decontamination</label>
@@ -386,7 +390,7 @@ if('serviceWorker' in navigator){
   <!-- Colony Counter -->
   <div id="sec-colonycount" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Colony Counter — Condition Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Colony Counter — Condition Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Illumination</label>
@@ -427,7 +431,7 @@ if('serviceWorker' in navigator){
   <!-- Analytical Balance -->
   <div id="sec-balance" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Analytical Balance — Calibration & Condition Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Analytical Balance — Calibration & Condition Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Leveling Bubble</label>
@@ -477,7 +481,7 @@ if('serviceWorker' in navigator){
   <!-- Microscope -->
   <div id="sec-microscope" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Microscope — Condition & Optics Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Microscope — Condition & Optics Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Illumination / Light Source</label>
@@ -530,7 +534,7 @@ if('serviceWorker' in navigator){
   <!-- Waterbath -->
   <div id="sec-waterbath" class="cond-section">
     <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Waterbath — Temperature & Condition Check</span></div>
+      <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Waterbath — Temperature & Condition Check</span></div>
       <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="input-group">
           <label>Set Temperature (°C) <span class="req">*</span></label>
@@ -582,7 +586,7 @@ if('serviceWorker' in navigator){
 
   <!-- Overall Status -->
   <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="overall-num">03</span><span style="color:var(--text-main); font-size:16px;">Overall Equipment Status</span></div>
+    <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="overall-num">03</span><span style="color:var(--text-main); font-size:16px;">Overall Equipment Status</span></div>
     <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="field full">
         <label>Status <span class="req">*</span></label>
@@ -602,7 +606,7 @@ if('serviceWorker' in navigator){
 
   <!-- Sign-Off — simplified -->
   <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
-    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="signoff-num">04</span><span style="color:var(--text-main); font-size:16px;">Sign-Off</span></div>
+    <div style="background:rgba(14,165,233,0.06); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="signoff-num">04</span><span style="color:var(--text-main); font-size:16px;">Sign-Off</span></div>
     <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="input-group">
         <label>Analyst Name <span class="req">*</span></label>

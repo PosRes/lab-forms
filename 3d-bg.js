@@ -1,78 +1,88 @@
-// 3d-bg.js
-// Custom WebGL Animation for Microbiology Laboratory Theme using Three.js
+// 3d-bg.js — Colorful Laboratory Cell Animation
+// Bright, vibrant, fun WebGL background for Microbiology Lab theme
 
-// Ensure the canvas exists
 const canvas = document.getElementById('bg-canvas');
 if (canvas) {
-  // Scene Setup
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#030b14'); // Deep lab blue background
-  scene.fog = new THREE.FogExp2('#030b14', 0.0025); // Adds depth
+  scene.background = new THREE.Color('#f0f4f8'); // Light lab background
+  scene.fog = new THREE.FogExp2('#f0f4f8', 0.003);
 
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 40;
+  camera.position.z = 50;
 
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Lighting to give cells a "microscope" illumination feel
-  const ambientLight = new THREE.AmbientLight('#204566', 1);
-  scene.add(ambientLight);
+  // Bright, even lab lighting
+  const ambient = new THREE.AmbientLight('#ffffff', 0.6);
+  scene.add(ambient);
 
-  const pointLight = new THREE.PointLight('#0ea5e9', 3, 200);
-  pointLight.position.set(20, 20, 20);
-  scene.add(pointLight);
+  const dirLight = new THREE.DirectionalLight('#ffffff', 0.8);
+  dirLight.position.set(30, 40, 30);
+  scene.add(dirLight);
 
-  const pointLight2 = new THREE.PointLight('#10b981', 2, 200);
-  pointLight2.position.set(-20, -20, 10);
-  scene.add(pointLight2);
+  const pt1 = new THREE.PointLight('#06b6d4', 1.5, 200); // Teal
+  pt1.position.set(20, 20, 20);
+  scene.add(pt1);
 
-  const pointLight3 = new THREE.PointLight('#8b5cf6', 2.5, 200);
-  pointLight3.position.set(0, 0, 40);
-  scene.add(pointLight3);
+  const pt2 = new THREE.PointLight('#a855f7', 1, 200); // Purple
+  pt2.position.set(-20, -15, 15);
+  scene.add(pt2);
 
-  // Microbiology Elements: Floating Cells / Bubbles
+  const pt3 = new THREE.PointLight('#f43f5e', 0.8, 200); // Rose
+  pt3.position.set(10, -20, 25);
+  scene.add(pt3);
+
+  // Colorful lab cell palette
+  const palette = [
+    { color: '#06b6d4', emissive: '#0891b2' }, // Teal — bacterial culture
+    { color: '#10b981', emissive: '#059669' }, // Emerald — agar
+    { color: '#a855f7', emissive: '#7c3aed' }, // Purple — Gram stain
+    { color: '#f43f5e', emissive: '#e11d48' }, // Rose — blood agar
+    { color: '#f59e0b', emissive: '#d97706' }, // Amber — nutrient broth
+    { color: '#3b82f6', emissive: '#2563eb' }, // Blue — Methylene blue
+    { color: '#ec4899', emissive: '#db2777' }, // Pink — MacConkey
+    { color: '#14b8a6', emissive: '#0d9488' }, // Teal green — EMB
+  ];
+
   const cellGeometry = new THREE.SphereGeometry(1, 32, 32);
-  const cellMaterial = new THREE.MeshPhysicalMaterial({
-    color: '#0ea5e9',
-    transmission: 0.9,     // Glass-like
-    opacity: 1,
-    metalness: 0,
-    roughness: 0.1,
-    ior: 1.5,
-    thickness: 0.5,
-    specularIntensity: 1,
-    specularColor: new THREE.Color('#ffffff'),
-    emissive: '#04223d',
-    emissiveIntensity: 0.5
-  });
-
   const cells = [];
-  const cellCount = 65;
-
+  const cellCount = 50;
   const group = new THREE.Group();
   scene.add(group);
 
   for (let i = 0; i < cellCount; i++) {
-    const mesh = new THREE.Mesh(cellGeometry, cellMaterial);
-    
-    // Spread them across a wide volume
-    mesh.position.x = (Math.random() - 0.5) * 100;
+    const p = palette[i % palette.length];
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: p.color,
+      transmission: 0.6,
+      opacity: 0.85,
+      transparent: true,
+      metalness: 0,
+      roughness: 0.15,
+      ior: 1.4,
+      thickness: 0.3,
+      specularIntensity: 0.8,
+      emissive: p.emissive,
+      emissiveIntensity: 0.15
+    });
+
+    const mesh = new THREE.Mesh(cellGeometry, mat);
+    mesh.position.x = (Math.random() - 0.5) * 120;
     mesh.position.y = (Math.random() - 0.5) * 100;
-    mesh.position.z = (Math.random() - 0.5) * 60;
-    
-    const scale = Math.random() * 2 + 0.5; // vary size
+    mesh.position.z = (Math.random() - 0.5) * 80;
+
+    const scale = Math.random() * 2.5 + 0.8;
     mesh.scale.set(scale, scale, scale);
 
-    // Give each cell a randomized floating velocity
     mesh.userData = {
       velocity: new THREE.Vector3(
-        (Math.random() - 0.5) * 0.05,
-        (Math.random() - 0.5) * 0.05,
-        (Math.random() - 0.5) * 0.05
+        (Math.random() - 0.5) * 0.03,
+        (Math.random() - 0.5) * 0.03,
+        (Math.random() - 0.5) * 0.02
       ),
-      pulseSpeed: Math.random() * 0.02,
+      pulseSpeed: Math.random() * 0.015 + 0.005,
       baseScale: scale
     };
 
@@ -80,97 +90,97 @@ if (canvas) {
     cells.push(mesh);
   }
 
-  // Floating Micro-particles (Dust / DNA fragments)
+  // Tiny colorful dust particles
   const particlesGeometry = new THREE.BufferGeometry();
-  const particleCount = 1000;
+  const particleCount = 600;
   const posArray = new Float32Array(particleCount * 3);
-  const vArray = []; // To hold velocities for particles
+  const colArray = new Float32Array(particleCount * 3);
+  const vArray = [];
 
-  for(let i = 0; i < particleCount * 3; i+=3) {
-    posArray[i] = (Math.random() - 0.5) * 150;
-    posArray[i+1] = (Math.random() - 0.5) * 150;
-    posArray[i+2] = (Math.random() - 0.5) * 100;
-    
+  const dustColors = [
+    [0.02, 0.71, 0.83], // teal
+    [0.06, 0.73, 0.51], // green
+    [0.66, 0.33, 0.97], // purple
+    [0.96, 0.25, 0.37], // rose
+    [0.96, 0.62, 0.04], // amber
+    [0.23, 0.51, 0.96], // blue
+  ];
+
+  for (let i = 0; i < particleCount * 3; i += 3) {
+    posArray[i]     = (Math.random() - 0.5) * 180;
+    posArray[i + 1] = (Math.random() - 0.5) * 180;
+    posArray[i + 2] = (Math.random() - 0.5) * 120;
+
+    const dc = dustColors[Math.floor(Math.random() * dustColors.length)];
+    colArray[i]     = dc[0];
+    colArray[i + 1] = dc[1];
+    colArray[i + 2] = dc[2];
+
     vArray.push({
-      x: (Math.random() - 0.5) * 0.02,
-      y: (Math.random() - 0.5) * 0.02
+      x: (Math.random() - 0.5) * 0.015,
+      y: (Math.random() - 0.5) * 0.015
     });
   }
 
   particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colArray, 3));
+
   const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.3,
-    color: '#38bdf8',
+    size: 0.4,
+    vertexColors: true,
     transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending
+    opacity: 0.5,
+    blending: THREE.NormalBlending
   });
 
   const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
   scene.add(particlesMesh);
 
-  // Mouse Interaction Setup
-  let mouseX = 0;
-  let targetX = 0;
-  let mouseY = 0;
-  let targetY = 0;
+  // Mouse interaction
+  let mouseX = 0, mouseY = 0;
+  const halfW = window.innerWidth / 2;
+  const halfH = window.innerHeight / 2;
 
-  const windowHalfX = window.innerWidth / 2;
-  const windowHalfY = window.innerHeight / 2;
-
-  document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX - windowHalfX);
-    mouseY = (event.clientY - windowHalfY);
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX - halfW);
+    mouseY = (e.clientY - halfH);
   });
 
-  // Animation Loop
+  // Animation
   const clock = new THREE.Clock();
 
   function animate() {
     requestAnimationFrame(animate);
-    
-    const elapsedTime = clock.getElapsedTime();
+    const t = clock.getElapsedTime();
 
-    // Mouse drift camera effect
-    targetX = mouseX * 0.005;
-    targetY = mouseY * 0.005;
-    group.rotation.y += 0.05 * (targetX - group.rotation.y);
-    group.rotation.x += 0.05 * (targetY - group.rotation.x);
+    // Gentle mouse-follow camera drift
+    group.rotation.y += 0.03 * (mouseX * 0.003 - group.rotation.y);
+    group.rotation.x += 0.03 * (mouseY * 0.003 - group.rotation.x);
+    group.rotation.z += 0.0003;
 
-    // Slowly rotate the entire system
-    group.rotation.z += 0.0005;
-    particlesMesh.rotation.y = -elapsedTime * 0.05;
+    particlesMesh.rotation.y = -t * 0.03;
 
-    // Animate large cells
     cells.forEach(cell => {
-      // Float
       cell.position.add(cell.userData.velocity);
-
-      // Bounce off invisible boundaries to keep them centered
-      if (cell.position.x > 50 || cell.position.x < -50) cell.userData.velocity.x *= -1;
+      if (cell.position.x > 60 || cell.position.x < -60) cell.userData.velocity.x *= -1;
       if (cell.position.y > 50 || cell.position.y < -50) cell.userData.velocity.y *= -1;
-      if (cell.position.z > 30 || cell.position.z < -40) cell.userData.velocity.z *= -1;
+      if (cell.position.z > 40 || cell.position.z < -40) cell.userData.velocity.z *= -1;
 
-      // Pulsate scale slightly
-      const pulse = Math.sin(elapsedTime * cell.userData.pulseSpeed * 100) * 0.1;
+      const pulse = Math.sin(t * cell.userData.pulseSpeed * 80) * 0.08;
       const s = cell.userData.baseScale + pulse;
       cell.scale.set(s, s, s);
     });
 
-    // Animate particles
     const positions = particlesGeometry.attributes.position.array;
-    for(let i=0; i<particleCount; i++) {
-        const i3 = i * 3;
-        const v = vArray[i];
-        
-        positions[i3] += v.x;
-        positions[i3+1] += v.y;
-        
-        // Loop particles to other side
-        if (positions[i3+1] > 75) positions[i3+1] = -75;
-        if (positions[i3+1] < -75) positions[i3+1] = 75;
-        if (positions[i3] > 75) positions[i3] = -75;
-        if (positions[i3] < -75) positions[i3] = 75;
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3;
+      const v = vArray[i];
+      positions[i3] += v.x;
+      positions[i3 + 1] += v.y;
+      if (positions[i3 + 1] > 90) positions[i3 + 1] = -90;
+      if (positions[i3 + 1] < -90) positions[i3 + 1] = 90;
+      if (positions[i3] > 90) positions[i3] = -90;
+      if (positions[i3] < -90) positions[i3] = 90;
     }
     particlesGeometry.attributes.position.needsUpdate = true;
 
@@ -179,7 +189,6 @@ if (canvas) {
 
   animate();
 
-  // Handle Resize
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();

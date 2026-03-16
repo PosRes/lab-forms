@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="theme.css">
 <style>
   /* Local Overrides for Index Dashboard */
-  #login-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+  #login-overlay { position: fixed; inset: 0; background: rgba(240,244,248,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
   #login-box { max-width: 400px; width: 90%; padding: 48px; text-align: center; transform: translateY(0); animation: floatBox 6s ease-in-out infinite alternate; }
   @keyframes floatBox { from { transform: translateY(-5px); } to { transform: translateY(5px); } }
   #login-box .lock { font-size: 48px; margin-bottom: 24px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
@@ -27,19 +27,19 @@
   .alert-card.status-ok { border-left-color: var(--success); }
   .alert-card.status-warn { border-left-color: var(--warning); }
   .alert-card.status-bad { border-left-color: var(--danger); }
-  .alert-icon { font-size: 28px; background: rgba(255,255,255,0.8); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; }
+  .alert-icon { font-size: 28px; background: rgba(255,255,255,0.95); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; }
   
   .quick-ref-card { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
   
   .form-card { padding: 32px; display: flex; flex-direction: column; gap: 20px; height: 100%; text-decoration: none; color: inherit; }
   .form-card:hover .form-card-icon { transform: translateZ(10px) scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
-  .form-card-icon { font-size: 36px; background: #fff; width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+  .form-card-icon { font-size: 36px; background: rgba(255,255,255,0.9); width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
   .form-card-title { font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
   .form-card-code { font-size: 12px; font-family: var(--mono); color: var(--primary); font-weight: 700; display: inline-block; background: var(--primary-light); padding: 4px 8px; border-radius: 6px; }
   .form-card-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; flex: 1; margin-top: 8px; }
   
   .viewer-card { display: flex; align-items: center; gap: 32px; padding: 40px; border-left: 4px solid var(--primary); margin-top: 20px; text-decoration: none; }
-  .viewer-card-icon { font-size: 48px; background: #fff; width: 88px; height: 88px; border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.08); flex-shrink: 0; transition: transform 0.4s; }
+  .viewer-card-icon { font-size: 48px; background: rgba(255,255,255,0.9); width: 88px; height: 88px; border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.08); flex-shrink: 0; transition: transform 0.4s; }
   .viewer-card:hover .viewer-card-icon { transform: scale(1.05); }
   .viewer-card-title { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
   .viewer-card-desc { font-size: 16px; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin-bottom: 16px; }
@@ -220,7 +220,7 @@ function fmtDate(iso) {
 
 async function fetchLatestRecord(eqType) {
   try {
-    const { data, error } = await _sb.from('equipment_logs')
+    const { data, error } = await sb().from('equipment_logs')
       .select('record_id, equipment_type, overall_status, record_date, data, created_at')
       .eq('equipment_type', eqType)
       .order('created_at', { ascending: false })
