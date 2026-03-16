@@ -480,7 +480,7 @@ if('serviceWorker' in navigator){
   <div class="form-actions">
     <button class="btn btn-ghost" onclick="resetForm()">↺ Reset Form</button>
     <button class="btn btn-print" onclick="printForm()">⬇ Download PDF</button>
-    <button class="btn btn-primary" onclick="saveToSheet()">☁ Save to Sheet</button>
+    <button class="btn btn-primary" onclick="saveToDatabase()">☁ Save to Database</button>
   </div>
 
 </div>
@@ -649,7 +649,7 @@ if('serviceWorker' in navigator){
 
 
   // ── Save to Supabase ──
-  async function saveToSheet() {
+  async function saveToDatabase() {
     if (!validate()) return;
 
     const btn = document.querySelector('.btn-primary');

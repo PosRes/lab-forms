@@ -624,7 +624,7 @@ if('serviceWorker' in navigator){
   <button type="button" class="btn btn-pdf" onclick="downloadPDF()">⬇ PDF</button>
   <button type="button" class="btn btn-primary" id="save-btn" onclick="saveRecord()">
     <span class="spinner"></span>
-    <span class="btn-text">☁ Save to Sheet</span>
+    <span class="btn-text">☁ Save to Database</span>
   </button>
 </div>
 
@@ -646,8 +646,7 @@ function generateTempId(prefix) {
 async function generateId(){
   const display=document.getElementById('record-id-display');
   if(!currentEquipType){display.textContent='Select equipment type first';return;}
-  const prefixMap={'autoclave':'EQL-AUT','incubator':'EQL-INC','refrigerator':'EQL-REF','bsc':'EQL-BSC','waterbath':'EQL-WTB','colonycount':'EQL-COL','balance':'EQL-BAL','microscope':'EQL-MIC'};
-  const prefix=prefixMap[currentEquipType]||'EQL';
+  const prefix = 'EQL';
   display.textContent=generateTempId(prefix);
   try{
     const equipTypeMap={'autoclave':'Autoclave','incubator':'Incubator','refrigerator':'Refrigerator','bsc':'Biosafety Cabinet','waterbath':'Waterbath','colonycount':'Colony Counter','balance':'Analytical Balance','microscope':'Microscope'};
@@ -657,7 +656,7 @@ async function generateId(){
       const n = new Date();
       const pad = v => String(v).padStart(2, '0');
       const dateStr = `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}`;
-      const nextId = await supabaseNextId(prefix + '-' + dateStr, seqName);
+      const nextId = await supabaseNextId('EQL-' + dateStr, seqName);
       display.textContent=nextId;
     }
   }catch(e){/* keep temp ID — still unique */}

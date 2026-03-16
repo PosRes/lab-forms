@@ -555,7 +555,7 @@ if('serviceWorker' in navigator){
 <div class="form-actions">
   <button class="btn btn-ghost" onclick="resetForm()">↺ Reset</button>
   <button class="btn btn-pdf"  onclick="downloadPDF()">⬇ Download PDF</button>
-  <button class="btn btn-save" onclick="saveToSheet()">☁ Save to Sheet</button>
+  <button class="btn btn-save" onclick="saveToDatabase()">☁ Save to Database</button>
 </div>
 
 <script>
@@ -782,7 +782,7 @@ if('serviceWorker' in navigator){
   }
 
   // ── Save to Supabase ──
-  async function saveToSheet() {
+  async function saveToDatabase() {
     if (!validate()) return;
     const btn = document.querySelector('.btn-save');
     btn.textContent = '⏳ Saving…'; btn.disabled = true;
