@@ -233,17 +233,22 @@
   .radio-btn input { display: none; }
   .radio-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.05); color: #fff; }
   
-  .radio-btn:has(input[value="pass"]:checked) {
+  .radio-btn:has(input[value="approved"]:checked) {
     background: linear-gradient(145deg, #0d261a, #08160f); color: var(--pass); border-color: var(--pass);
     box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6), inset -1px -1px 3px rgba(0,255,136,0.2), 0 0 15px var(--pass-glow);
     text-shadow: 0 0 3px var(--pass-glow); transform: translateY(1px);
   }
-  .radio-btn:has(input[value="fail"]:checked) {
+  .radio-btn:has(input[value="rejected"]:checked) {
     background: linear-gradient(145deg, #330b14, #1a050a); color: var(--warn); border-color: var(--warn);
     box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,51,102,0.2), 0 0 15px var(--warn-glow);
     text-shadow: 0 0 3px var(--warn-glow); transform: translateY(1px);
   }
-  .radio-btn:has(input:checked):not(:has(input[value="pass"]:checked)):not(:has(input[value="fail"]:checked)) {
+  .radio-btn:has(input[value="conditional"]:checked) {
+    background: linear-gradient(145deg, #332b0b, #1a1505); color: #ffb300; border-color: #ffb300;
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,179,0,0.2), 0 0 15px rgba(255,179,0,0.4);
+    text-shadow: 0 0 3px rgba(255,179,0,0.6); transform: translateY(1px);
+  }
+  .radio-btn:has(input:checked):not(:has(input[value="approved"]:checked)):not(:has(input[value="rejected"]:checked)):not(:has(input[value="conditional"]:checked)) {
     background: linear-gradient(145deg, #2b1d14, #1a110a); color: var(--accent); border-color: var(--accent);
     box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6), inset -1px -1px 3px rgba(255,153,85,0.2), 0 0 15px var(--accent-glow);
     text-shadow: 0 0 3px var(--accent-glow); transform: translateY(1px);

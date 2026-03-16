@@ -17,6 +17,7 @@ function sb() {
 const SHEET_TO_TABLE = {
   'MOR Records': 'mor_records',
   'RSR Records': 'rsr_records',
+  'Equipment Log': 'equipment_logs',
   'Autoclave Log': 'equipment_logs',
   'Incubator Log': 'equipment_logs',
   'Refrigerator Log': 'equipment_logs',

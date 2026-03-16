@@ -268,35 +268,25 @@ if('serviceWorker' in navigator){
     <button class="tab-btn" id="tab-rsr" onclick="switchTab('RSR Records')">
       🦠 Reference Strain Records<span class="tab-count" id="tab-count-rsr">0</span>
     </button>
-    <button class="tab-btn" id="tab-ac" onclick="switchTab('Autoclave Log')">
-      ♨️ Autoclave<span class="tab-count" id="tab-count-ac">0</span>
-    </button>
-    <button class="tab-btn" id="tab-inc" onclick="switchTab('Incubator Log')">
-      🌡️ Incubator<span class="tab-count" id="tab-count-inc">0</span>
-    </button>
-    <button class="tab-btn" id="tab-ref" onclick="switchTab('Refrigerator Log')">
-      ❄️ Refrigerator<span class="tab-count" id="tab-count-ref">0</span>
-    </button>
-    <button class="tab-btn" id="tab-bsc" onclick="switchTab('BSC Log')">
-      🗄️ Biosafety Cabinet<span class="tab-count" id="tab-count-bsc">0</span>
-    </button>
-    <button class="tab-btn" id="tab-wb" onclick="switchTab('Waterbath Log')">
-      🌊 Waterbath<span class="tab-count" id="tab-count-wb">0</span>
-    </button>
-    <button class="tab-btn" id="tab-col" onclick="switchTab('Colony Counter Log')">
-      🔢 Colony Counter<span class="tab-count" id="tab-count-col">0</span>
-    </button>
-    <button class="tab-btn" id="tab-bal" onclick="switchTab('Balance Log')">
-      ⚖️ Balance<span class="tab-count" id="tab-count-bal">0</span>
-    </button>
-    <button class="tab-btn" id="tab-mic" onclick="switchTab('Microscope Log')">
-      🔬 Microscope<span class="tab-count" id="tab-count-mic">0</span>
+    <button class="tab-btn" id="tab-eql" onclick="switchTab('Equipment Log')">
+      ⚙️ Equipment Log<span class="tab-count" id="tab-count-eql">0</span>
     </button>
 
   </div>
 
   <div class="toolbar">
     <div class="search-box">
+      <select id="filter-eq-type" class="filter-dropdown" style="display:none;" onchange="filterRecords()">
+        <option value="">All Equipment</option>
+        <option value="Autoclave">Autoclave</option>
+        <option value="Incubator">Incubator</option>
+        <option value="Refrigerator">Refrigerator</option>
+        <option value="Biosafety Cabinet">Biosafety Cabinet</option>
+        <option value="Waterbath">Waterbath</option>
+        <option value="Colony Counter">Colony Counter</option>
+        <option value="Analytical Balance">Analytical Balance</option>
+        <option value="Microscope">Microscope</option>
+      </select>
       <span class="search-icon">🔍</span>
       <input type="text" id="search" placeholder="Search records…" oninput="filterRecords()">
     </div>
@@ -365,7 +355,7 @@ function loadCountsFromStorage(){
     const raw=sessionStorage.getItem('labcache_counts');
     if(raw){
       const counts=JSON.parse(raw);
-      const countMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+      const countMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
       Object.entries(counts).forEach(([sheet,n])=>{
         const el=document.getElementById(countMap[sheet]);
         if(el) el.textContent=n;
@@ -382,8 +372,8 @@ window.addEventListener('load',()=>{
 
 async function loadBothCounts(){
   try{
-    const sheetNames=['MOR Records','RSR Records','Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'];
-    const countIds=['tab-count-mor','tab-count-rsr','tab-count-ac','tab-count-inc','tab-count-ref','tab-count-bsc','tab-count-wb','tab-count-col','tab-count-bal','tab-count-mic'];
+    const sheetNames=['MOR Records','RSR Records','Equipment Log'];
+    const countIds=['tab-count-mor','tab-count-rsr','tab-count-eql'];
     const results=await Promise.all(sheetNames.map(s=>supabaseFetchRecords(s).catch(()=>null)));
     results.forEach((records,i)=>{
       if(records){
@@ -398,8 +388,11 @@ async function loadBothCounts(){
 }
 
 function updateFilterOptions(sheet){
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(sheet);
+  const isEql=sheet==='Equipment Log';
   const sel=document.getElementById('filter-disposition');
+  const typ=document.getElementById('filter-eq-type');
+  if(typ) typ.style.display=isEql?'inline-block':'none';
+  if(isEql) typ.value='';
   sel.innerHTML=isEql?
     `<option value="">All Status</option>
      <option value="operational">Operational</option>
@@ -412,14 +405,14 @@ function updateFilterOptions(sheet){
 }
 function switchTab(sheet){
   activeSheet=sheet;
-  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Autoclave Log':'tab-ac','Incubator Log':'tab-inc','Refrigerator Log':'tab-ref','BSC Log':'tab-bsc','Waterbath Log':'tab-wb','Colony Counter Log':'tab-col','Balance Log':'tab-bal','Microscope Log':'tab-mic'};
-  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Autoclave Log':'active-eql','Incubator Log':'active-eql','Refrigerator Log':'active-eql','BSC Log':'active-eql','Waterbath Log':'active-eql','Colony Counter Log':'active-eql','Balance Log':'active-eql','Microscope Log':'active-eql'};
+  const tabMap={'MOR Records':'tab-mor','RSR Records':'tab-rsr','Equipment Log':'tab-eql'};
+  const activeClass={'MOR Records':'active-mor','RSR Records':'active-rsr','Equipment Log':'active-eql'};
   Object.entries(tabMap).forEach(([s,id])=>{
-    document.getElementById(id).className='tab-btn'+(s===sheet?' '+activeClass[s]:'');
+    const el = document.getElementById(id);
+    if(el) el.className='tab-btn'+(s===sheet?' '+activeClass[s]:'');
   });
   const isMor=sheet==='MOR Records';const isRsr=sheet==='RSR Records';
   const isEql=sheet==='Equipment Log';
-  const isEqlTab=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(sheet);
   document.getElementById('load-btn').className=`load-btn-main ${isMor?'load-btn-mor':isRsr?'load-btn-rsr':'load-btn-eql'}`;
   document.getElementById('filter-disposition').value='';
   document.getElementById('search').value='';
@@ -441,7 +434,7 @@ async function loadRecords(){
   if(cached){
     allRecords=cached.records;
     renderRecords(allRecords);
-    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
     document.getElementById(tabCountMap[activeSheet]||'tab-count-mor').textContent=allRecords.length;
     document.getElementById('last-loaded').textContent='Cached '+new Date(cached.fetchedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     // If cache is fresh enough, skip network fetch
@@ -461,7 +454,7 @@ async function loadRecords(){
     renderRecords(allRecords);
     const now=new Date();
     document.getElementById('last-loaded').textContent='Updated '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+    const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
     document.getElementById(tabCountMap[activeSheet]||'tab-count-mor').textContent=allRecords.length;
     showToast(`✓ ${allRecords.length} record(s) loaded`);
   }catch(err){
@@ -479,7 +472,7 @@ async function fetchSheetInBackground(sheet){
     if(activeSheet===sheet){
       allRecords=records;
       renderRecords(allRecords);
-      const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+      const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
       document.getElementById(tabCountMap[sheet]||'tab-count-mor').textContent=allRecords.length;
       document.getElementById('last-loaded').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
@@ -489,12 +482,14 @@ async function fetchSheetInBackground(sheet){
 function filterRecords(){
   const q=document.getElementById('search').value.toLowerCase();
   const dis=document.getElementById('filter-disposition').value.toLowerCase();
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
+  const eqt=document.getElementById('filter-eq-type')?document.getElementById('filter-eq-type').value.toLowerCase():'';
+  const isEql=activeSheet==='Equipment Log';
   const filterField=isEql?'Overall Status':'QC Disposition';
   const filtered=allRecords.filter(r=>{
     const ms=!q||Object.values(r).some(v=>String(v||'').toLowerCase().includes(q));
     const md=!dis||String(r[filterField]||'').toLowerCase()===dis;
-    return ms&&md;
+    const me=!eqt||!isEql||(String(r['Equipment Type']||'').toLowerCase()===eqt);
+    return ms&&md&&me;
   });
   renderRecords(filtered);
 }
@@ -505,7 +500,7 @@ function renderRecords(records){
   if(!records.length){content.innerHTML='<div class="state-box"><div class="icon">🔍</div><div>No records found</div><p>Try adjusting your search or filter</p></div>';return;}
   const sorted=[...records].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const isMor=activeSheet==='MOR Records';const isRsr=activeSheet==='RSR Records';
-  const isEqlSheet=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
+  const isEqlSheet=activeSheet==='Equipment Log';
   content.innerHTML=`<div class="records-grid">${sorted.map((r,i)=>isMor?cardMOR(r,i):isRsr?cardRSR(r,i):cardGeneric(r,i)).join('')}</div>`;
 }
 
@@ -631,7 +626,7 @@ function toggleCard(idx){document.getElementById(`card-${idx}`).classList.toggle
 
 // ── Generic card for Equipment Log and Autoclave Run Log ──
 function cardGeneric(r,idx){
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
+  const isEql=activeSheet==='Equipment Log';
   const isArl=activeSheet==='Autoclave Run Log';
   const accentClass=isEql?'eql-card':'arl-card';
 
@@ -701,7 +696,7 @@ function downloadPDF_Generic(idx){
   if(!window.jspdf){showToast('⚠ PDF library not ready — try again in a moment',true);return;}
   const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
   const r=sorted[idx];if(!r)return;
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
+  const isEql=activeSheet==='Equipment Log';
   const rgb=isEql?[26,77,46]:[92,59,26];
   const title=isEql?'Equipment Monitoring Log':'Autoclave Run Log';
   const form=isEql?'QC-EQL-001':'QC-ARL-001';
@@ -746,7 +741,7 @@ function openEditDrawer(idx){
   const r=sorted[idx];if(!r)return;
   editingIdx=idx;passRowCount=0;
   const isMor=activeSheet==='MOR Records';
-  const isEql=['Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'].includes(activeSheet);
+  const isEql=activeSheet==='Equipment Log';
   const headerCls=isMor?'':isEql?' eql':' rsr';
   document.getElementById('edit-drawer-header').className='edit-drawer-header'+headerCls;
   document.getElementById('edit-drawer-title').textContent='Edit Record';
@@ -971,7 +966,7 @@ async function confirmDelete(){
     sheetCache[activeSheet]={records:[...allRecords],fetchedAt:Date.now()};
     saveCountsToStorage();
     closeDeleteModal();filterRecords();
-    const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+    const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Equipment Log':'tab-count-eql'};
     document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
     showToast(`🗑 Record ${r['Record ID']||r['record_id']} deleted`);
   }catch(err){showToast('✗ Delete failed — '+(err.message||'unknown error'),true);}
