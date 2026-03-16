@@ -276,26 +276,29 @@ if('serviceWorker' in navigator){
 
   <div class="toolbar">
     <div class="search-box">
-      <select id="filter-eq-type" class="filter-dropdown" style="display:none;" onchange="filterRecords()">
-        <option value="">All Equipment</option>
-        <option value="Autoclave">Autoclave</option>
-        <option value="Incubator">Incubator</option>
-        <option value="Refrigerator">Refrigerator</option>
-        <option value="Biosafety Cabinet">Biosafety Cabinet</option>
-        <option value="Waterbath">Waterbath</option>
-        <option value="Colony Counter">Colony Counter</option>
-        <option value="Analytical Balance">Analytical Balance</option>
-        <option value="Microscope">Microscope</option>
-      </select>
       <span class="search-icon">🔍</span>
       <input type="text" id="search" placeholder="Search records…" oninput="filterRecords()">
     </div>
-    <select class="filter-select" id="filter-disposition" onchange="filterRecords()">
-      <option value="">All Status</option>
-      <option value="approved">Approved</option>
-      <option value="rejected">Rejected</option>
-      <option value="conditional">Conditional</option>
-    </select>
+    <!-- Filters -->
+    <div class="search-filters">
+      <select id="filter-eq-type" onchange="filterRecords()" style="display:none;min-width:180px;">
+        <option value="">All Equipment</option>
+        <option value="autoclave">Autoclave</option>
+        <option value="incubator">Incubator</option>
+        <option value="refrigerator">Refrigerator</option>
+        <option value="biosafety cabinet">Biosafety Cabinet</option>
+        <option value="waterbath">Waterbath</option>
+        <option value="colony counter">Colony Counter</option>
+        <option value="analytical balance">Analytical Balance</option>
+        <option value="microscope">Microscope</option>
+      </select>
+      <select id="filter-disposition" onchange="filterRecords()">
+        <option value="">All Dispositions</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+        <option value="conditional">Conditional</option>
+      </select>
+    </div>
     <span class="count-badge" id="count-badge">0 records</span>
     <span class="last-loaded" id="last-loaded"></span>
   </div>
@@ -389,19 +392,22 @@ async function loadBothCounts(){
 
 function updateFilterOptions(sheet){
   const isEql=sheet==='Equipment Log';
-  const sel=document.getElementById('filter-disposition');
-  const typ=document.getElementById('filter-eq-type');
-  if(typ) typ.style.display=isEql?'inline-block':'none';
-  if(isEql) typ.value='';
-  sel.innerHTML=isEql?
-    `<option value="">All Status</option>
-     <option value="operational">Operational</option>
-     <option value="requires maintenance">Requires Maintenance</option>
-     <option value="out of service">Out of Service</option>`:
-    `<option value="">All Dispositions</option>
-     <option value="approved">Approved</option>
-     <option value="rejected">Rejected</option>
-     <option value="conditional">Conditional</option>`;
+  const eqFilter = document.getElementById('filter-eq-type');
+  if (isEql) {
+    document.getElementById('filter-disposition').innerHTML = `
+      <option value="">All Statuses</option>
+      <option value="operational">Operational</option>
+      <option value="requires maintenance">Requires Maintenance</option>
+      <option value="out of service">Out of Service</option>`;
+    eqFilter.style.display = 'block';
+  } else {
+    document.getElementById('filter-disposition').innerHTML = `
+      <option value="">All Dispositions</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="conditional">Conditional</option>`;
+    eqFilter.style.display = 'none';
+  }
 }
 function switchTab(sheet){
   activeSheet=sheet;
@@ -505,7 +511,7 @@ function renderRecords(records){
 }
 
 function v(x){return(x===null||x===undefined||x==='')?'—':String(x);}
-function vcls(x){const s=String(x||'').toLowerCase();return s==='pass'||s==='approved'?'approved':s==='fail'||s==='rejected'?'rejected':'';}
+function vcls(x){const s=String(x||'').toLowerCase();return (s==='pass'||s==='approved'||s==='ok')?'approved':(s==='fail'||s==='rejected')?'rejected':'';}
 function row(k,x){
   if(!x||x==='—')return'';
   const cls=vcls(x);const s=String(x);
@@ -561,7 +567,7 @@ function cardMOR(r,idx){
       </div>
       <div class="card-badges">
         ${badge(r['QC Disposition'])}
-        ${r['Physical Result']?`<span class="badge ${String(r['Physical Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Physical Result']).toLowerCase()==='pass'?'✓ PHYS OK':'✗ PHYS FAIL'}</span>`:''}
+        ${r['Physical Result']?`<span class="badge ${vcls(r['Physical Result'])==='approved'?'badge-pass':'badge-fail'}">${vcls(r['Physical Result'])==='approved'?'✓ PHYS OK':'✗ PHYS FAIL'}</span>`:''}
         <span class="expand-icon">⌄</span>
       </div>
     </div>

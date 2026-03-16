@@ -537,14 +537,14 @@ function checkLogin(){
 
 <script>
 const EQUIPMENT_SHEETS = [
-  { sheet: 'Autoclave Log',      icon: '♨️',  label: 'Autoclave' },
-  { sheet: 'Incubator Log',      icon: '🌡️', label: 'Incubator' },
-  { sheet: 'Refrigerator Log',   icon: '❄️',  label: 'Refrigerator' },
-  { sheet: 'BSC Log',            icon: '🗄️',  label: 'Biosafety Cabinet' },
-  { sheet: 'Waterbath Log',      icon: '🌊',  label: 'Waterbath' },
-  { sheet: 'Colony Counter Log', icon: '🔢',  label: 'Colony Counter' },
-  { sheet: 'Balance Log',        icon: '⚖️',  label: 'Analytical Balance' },
-  { sheet: 'Microscope Log',     icon: '🔬',  label: 'Microscope' },
+  { eqType: 'Autoclave',          icon: '♨️',  label: 'Autoclave' },
+  { eqType: 'Incubator',          icon: '🌡️', label: 'Incubator' },
+  { eqType: 'Refrigerator',       icon: '❄️',  label: 'Refrigerator' },
+  { eqType: 'Biosafety Cabinet',  icon: '🗄️',  label: 'Biosafety Cabinet' },
+  { eqType: 'Waterbath',          icon: '🌊',  label: 'Waterbath' },
+  { eqType: 'Colony Counter',     icon: '🔢',  label: 'Colony Counter' },
+  { eqType: 'Analytical Balance', icon: '⚖️',  label: 'Analytical Balance' },
+  { eqType: 'Microscope',         icon: '🔬',  label: 'Microscope' },
 ];
 
 function fmtDate(iso) {
@@ -554,11 +554,31 @@ function fmtDate(iso) {
   return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-async function fetchLatestRecord(sheet) {
+async function fetchLatestRecord(eqType) {
   try {
-    const records = await supabaseFetchRecords(sheet);
-    if (!records || records.length === 0) return null;
-    return records[0]; // Already sorted by created_at DESC
+    const { data, error } = await _supabase.from('equipment_logs')
+      .select('record_id, equipment_type, overall_status, record_date, data, created_at')
+      .eq('equipment_type', eqType)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.warn('Error fetching latest record for', eqType, error);
+      return null;
+    }
+    
+    if (!data || data.length === 0) return null;
+    
+    // Map Supabase layout back to the flat dictionary expected by the UI
+    const row = data[0];
+    return {
+      ...row.data,
+      'Record ID': row.record_id,
+      'Equipment Type': row.equipment_type,
+      'Overall Status': row.overall_status || row.data['Overall Status'],
+      'Record Date': row.record_date || row.data['Record Date'],
+      'Saved At': row.created_at
+    };
   } catch (e) {
     return null;
   }
@@ -619,7 +639,7 @@ async function loadEquipmentAlerts() {
   // Fetch fresh data
   const results = await Promise.all(
     EQUIPMENT_SHEETS.map(async (eq) => {
-      const record = await fetchLatestRecord(eq.sheet);
+      const record = await fetchLatestRecord(eq.eqType);
       return { ...eq, record };
     })
   );
