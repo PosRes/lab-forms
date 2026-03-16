@@ -6,319 +6,62 @@
 <title>Microbiology Laboratorium — Quality Management System</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root {
-    --bg-dark: #0a0f18;
-    --surface: rgba(20, 30, 48, 0.6);
-    --surface-solid: #151f30;
-    --border: rgba(130, 180, 255, 0.15);
-    
-    /* Original variables mapped to dark theme */
-    --bg: var(--bg-dark);
-    --text: #e2e8f0;
-    --text-muted: #8b9db5;
-    
-    --green: #00ff88;
-    --green-mid: #00cc6a;
-    --green-glow: rgba(0, 255, 136, 0.4);
-    --green-light: rgba(0, 255, 136, 0.1);
-    
-    --brown: #ff9955;
-    --brown-glow: rgba(255, 153, 85, 0.4);
-    --brown-light: rgba(255, 153, 85, 0.1);
-    
-    --teal: #00e5ff;
-    --teal-glow: rgba(0, 229, 255, 0.4);
-    --teal-light: rgba(0, 229, 255, 0.1);
-    
-    --amber: #ffaa33;
-    --amber-glow: rgba(255, 170, 51, 0.4);
-    --amber-light: rgba(255, 170, 51, 0.1);
-
-    --warn: #ff3366;
-    --warn-glow: rgba(255, 51, 102, 0.4);
-    --warn-light: rgba(255, 51, 102, 0.1);
-
-    --mono: 'IBM Plex Mono', 'Courier New', monospace;
-    --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--sans);
-    background: radial-gradient(circle at 50% -20%, #1a273b, var(--bg-dark) 80%);
-    background-attachment: fixed;
-    color: var(--text);
-    min-height: 100vh;
-    perspective: 1000px;
-  }
-
-  /* ── Top bar ── */
-  .topbar {
-    background: rgba(15, 23, 38, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
-    color: #fff;
-    padding: 0 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-  }
-  .topbar-left { display: flex; align-items: center; gap: 14px; }
-  .topbar-logo {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 0, 0, 0.5));
-    border: 1px solid rgba(0, 255, 136, 0.4);
-    box-shadow: 0 0 10px var(--green-glow);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; filter: drop-shadow(0 0 4px var(--green));
-  }
-  .topbar-name { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; text-shadow: 0 0 5px var(--green-glow); }
-  .topbar-sub { font-size: 11px; color: var(--green); opacity: 0.8; font-family: var(--mono); margin-top: 1px; }
-  .topbar-right { font-family: var(--mono); font-size: 11px; opacity: 0.7; text-align: right; }
-
-  /* ── Hero ── */
-  .hero {
-    background: linear-gradient(135deg, rgba(0, 50, 25, 0.6) 0%, rgba(10, 15, 24, 0.8) 100%);
-    border-bottom: 1px solid rgba(0, 255, 136, 0.1);
-    box-shadow: inset 0 0 50px rgba(0, 255, 136, 0.05);
-    color: #fff;
-    padding: 64px 32px 56px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: ''; position: absolute; inset: 0;
-    background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
-    pointer-events: none;
-  }
-  .hero-inner { max-width: 960px; margin: 0 auto; position: relative; }
-  .hero-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.3);
-    box-shadow: 0 0 10px var(--green-glow);
-    color: var(--green);
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 11px; font-family: var(--mono); letter-spacing: 0.8px; text-transform: uppercase;
-    margin-bottom: 20px; text-shadow: 0 0 4px var(--green);
-  }
-  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 16px; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-  .hero h1 span { color: var(--text-muted); font-weight: 300; }
-  .hero p { font-size: 15px; color: #a4b5c7; max-width: 520px; line-height: 1.65; margin-bottom: 32px; }
-  .hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
-  .hero-stat { display: flex; flex-direction: column; gap: 3px; }
-  .hero-stat-num { font-size: 26px; font-weight: 600; font-family: var(--mono); letter-spacing: -1px; text-shadow: 0 0 10px rgba(0,255,136,0.3); color: var(--green); }
-  .hero-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); }
-  .hero-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.1); align-self: center; }
-
-  /* ── Main content ── */
-  .main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; transform-style: preserve-3d; perspective: 1200px; }
-
-  /* ── Section heading ── */
-  .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; margin-top: 40px; }
-  .section-heading:first-child { margin-top: 0; }
-  .section-heading h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); text-shadow: 0 0 5px var(--green-glow); font-family: var(--mono); }
-  .section-heading::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,255,136,0.3), transparent); }
-
-  /* ── Card grid ── */
-  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; transform-style: preserve-3d; }
-
-  /* ── Form card ── */
-  .form-card {
-    background: var(--surface);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border); border-radius: 12px;
-    text-decoration: none; color: inherit;
-    display: flex; flex-direction: column; overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: var(--glass-shadow);
-    transform-style: preserve-3d;
-  }
-  .form-card:hover {
-    transform: translateY(-5px) rotateX(2deg);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 20px rgba(130,180,255,0.1);
-    border-color: rgba(130,180,255,0.4);
-  }
-  .form-card-accent { height: 4px; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
-  .form-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
-  .form-card-top { display: flex; align-items: flex-start; gap: 14px; }
-  .form-card-icon {
-    width: 44px; height: 44px; border-radius: 10px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.5));
-    border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(255,255,255,0.05);
-    transition: transform 0.3s ease;
-  }
-  .form-card:hover .form-card-icon { transform: translateZ(10px) scale(1.05); }
-  .form-card-titles { flex: 1; }
-  .form-card-title { font-size: 15px; font-weight: 600; color: #fff; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-  .form-card-code { font-size: 11px; font-family: var(--mono); color: var(--text-muted); margin-top: 4px; }
-  .form-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  .form-card-footer {
-    padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.05);
-    background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between;
-  }
-  .form-card-ref { font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
-  .form-card-arrow { font-size: 18px; color: var(--text-muted); transition: all 0.2s; }
-  .form-card:hover .form-card-arrow { transform: translateX(4px); color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
-
-  /* ── Viewer card (wider) ── */
-  .viewer-card {
-    background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border); border-left: 4px solid var(--teal); border-radius: 12px;
-    text-decoration: none; color: inherit; display: flex; align-items: center; gap: 20px; padding: 24px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: var(--glass-shadow);
-  }
-  .viewer-card:hover {
-    transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 20px var(--teal-glow);
-    border-color: rgba(130,180,255,0.3); border-left-color: var(--teal);
-  }
-  .viewer-card-icon {
-    width: 52px; height: 52px; background: linear-gradient(135deg, var(--teal-light), rgba(0,0,0,0.5));
-    border: 1px solid rgba(0,229,255,0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    font-size: 26px; flex-shrink: 0; box-shadow: 0 0 15px var(--teal-glow);
-    transition: transform 0.3s ease;
-  }
-  .viewer-card:hover .viewer-card-icon { transform: translateZ(10px) scale(1.05); }
-  .viewer-card-body { flex: 1; }
-  .viewer-card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #fff; text-shadow: 0 0 5px var(--teal-glow); }
-  .viewer-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  .viewer-card-meta { font-size: 11px; font-family: var(--mono); color: var(--teal); margin-top: 8px; opacity: 0.8; }
-  .viewer-card-arrow { font-size: 24px; color: var(--text-muted); flex-shrink: 0; transition: all 0.2s; }
-  .viewer-card:hover .viewer-card-arrow { transform: translateX(6px); color: var(--teal); text-shadow: 0 0 8px var(--teal-glow); }
-
-  /* ── ISO notice ── */
-  .iso-notice {
-    background: linear-gradient(145deg, rgba(0,255,136,0.05), rgba(0,0,0,0.2));
-    border: 1px solid rgba(0,255,136,0.2); border-left: 3px solid var(--green); border-radius: 8px;
-    padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 36px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,255,136,0.05);
-  }
-  .iso-notice-icon { font-size: 20px; flex-shrink: 0; filter: drop-shadow(0 0 4px var(--green)); }
-  .iso-notice-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-  .iso-notice-text strong { font-weight: 600; color: var(--green); text-shadow: 0 0 4px var(--green-glow); }
-  .iso-notice-text code { background: rgba(0,255,136,0.1); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); color: var(--green); }
-
-  /* ── Footer ── */
-  footer {
-    background: linear-gradient(0deg, #050a12, transparent);
-    color: var(--text-muted); text-align: center; padding: 40px 24px;
-    font-size: 11px; font-family: var(--mono); letter-spacing: 0.5px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-  footer strong { color: var(--green); text-shadow: 0 0 4px var(--green-glow); }
-
-  /* ── Clock ── */
-  #live-clock { font-family: var(--mono); font-size: 12px; color: var(--green); text-shadow: 0 0 5px var(--green-glow); }
-
-  @media (max-width: 580px) {
-    .topbar { padding: 0 16px; }
-    .hero { padding: 40px 16px 36px; }
-    .hero-stats { gap: 20px; }
-    .hero-divider { display: none; }
-    .main { padding: 24px 16px 60px; }
-    .viewer-card { flex-direction: column; align-items: flex-start; gap: 16px; }
-  }
-
-  /* ── Login Overlay ── */
-  #login-overlay { position: fixed; inset: 0; background: rgba(5,10,18,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-  #login-box {
-    background: linear-gradient(145deg, rgba(20,30,48,0.8), rgba(10,15,24,0.9));
-    border: 1px solid var(--border); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 380px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,255,136,0.05); text-align: center;
-    transform: translateY(0); animation: floatBox 4s ease-in-out infinite alternate;
-  }
+  /* Local Overrides for Index Dashboard */
+  #login-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+  #login-box { max-width: 400px; width: 90%; padding: 48px; text-align: center; transform: translateY(0); animation: floatBox 6s ease-in-out infinite alternate; }
   @keyframes floatBox { from { transform: translateY(-5px); } to { transform: translateY(5px); } }
-  #login-box h2 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 6px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-  #login-box p { font-size: 12px; color: var(--green); margin-bottom: 32px; font-family: var(--mono); text-shadow: 0 0 5px var(--green-glow); }
-  #login-box input {
-    width: 100%; padding: 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-    font-size: 16px; color: #fff; outline: none; text-align: center; letter-spacing: 4px; margin-bottom: 16px;
-    transition: all 0.3s; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); font-family: var(--mono);
-  }
-  #login-box input:focus { border-color: var(--green); background: rgba(0,0,0,0.6); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 15px var(--green-glow); }
-  #login-box button {
-    width: 100%; padding: 14px; background: linear-gradient(145deg, #00e67a, #00b35f); color: #000; border: none; border-radius: 8px;
-    font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
-    box-shadow: 0 8px 20px rgba(0,255,136,0.3), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 5px rgba(0,0,0,0.2);
-  }
-  #login-box button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,255,136,0.4), inset 0 2px 0 rgba(255,255,255,0.5); filter: brightness(1.1); }
-  #login-box button:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(0,255,136,0.3); }
-  #login-error { color: var(--warn); font-size: 13px; margin-top: 12px; display: none; text-shadow: 0 0 5px var(--warn-glow); font-family: var(--mono); }
-  #login-box .lock { font-size: 42px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,255,136,0.4)); display: inline-block; }
-
-  /* ── Equipment Alert Panel ── */
-  .alert-panel { margin-bottom: 40px; }
-  .alert-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .alert-panel-header h2 { font-size: 16px; font-weight: 600; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
-  .alert-panel-header .refresh-time { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
-  .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; transform-style: preserve-3d; }
-  .alert-card {
-    background: var(--surface); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border); border-radius: 12px; padding: 16px;
-    display: flex; align-items: flex-start; gap: 14px; transition: all 0.3s ease; box-shadow: var(--glass-shadow);
-  }
-  .alert-card:hover { transform: translateY(-3px) rotateX(2deg); box-shadow: 0 12px 25px rgba(0,0,0,0.6); }
+  #login-box .lock { font-size: 48px; margin-bottom: 24px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+  #login-box h2 { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+  #login-box p { font-size: 14px; color: var(--primary); margin-bottom: 32px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  #login-input { text-align: center; font-size: 20px; letter-spacing: 0.2em; font-weight: 700; margin-bottom: 24px; }
+  #login-error { color: var(--danger); font-size: 14px; margin-top: 16px; display: none; font-weight: 600; text-shadow: none; }
   
-  .alert-card.status-ok { border-left: 3px solid var(--green); background: linear-gradient(145deg, rgba(0,255,136,0.05), rgba(0,0,0,0.3)); }
-  .alert-card.status-ok:hover { box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 15px rgba(0,255,136,0.1); border-color: rgba(0,255,136,0.3); border-left-color: var(--green); }
+  .hero-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 20px; }
+  .hero-stat { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+  .hero-stat-num { font-size: 32px; font-weight: 700; color: var(--primary); font-family: var(--mono); text-shadow: 0 4px 10px var(--primary-glow); }
+  .hero-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
   
-  .alert-card.status-warn { border-left: 3px solid var(--amber); background: linear-gradient(145deg, rgba(255,170,51,0.05), rgba(0,0,0,0.3)); }
-  .alert-card.status-warn:hover { box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 15px rgba(255,170,51,0.1); border-color: rgba(255,170,51,0.3); border-left-color: var(--amber); }
+  .alert-card { padding: 20px; display: flex; align-items: flex-start; gap: 16px; border-left-width: 4px; }
+  .alert-card.status-ok { border-left-color: var(--success); }
+  .alert-card.status-warn { border-left-color: var(--warning); }
+  .alert-card.status-bad { border-left-color: var(--danger); }
+  .alert-icon { font-size: 28px; background: rgba(255,255,255,0.8); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0; }
   
-  .alert-card.status-bad { border-left: 3px solid var(--warn); background: linear-gradient(145deg, rgba(255,51,102,0.05), rgba(0,0,0,0.3)); }
-  .alert-card.status-bad:hover { box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 15px rgba(255,51,102,0.1); border-color: rgba(255,51,102,0.3); border-left-color: var(--warn); }
+  .quick-ref-card { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
   
-  .alert-icon { font-size: 24px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: transform 0.3s; }
-  .alert-card:hover .alert-icon { transform: scale(1.1) translateZ(5px); }
-  .alert-body { flex: 1; min-width: 0; }
-  .alert-equip { font-size: 11px; font-weight: 600; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
-  .alert-status { font-size: 15px; font-weight: 600; margin: 4px 0; display:flex; align-items:center; gap:6px; }
+  .form-card { padding: 32px; display: flex; flex-direction: column; gap: 20px; height: 100%; text-decoration: none; color: inherit; }
+  .form-card:hover .form-card-icon { transform: translateZ(10px) scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+  .form-card-icon { font-size: 36px; background: #fff; width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+  .form-card-title { font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+  .form-card-code { font-size: 12px; font-family: var(--mono); color: var(--primary); font-weight: 700; display: inline-block; background: var(--primary-light); padding: 4px 8px; border-radius: 6px; }
+  .form-card-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; flex: 1; margin-top: 8px; }
   
-  .alert-card.status-bad .alert-status { color: var(--warn); text-shadow: 0 0 5px var(--warn-glow); }
-  .alert-card.status-warn .alert-status { color: var(--amber); text-shadow: 0 0 5px var(--amber-glow); }
-  .alert-card.status-ok .alert-status { color: var(--green); text-shadow: 0 0 5px var(--green-glow); }
-  
-  .alert-date { font-size: 11px; color: var(--text-muted); font-family: var(--mono); opacity: 0.8; }
-  .alert-loading { text-align: center; padding: 30px; color: var(--green); font-size: 14px; font-family: var(--mono); text-shadow: 0 0 5px var(--green-glow); animation: pulse 2s infinite; }
-  @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-  .alert-empty { display: none; }
-  
-  /* Utilities for inline styled quick reference cards */
-  .quick-ref-card { background: var(--surface) !important; box-shadow: var(--glass-shadow) !important; border: 1px solid var(--border) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s; }
-  .quick-ref-card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(0,0,0,0.6) !important; border-color: rgba(130,180,255,0.3) !important; }
+  .viewer-card { display: flex; align-items: center; gap: 32px; padding: 40px; border-left: 4px solid var(--primary); margin-top: 20px; text-decoration: none; }
+  .viewer-card-icon { font-size: 48px; background: #fff; width: 88px; height: 88px; border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.08); flex-shrink: 0; transition: transform 0.4s; }
+  .viewer-card:hover .viewer-card-icon { transform: scale(1.05); }
+  .viewer-card-title { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
+  .viewer-card-desc { font-size: 16px; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin-bottom: 16px; }
 </style>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(r => console.log('[SW] registered', r.scope))
-      .catch(e => console.warn('[SW] failed', e));
+    navigator.serviceWorker.register('/sw.js').catch(e => console.warn('[SW] failed', e));
   });
 }
 </script>
 </head>
 <body>
 <div id="login-overlay">
-  <div id="login-box">
+  <div id="login-box" class="glass-panel">
     <div class="lock">🔬</div>
     <h2>Microbiology Laboratorium</h2>
     <p>QMS · ISO 17025:2017</p>
-    <input type="password" id="login-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkLogin()">
-    <button onclick="checkLogin()">Enter</button>
+    <div class="input-group">
+      <input type="password" class="input-base" id="login-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkLogin()">
+    </div>
+    <button class="btn btn-primary" style="width: 100%; padding: 14px;" onclick="checkLogin()">Enter Dashboard</button>
     <div id="login-error">⚠ Incorrect password</div>
   </div>
 </div>
@@ -342,186 +85,107 @@ function checkLogin(){
 }
 </script>
 
-
-<!-- Top bar -->
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-logo">🔬</div>
+<div class="global-topbar">
+  <div class="topbar-brand">
+    <div class="topbar-icon">🔬</div>
     <div>
-      <div class="topbar-name">Microbiology Laboratorium</div>
-      <div class="topbar-sub">Quality Management System</div>
+      <div class="topbar-title">Microbiology Laboratorium</div>
+      <div class="topbar-subtitle">Quality Management System</div>
     </div>
   </div>
   <div class="topbar-right">
-    <div id="live-clock"></div>
+    <div id="live-clock" style="color: var(--primary); font-weight: 600;"></div>
     <div>ISO 17025:2017</div>
   </div>
 </div>
 
-<!-- Hero -->
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-tag">🧪 Digital Lab Records</div>
-    <h1>Lab Records &<br><span>Documentation Portal</span></h1>
-    <p>ISO 17025:2017 compliant digital forms for media, equipment, and reference strain management. All records saved directly to Google Sheets.</p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-num">3</div>
-        <div class="hero-stat-label">Form Types</div>
-      </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">3</div>
-        <div class="hero-stat-label">Record Types</div>
-      </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">ISO</div>
-        <div class="hero-stat-label">17025:2017</div>
-      </div>
-    </div>
+<div class="hero scroll-animate delay-1">
+  <span class="badge badge-pending" style="margin-bottom: 16px;">🧪 Premium Workspace</span>
+  <h1>Microbiology Digital Records</h1>
+  <p>ISO 17025:2017 compliant digital forms for media, equipment, and reference strain management. All records securely saved and synchronized via Supabase.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Form Types</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Cloud Sync</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">ISO</div><div class="hero-stat-label">17025:2017</div></div>
   </div>
 </div>
 
-<!-- Main -->
-<div class="main">
+<div class="main-container">
+  
+  <div class="section-title scroll-animate delay-2"><h2>Live Equipment Status</h2><span class="topbar-subtitle" id="alert-refresh-time" style="margin-left:auto;text-transform:none;">Loading…</span></div>
+  <div class="card-grid scroll-animate delay-3" id="alert-grid">
+    <div style="padding: 40px; text-align: center; color: var(--primary); font-weight: 600; width: 100%;">⏳ Fetching equipment status telemetry…</div>
+  </div>
 
-  <div class="iso-notice">
-    <div class="iso-notice-icon">ℹ️</div>
-    <div class="iso-notice-text">
-      <strong>All records are saved to Google Sheets via Apps Script.</strong>
-      Use the Records Viewer to search, edit, export PDF, or delete any saved entry. Each record is assigned a sequential ID that resets monthly — e.g. <code>MOR-20260310-0003</code>.
+  <div class="section-title scroll-animate delay-1"><h2>Quick Reference</h2></div>
+  <div class="card-grid scroll-animate delay-2">
+    <div class="glass-panel quick-ref-card glass-panel-hover">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Record ID Format</div>
+      <div style="font-family:var(--mono);font-size:16px;color:var(--primary);font-weight:700;margin-top:4px;">MOR-20260310-0001</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.6;">
+        <b>MOR/RSR/EQL</b> — Form Type<br>
+        <b>YYYYMMDD</b> — Date Stamp<br>
+        <b>0001</b> — Reset Monthly
+      </div>
+    </div>
+    <div class="glass-panel quick-ref-card glass-panel-hover">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;">QC Dispositions</div>
+      <div class="flex-col" style="font-size:13px; margin-top:8px; gap:10px;">
+        <span style="color:var(--success);font-weight:700;">✓ Approved — Fit for use</span>
+        <span style="color:var(--warning);font-weight:700;">⚠ Conditional — Restricted</span>
+        <span style="color:var(--danger);font-weight:700;">✗ Rejected — Do not use</span>
+      </div>
+    </div>
+    <div class="glass-panel quick-ref-card glass-panel-hover">
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Passage Limit (ISO 11133)</div>
+      <div style="font-family:var(--mono);font-size:32px;color:var(--warning);font-weight:800;margin-top:4px;">≤ P5</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.6;">Max 5 passages from master stock. Document in passage log.</div>
     </div>
   </div>
 
-  <!-- Equipment Alert Panel -->
-  <div class="alert-panel">
-    <div class="alert-panel-header">
-      <div class="section-heading" style="margin:0;"><h2>Equipment Status</h2></div>
-      <span class="refresh-time" id="alert-refresh-time">Loading…</span>
-    </div>
-    <div class="alert-grid" id="alert-grid">
-      <div class="alert-loading">⏳ Fetching equipment status…</div>
-    </div>
-  </div>
-
-  <!-- Reference -->
-  <div class="section-heading" style="margin-bottom:30px;"><h2>Quick Reference</h2></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;transform-style:preserve-3d;">
-
-    <div class="quick-ref-card" style="border-radius:12px;padding:20px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Record ID Format</div>
-      <div style="font-family:var(--mono);font-size:14px;color:var(--green);font-weight:600;text-shadow:0 0 5px var(--green-glow);">MOR-20260310-0001</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.6;">
-        <b style="color:#fff;">MOR/RSR/EQL</b> — form type<br>
-        <b style="color:#fff;">YYYYMMDD</b> — date created<br>
-        <b style="color:#fff;">0001</b> — resets each month
+  <div class="section-title scroll-animate delay-1"><h2>Data Entry Forms</h2></div>
+  <div class="card-grid scroll-animate delay-2">
+    <a class="glass-panel form-card glass-panel-hover" href="media-opening-record.html">
+      <div class="form-card-icon" style="color: var(--primary);">🧫</div>
+      <div>
+         <span class="form-card-code">QC-MOR-001</span>
+         <div class="form-card-title" style="margin-top:8px;">Media Opening Record</div>
       </div>
-    </div>
-
-    <div class="quick-ref-card" style="border-radius:12px;padding:20px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">QC Dispositions</div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
-        <span style="color:var(--green);font-weight:600;text-shadow:0 0 5px var(--green-glow);">✓ Approved — fit for use</span>
-        <span style="color:var(--amber);font-weight:600;text-shadow:0 0 5px var(--amber-glow);">⚠ Conditional — restricted use</span>
-        <span style="color:var(--warn);font-weight:600;text-shadow:0 0 5px var(--warn-glow);">✗ Rejected — do not use</span>
-      </div>
-    </div>
-
-    <div class="quick-ref-card" style="border-radius:12px;padding:20px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Passage Limit (ISO 11133)</div>
-      <div style="font-family:var(--mono);font-size:24px;color:#ff9955;font-weight:600;text-shadow:0 0 10px rgba(255,153,85,0.4);">≤ P5</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.6;">Max 5 passages from master stock. Document in passage log.</div>
-    </div>
-
-    <div class="quick-ref-card" style="border-radius:12px;padding:20px;">
-      <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Autoclave Cycles</div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-family:var(--mono);color:var(--text-muted);">
-        <span style="color:#e2e8f0;">Gravity   121°C / 15 min</span>
-        <span style="color:#e2e8f0;">Pre-Vac   134°C / 4 min</span>
-        <span style="color:#e2e8f0;">Liquid    121°C / 20 min</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Data Entry -->
-  <div class="section-heading"><h2>Data Entry Forms</h2></div>
-  <div class="card-grid">
-
-    <a class="form-card" href="media-opening-record.html">
-      <div class="form-card-accent" style="background:var(--teal);"></div>
-      <div class="form-card-body">
-        <div class="form-card-top">
-          <div class="form-card-icon" style="background:var(--teal-light);">🧫</div>
-          <div class="form-card-titles">
-            <div class="form-card-title">Media Opening Record</div>
-            <div class="form-card-code">QC-MOR-001</div>
-          </div>
-        </div>
-        <div class="form-card-desc">Document receipt, physical inspection, storage conditions, and QC testing for culture media and reagents.</div>
-      </div>
-      <div class="form-card-footer">
-        <span class="form-card-ref">ISO 17025:2017 §6.4</span>
-        <span class="form-card-arrow">→</span>
-      </div>
+      <div class="form-card-desc">Document receipt, physical inspection, storage conditions, and QC testing for culture media and reagents.</div>
     </a>
-
-    <a class="form-card" href="reference-strain-record.html">
-      <div class="form-card-accent" style="background:var(--brown);"></div>
-      <div class="form-card-body">
-        <div class="form-card-top">
-          <div class="form-card-icon" style="background:var(--brown-light);">🦠</div>
-          <div class="form-card-titles">
-            <div class="form-card-title">Reference Strain Record</div>
-            <div class="form-card-code">QC-RSR-001</div>
-          </div>
-        </div>
-        <div class="form-card-desc">Track reference microorganism strains including receipt, storage, passage log, identity confirmation, and QC disposition.</div>
+    <a class="glass-panel form-card glass-panel-hover" href="reference-strain-record.html">
+      <div class="form-card-icon" style="color: var(--accent-purple);">🦠</div>
+      <div>
+         <span class="form-card-code" style="color: var(--accent-purple); background: var(--accent-purple-light);">QC-RSR-001</span>
+         <div class="form-card-title" style="margin-top:8px;">Reference Strain Record</div>
       </div>
-      <div class="form-card-footer">
-        <span class="form-card-ref">ISO 11133 / §6.4</span>
-        <span class="form-card-arrow">→</span>
-      </div>
+      <div class="form-card-desc">Track reference microorganism strains including receipt, storage, passage log, identity confirmation, and QC disposition.</div>
     </a>
-
-    <a class="form-card" href="equipment-log.html">
-      <div class="form-card-accent" style="background:var(--green);"></div>
-      <div class="form-card-body">
-        <div class="form-card-top">
-          <div class="form-card-icon" style="background:var(--green-light);">⚙️</div>
-          <div class="form-card-titles">
-            <div class="form-card-title">Equipment Monitoring Log</div>
-            <div class="form-card-code">QC-EQL-001</div>
-          </div>
-        </div>
-        <div class="form-card-desc">Daily status checks for autoclave (with run log), incubator, refrigerator/freezer, and biosafety cabinet.</div>
+    <a class="glass-panel form-card glass-panel-hover" href="equipment-log.html">
+      <div class="form-card-icon" style="color: var(--success);">⚙️</div>
+      <div>
+         <span class="form-card-code" style="color: var(--success); background: var(--success-light);">QC-EQL-001</span>
+         <div class="form-card-title" style="margin-top:8px;">Equipment Monitoring Log</div>
       </div>
-      <div class="form-card-footer">
-        <span class="form-card-ref">ISO 17025:2017 §6.4</span>
-        <span class="form-card-arrow">→</span>
-      </div>
+      <div class="form-card-desc">Daily status checks for autoclave (with run log), incubator, refrigerator/freezer, and biosafety cabinet.</div>
     </a>
-
   </div>
 
-  <!-- Records -->
-  <div class="section-heading"><h2>Records & Viewer</h2></div>
-  <a class="viewer-card" href="records-viewer.html">
-    <div class="viewer-card-icon">📋</div>
-    <div class="viewer-card-body">
+  <div class="section-title scroll-animate delay-1"><h2>Records & Reports</h2></div>
+  <a class="glass-panel viewer-card glass-panel-hover scroll-animate delay-2" href="records-viewer.html">
+    <div class="viewer-card-icon" style="color: var(--primary);">📋</div>
+    <div>
       <div class="viewer-card-title">Lab Records Viewer</div>
-      <div class="viewer-card-desc">Search, filter, edit, download PDF, and delete all submitted records across MOR and RSR sheets. Edit passages and run logs without re-entering data from scratch.</div>
-      <div class="viewer-card-meta">MOR Records · RSR Records · Edit Drawer · PDF Export</div>
+      <div class="viewer-card-desc">Securely search, filter, edit, download PDF, and delete all submitted ISO 17025 records. Easily clone passages and run logs without re-entering data.</div>
+      <span class="badge badge-pending">MOR</span> <span class="badge badge-pending">RSR</span> <span class="badge badge-pending">Equipment</span>
     </div>
-    <div class="viewer-card-arrow">→</div>
   </a>
 
 </div>
 
 <footer>
-  <strong>Microbiology Laboratorium</strong> · Quality Management System · ISO 17025:2017 Compliant<br>
-  Records stored in Google Sheets via Apps Script · For internal use only · Created by Kaisar Akhmad K
+  <strong>Microbiology Laboratorium</strong> · Quality Management System · Premium Cloud Edition<br>
+  Records synchronized via Supabase · ISO 17025:2017 Compliant
 </footer>
 
 <script>
@@ -556,20 +220,15 @@ function fmtDate(iso) {
 
 async function fetchLatestRecord(eqType) {
   try {
-    const { data, error } = await _supabase.from('equipment_logs')
+    const { data, error } = await _sb.from('equipment_logs')
       .select('record_id, equipment_type, overall_status, record_date, data, created_at')
       .eq('equipment_type', eqType)
       .order('created_at', { ascending: false })
       .limit(1);
 
-    if (error) {
-      console.warn('Error fetching latest record for', eqType, error);
-      return null;
-    }
-    
+    if (error) return null;
     if (!data || data.length === 0) return null;
     
-    // Map Supabase layout back to the flat dictionary expected by the UI
     const row = data[0];
     return {
       ...row.data,
@@ -584,13 +243,13 @@ async function fetchLatestRecord(eqType) {
   }
 }
 
-const ALERT_CACHE_KEY = 'lab_equip_alerts';
-const ALERT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const ALERT_CACHE_KEY = 'lab_equip_alerts_v2';
+const ALERT_CACHE_TTL = 5 * 60 * 1000;
 
 function renderAlertCards(withRecords) {
   const grid = document.getElementById('alert-grid');
   if (withRecords.length === 0) {
-    grid.innerHTML = '<div class="alert-loading">No equipment records found.</div>';
+    grid.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted); width: 100%;">No equipment records found.</div>';
     return;
   }
   grid.innerHTML = withRecords.map(eq => {
@@ -604,22 +263,20 @@ function renderAlertCards(withRecords) {
     else if (status.toLowerCase().includes('out of service') || status.toLowerCase() === 'fail') { cls = 'status-bad'; statusIcon = '🚨'; }
     else if (status === '—') { cls = 'status-warn'; statusIcon = '❓'; }
 
-    return `<div class="alert-card ${cls}">
+    return `<div class="glass-panel alert-card ${cls} glass-panel-hover">
       <div class="alert-icon">${eq.icon}</div>
-      <div class="alert-body">
-        <div class="alert-equip">${eq.label}</div>
-        <div class="alert-status">${statusIcon} ${status}</div>
-        <div class="alert-date">Last record: ${date}</div>
+      <div style="flex: 1;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase;">${eq.label}</div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 4px 0;">${statusIcon} ${status}</div>
+        <div style="font-size: 11px; color: var(--text-muted); font-family: var(--mono);">Last updated: ${date}</div>
       </div>
     </div>`;
   }).join('');
 }
 
 async function loadEquipmentAlerts() {
-  const grid = document.getElementById('alert-grid');
   const timeEl = document.getElementById('alert-refresh-time');
 
-  // Try to show cached data instantly
   try {
     const raw = sessionStorage.getItem(ALERT_CACHE_KEY);
     if (raw) {
@@ -627,16 +284,13 @@ async function loadEquipmentAlerts() {
       if (Date.now() - cached.fetchedAt < ALERT_CACHE_TTL) {
         renderAlertCards(cached.data);
         timeEl.textContent = 'Cached ' + new Date(cached.fetchedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        // Still fresh — skip network fetch
         return;
       }
-      // Stale but still show cached data while refreshing
       renderAlertCards(cached.data);
       timeEl.textContent = 'Refreshing…';
     }
   } catch(e) {}
 
-  // Fetch fresh data
   const results = await Promise.all(
     EQUIPMENT_SHEETS.map(async (eq) => {
       const record = await fetchLatestRecord(eq.eqType);
@@ -647,7 +301,6 @@ async function loadEquipmentAlerts() {
   const withRecords = results.filter(eq => eq.record !== null);
   renderAlertCards(withRecords);
 
-  // Cache the results
   try {
     sessionStorage.setItem(ALERT_CACHE_KEY, JSON.stringify({ data: withRecords, fetchedAt: Date.now() }));
   } catch(e) {}
@@ -656,7 +309,6 @@ async function loadEquipmentAlerts() {
   timeEl.textContent = 'Updated ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
-// Only load alerts after login is cleared
 (function waitForAuth() {
   const overlay = document.getElementById('login-overlay');
   if (overlay && overlay.style.display !== 'none' && sessionStorage.getItem('qms_auth') !== '1') {
@@ -666,5 +318,6 @@ async function loadEquipmentAlerts() {
   loadEquipmentAlerts();
 })();
 </script>
+<script src="animations.js"></script>
 </body>
 </html>

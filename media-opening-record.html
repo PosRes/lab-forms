@@ -11,318 +11,47 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root {
-    --bg-dark: #0a0f18;
-    --surface: rgba(20, 30, 48, 0.6);
-    --surface-solid: #151f30;
-    --border: rgba(130, 180, 255, 0.15);
-    
-    /* Original variables mapped to dark theme */
-    --bg: var(--bg-dark);
-    --text: #e2e8f0;
-    --text-muted: #8b9db5;
-    
-    --accent: #00e5ff;
-    --accent-glow: rgba(0, 229, 255, 0.4);
-    --accent-light: rgba(0, 229, 255, 0.1);
-    --accent-mid: #00b3cc;
-    
-    --warn: #ff3366;
-    --warn-glow: rgba(255, 51, 102, 0.4);
-    --warn-light: rgba(255, 51, 102, 0.1);
-    
-    --pass: #00ff88;
-    --pass-glow: rgba(0, 255, 136, 0.4);
-    --pass-light: rgba(0, 255, 136, 0.1);
-
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-    --radius: 8px;
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--sans);
-    background: radial-gradient(circle at 50% -20%, #1a2b3c, var(--bg-dark) 80%);
-    background-attachment: fixed;
-    color: var(--text);
-    min-height: 100vh;
-    padding: 24px 16px 160px;
-  }
-  @media (min-width: 600px) { body { padding: 40px 20px 120px; } }
-
-  .page-wrap { max-width: 820px; margin: 0 auto; perspective: 1000px; transform-style: preserve-3d; }
-
-  /* ── Header ── */
-  .form-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    padding: 20px; background: var(--surface);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    box-shadow: var(--glass-shadow); margin-bottom: 28px;
-    gap: 16px; flex-wrap: wrap; position: relative; overflow: hidden;
-  }
-  .form-header::after {
-    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    box-shadow: 0 0 10px var(--accent);
-  }
-  .form-header-left h1 { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: 1px; text-shadow: 0 0 15px var(--accent-glow); }
-  .form-header-left p { font-size: 12px; color: var(--text-muted); font-family: var(--mono); margin-top: 6px; }
-
-  .form-header-right { text-align: right; flex-shrink: 0; }
-  .doc-ref { font-family: var(--mono); font-size: 11px; color: var(--text-muted); line-height: 1.8; }
-  .doc-ref strong { color: var(--accent); font-weight: 500; text-shadow: 0 0 8px var(--accent-glow); }
-
-  /* ── Record ID bar ── */
-  .record-id-bar {
-    background: linear-gradient(135deg, #102a30, #0a1820);
-    border: 1px solid var(--accent);
-    box-shadow: 0 0 15px var(--accent-glow), inset 0 0 20px rgba(0,229,255,0.1);
-    color: #fff; padding: 12px 20px; border-radius: var(--radius);
-    font-family: var(--mono); font-size: 13px; margin-bottom: 24px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-    transform-style: preserve-3d;
-  }
-  .record-id-bar strong { color: #fff; font-size: 18px; font-weight: 500; letter-spacing: 2px; text-shadow: 0 0 10px #fff; }
-
-  /* ── Sections ── */
-  .section {
-    background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px;
-    overflow: hidden; box-shadow: var(--glass-shadow);
-    transition: transform 0.3s ease, border-color 0.3s ease;
-  }
-  .section:hover {
-    border-color: rgba(130, 180, 255, 0.3);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7), 0 0 20px rgba(130, 200, 255, 0.05);
-  }
-
-  .section-title {
-    background: linear-gradient(90deg, #1a303c, #101826);
-    border-bottom: 1px solid rgba(0,0,0,0.5);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
-    font-size: 14px; font-weight: 600; letter-spacing: 0.5px; font-family: var(--mono); text-transform: uppercase;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative;
-  }
-  .section-title::before {
-    content: ''; position: absolute; top:0; left:0; width:100%; height:1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
-  }
-  .section-title .num {
-    color: var(--accent); background: rgba(0,229,255,0.05);
-    border: 1px solid rgba(0,229,255,0.3); box-shadow: 0 0 8px rgba(0,229,255,0.2);
-    padding: 3px 8px; border-radius: 4px; font-size: 11px; text-shadow: 0 0 5px var(--accent);
-  }
-
-  .section-body { padding: 24px 20px; }
-
-  .field-grid { display: grid; gap: 20px 24px; }
-  .col-2 { grid-template-columns: 1fr 1fr; }
-  .col-3 { grid-template-columns: 1fr 1fr 1fr; }
-  @media (max-width: 600px) { .col-2, .col-3 { grid-template-columns: 1fr; } }
+  .form-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; gap: 20px; flex-wrap: wrap; }
+  .form-header h1 { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .form-header p { font-size: 14px; color: var(--text-muted); }
+  .doc-meta { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.6; }
   
-  .field { display: flex; flex-direction: column; gap: 8px; }
-  label {
-    font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-    color: var(--text-muted); font-family: var(--mono); text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    display: flex; align-items: center; gap: 4px;
-  }
-  label .req { color: var(--warn); font-size: 13px; text-shadow: 0 0 5px var(--warn); }
-
-  input[type="text"], input[type="date"], input[type="number"], select, textarea {
-    font-family: var(--sans); font-size: 15px; color: #fff;
-    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;
-    padding: 12px 14px; width: 100%; outline: none; -webkit-appearance: none; appearance: none;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); transition: all 0.3s ease;
-  }
-  @media (min-width: 600px) {
-    input[type="text"], input[type="date"], input[type="number"], select, textarea { font-size: 14px; }
-  }
-  input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); }
-  input[type="date"] { font-family: var(--mono); }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent); background: rgba(0,0,0,0.6);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 12px var(--accent-glow);
-  }
-  input.mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0.5px; }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-  select {
-    cursor: pointer; padding-right: 36px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e5ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 14px center;
-  }
-  select option { background: var(--surface-solid); color: #fff; }
-
-  .hint { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
-
-  /* ── 3D Checklist ── */
-  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 480px) { .checklist { grid-template-columns: 1fr; } }
+  .record-id-banner { background: var(--primary-light); border: 1px solid rgba(14,165,233,0.2); border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .record-id-label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--primary); letter-spacing: 1px; margin-bottom: 4px; }
+  .record-id-value { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text-main); }
   
-  .check-item {
-    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-    background: linear-gradient(145deg, #182436, #0f1724);
-    border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.03);
-    cursor: pointer; user-select: none; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  .check-item:hover {
-    transform: translateY(-2px); border-color: rgba(130,180,255,0.3);
-    box-shadow: 6px 6px 12px rgba(0,0,0,0.6), 0 0 10px rgba(130,180,255,0.1);
-  }
-  .check-item input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; accent-color: var(--warn); cursor: pointer; }
-  .check-item span { font-size: 13px; line-height: 1.4; color: var(--text); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .req { color: var(--danger); font-weight: 700; }
   
-  .check-item.defect:has(input:checked) {
-    background: linear-gradient(145deg, #330b14, #1a050a);
-    border-color: var(--warn);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,51,102,0.2), 0 0 15px var(--warn-glow);
-    transform: translateY(1px);
-  }
-  .check-item.defect:has(input:checked) span { color: var(--warn); text-shadow: 0 0 5px var(--warn-glow); font-weight: 500; }
-
-  /* ── QC Rows ── */
-  .qc-row {
-    display: grid; grid-template-columns: 1fr; gap: 14px; align-items: end;
-    padding: 16px; border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius);
-    background: rgba(0,0,0,0.2); box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-    margin-bottom: 12px;
-  }
-  @media (min-width: 600px) { .qc-row { grid-template-columns: 2fr 1fr 2fr; } }
-  .qc-row:last-child { margin-bottom: 0; }
-
-  /* ── 3D Radio Group ── */
-  .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
-  .radio-btn {
-    display: flex; align-items: center; gap: 8px; padding: 12px 18px;
-    background: linear-gradient(145deg, #1a273b, #121b29);
-    border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted);
-    box-shadow: 3px 3px 6px rgba(0,0,0,0.4), -2px -2px 5px rgba(255,255,255,0.02);
-    user-select: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  }
-  .radio-btn input { display: none; }
-  .radio-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.05); color: #fff; }
+  .radio-group, .checkbox-group { display: flex; gap: 12px; flex-wrap: wrap; }
+  .rpill { display: flex; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 20px; background: rgba(255,255,255,0.6); transition: all 0.2s; user-select: none; }
+  .rpill input { display: none; }
+  .rpill:has(input:checked) { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px var(--primary-glow); }
+  .cpill { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; background: rgba(255,255,255,0.6); transition: all 0.2s; }
+  .cpill:has(input:checked) { background: rgba(16,185,129,0.1); border-color: var(--success); }
   
-  .radio-btn:has(input[value="approved"]:checked) {
-    background: linear-gradient(145deg, #0d261a, #08160f); color: var(--pass); border-color: var(--pass);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6), inset -1px -1px 3px rgba(0,255,136,0.2), 0 0 15px var(--pass-glow);
-    text-shadow: 0 0 3px var(--pass-glow); transform: translateY(1px);
-  }
-  .radio-btn:has(input[value="rejected"]:checked) {
-    background: linear-gradient(145deg, #330b14, #1a050a); color: var(--warn); border-color: var(--warn);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,51,102,0.2), 0 0 15px var(--warn-glow);
-    text-shadow: 0 0 3px var(--warn-glow); transform: translateY(1px);
-  }
-  .radio-btn:has(input[value="conditional"]:checked) {
-    background: linear-gradient(145deg, #332b0b, #1a1505); color: #ffb300; border-color: #ffb300;
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,179,0,0.2), 0 0 15px rgba(255,179,0,0.4);
-    text-shadow: 0 0 3px rgba(255,179,0,0.6); transform: translateY(1px);
-  }
-
-  /* ── Sign-off Grid ── */
-  .signoff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  @media (max-width: 600px) { .signoff-grid { grid-template-columns: 1fr; } }
-  .sig-box { border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius); overflow: hidden; background: rgba(0,0,0,0.1); }
-  .sig-box-label {
-    padding: 10px 14px; font-size: 10px; font-family: var(--mono); font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-    color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  }
-  .sig-box-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-
-  .divider { border: none; border-top: 1px dashed rgba(255,255,255,0.1); margin: 20px 0; }
-
-  /* ── Status Bar ── */
-  .status-bar {
-    display: flex; align-items: center; gap: 12px; padding: 14px 20px;
-    background: rgba(0, 229, 255, 0.05); border-top: 1px solid rgba(0, 229, 255, 0.2);
-    font-size: 13px; color: var(--accent); font-family: var(--mono);
-    text-shadow: 0 0 5px var(--accent-glow); box-shadow: inset 0 0 15px rgba(0,229,255,0.05);
-  }
-  .status-dot {
-    width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
-    box-shadow: 0 0 8px var(--accent), inset 0 0 2px #fff;
-  }
-
-  /* ── Form Actions (Sticky Footer) ── */
-  .form-actions {
-    position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 12px;
-    background: rgba(15, 23, 38, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(0, 229, 255, 0.3); padding: 16px 24px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1); z-index: 100;
-  }
-  .form-actions .btn { flex: 1; justify-content: center; }
-  @media (max-width: 480px) { .form-actions { flex-direction: column; gap: 10px; } }
-
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 14px 24px; border-radius: 12px; font-size: 15px; font-weight: 600;
-    font-family: var(--sans); cursor: pointer; border: none; min-height: 48px;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d;
-  }
-  .btn-ghost { background: transparent; border: 1px solid rgba(139, 157, 181, 0.3); color: var(--text); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.6); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-  .btn-ghost:active { transform: translateY(1px); }
+  .equip-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .equip-btn { background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 16px; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+  .eq-icon { font-size: 28px; margin-bottom: 12px; }
+  .eq-label { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+  .eq-sub { font-size: 11px; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+  .equip-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: #fff; }
+  .equip-btn.active { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary-light); }
   
-  .btn-primary {
-    background: linear-gradient(145deg, #00e5ff, #00b3cc); color: #000;
-    box-shadow: 0 8px 20px rgba(0,229,255,0.3), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 5px rgba(0,0,0,0.2);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
-  }
-  .btn-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 12px 25px rgba(0,229,255,0.4), inset 0 2px 0 rgba(255,255,255,0.5); filter: brightness(1.1);
-  }
-  .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,229,255,0.3), inset 0 4px 8px rgba(0,0,0,0.3); }
+  .run-log-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .run-log-table th { background: rgba(0,0,0,0.02); padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .run-log-table td { padding: 10px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .run-log-table input, .run-log-table select { width: 100%; border: none; background: transparent; font-family: var(--sans); font-size: 13px; outline: none; padding: 4px; }
+  .run-log-table input:focus, .run-log-table select:focus { background: rgba(14,165,233,0.05); border-radius: 4px; }
+  .run-log-table tr:last-child td { border-bottom: none; }
   
-  .btn-print {
-    background: linear-gradient(145deg, #2a3b54, #1c2838); border: 1px solid rgba(130, 200, 255, 0.2); color: #fff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .btn-print:hover { border-color: rgba(130, 200, 255, 0.6); box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(130, 200, 255, 0.2); transform: translateY(-2px); }
-  .btn-print:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 4px 8px rgba(0,0,0,0.3); }
-
-
-
-  /* ── Toast ── */
-  #toast {
-    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px);
-    background: var(--surface-solid); border: 1px solid var(--accent); color: #fff;
-    padding: 14px 24px; border-radius: 24px; font-size: 14px; font-family: var(--mono);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,229,255,0.1), 0 0 20px var(--accent-glow);
-    opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; z-index: 150;
-    white-space: nowrap; max-width: 90vw; text-align: center; text-shadow: 0 0 5px var(--accent-glow);
-  }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  @media print {
-    body > * { display: none !important; }
-    #print-overlay { display: block !important; }
-  }
-
-  /* ── Print Overlay ── */
-  #print-overlay {
-    display: none; position: fixed; inset: 0; background: #fff; z-index: 9999;
-    padding: 24px; overflow-y: auto; font-family: Arial, sans-serif; font-size: 12px; color: #111;
-  }
-  #print-overlay h2 { color: #1d4e5f; border-bottom: 2px solid #1d4e5f; padding-bottom: 6px; margin-bottom: 16px; font-size: 16px; }
-  #print-overlay h3 { background: #e8f0f3; padding: 6px 10px; margin-top: 18px; margin-bottom: 0; font-size: 11px; color: #1d4e5f; text-transform: uppercase; letter-spacing: 0.5px; }
-  #print-overlay table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-  #print-overlay td { padding: 5px 10px; border-bottom: 1px solid #ddd; vertical-align: top; font-size: 12px; }
-  #print-overlay td:first-child { font-weight: 600; color: #555; width: 38%; }
-  #print-overlay .close-btn { position: fixed; top: 16px; right: 16px; background: #1d4e5f; color: #fff; border: none; border-radius: 4px; padding: 10px 18px; font-size: 14px; cursor: pointer; z-index: 10000; }
-  #print-overlay .do-print-btn { position: fixed; top: 16px; right: 130px; background: #1a5c35; color: #fff; border: none; border-radius: 4px; padding: 10px 18px; font-size: 14px; cursor: pointer; z-index: 10000; }
-  @media print { #print-overlay .close-btn, #print-overlay .do-print-btn { display: none !important; } }
+  #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.4s; z-index: 9999; }
+  #toast.show { bottom: 32px; }
+  
+  .full-width { grid-column: 1 / -1; }
 </style>
+
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -335,7 +64,7 @@ if('serviceWorker' in navigator){
 </head>
 <body>
 
-<div class="page-wrap">
+<div class="main-container scroll-animate delay-1">
 
   <div class="form-header">
     <div class="form-header-left">
@@ -355,33 +84,33 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- 1. Media Identification -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">01</span> Media Identification &amp; Traceability</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="field-grid col-2">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Media Name / Type</label>
-          <input type="text" id="media-name" placeholder="e.g. Tryptic Soy Agar (TSA)">
+          <input type="text" class="input-base" id="media-name" placeholder="e.g. Tryptic Soy Agar (TSA)">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Media Code / Catalog No.</label>
-          <input type="text" class="mono" id="catalog-no" placeholder="e.g. CM0131B">
+          <input type="text" class="input-base" class="mono" id="catalog-no" placeholder="e.g. CM0131B">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Manufacturer / Supplier</label>
-          <input type="text" id="supplier" placeholder="e.g. Oxoid / Merck / HiMedia">
+          <input type="text" class="input-base" id="supplier" placeholder="e.g. Oxoid / Merck / HiMedia">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Lot / Batch Number</label>
-          <input type="text" class="mono" id="lot-no" placeholder="e.g. 4102356">
+          <input type="text" class="input-base" class="mono" id="lot-no" placeholder="e.g. 4102356">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Container Size / Volume</label>
-          <input type="text" id="container-size" placeholder="e.g. 500 g, 100 mL, 20 plates">
+          <input type="text" class="input-base" id="container-size" placeholder="e.g. 500 g, 100 mL, 20 plates">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Intended Use</label>
-          <select id="intended-use">
+          <select class="input-base" id="intended-use">
             <option value="">— Select —</option>
             <option>Sterility Testing</option>
             <option>Growth Promotion Testing (GPT)</option>
@@ -400,48 +129,48 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- 2. Dates -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">02</span> Critical Dates</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="field-grid col-3">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Date of Receipt</label>
-          <input type="date" id="date-receipt">
+          <input type="date" class="input-base" id="date-receipt">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Date Opened</label>
-          <input type="date" id="date-opened">
+          <input type="date" class="input-base" id="date-opened">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Expiration Date (Manufacturer)</label>
-          <input type="date" id="date-expiry">
+          <input type="date" class="input-base" id="date-expiry">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>In-House Expiry After Opening</label>
-          <input type="date" id="date-inhouse-expiry">
+          <input type="date" class="input-base" id="date-inhouse-expiry">
           <span class="hint">Per lab SOP, if different from mfr. expiry</span>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Prepared / Poured Date</label>
-          <input type="date" id="date-prepared">
+          <input type="date" class="input-base" id="date-prepared">
           <span class="hint">If media is prepared in-house</span>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Date of QC Performance Test</label>
-          <input type="date" id="date-qc">
+          <input type="date" class="input-base" id="date-qc">
         </div>
       </div>
     </div>
   </div>
 
   <!-- 3. Storage Conditions -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">03</span> Storage Conditions</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="field-grid col-2">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Storage Location</label>
-          <select id="storage-location">
+          <select class="input-base" id="storage-location">
             <option value="">— Select —</option>
             <option>Room Temperature (15–25 °C)</option>
             <option>Refrigerator (2–8 °C)</option>
@@ -451,13 +180,13 @@ if('serviceWorker' in navigator){
             <option>Other / Custom</option>
           </select>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Recorded Temperature at Receipt (°C)</label>
-          <input type="number" id="temp-receipt" placeholder="e.g. 5.2" step="0.1">
+          <input type="number" class="input-base" id="temp-receipt" placeholder="e.g. 5.2" step="0.1">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Humidity / Special Condition</label>
-          <select id="humidity-condition">
+          <select class="input-base" id="humidity-condition">
             <option value="">— Select —</option>
             <option>Dry / Desiccated</option>
             <option>Ambient Humidity</option>
@@ -466,23 +195,23 @@ if('serviceWorker' in navigator){
             <option>No special requirement</option>
           </select>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Storage Equipment ID</label>
-          <input type="text" class="mono" id="storage-equip-id" placeholder="e.g. REF-02, FRZ-05">
+          <input type="text" class="input-base" class="mono" id="storage-equip-id" placeholder="e.g. REF-02, FRZ-05">
         </div>
       </div>
       <hr class="divider">
-      <div class="field">
+      <div class="input-group">
         <label>Storage Condition Notes</label>
-        <textarea id="storage-notes" placeholder="e.g. Store upright, protect from direct sunlight, keep tightly sealed after opening..."></textarea>
+        <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="storage-notes" placeholder="e.g. Store upright, protect from direct sunlight, keep tightly sealed after opening..."></textarea>
       </div>
     </div>
   </div>
 
   <!-- 4. Physical Inspection -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">04</span> Physical Integrity Inspection</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-family:var(--mono);">Check all defects observed. Leave unchecked if not present (satisfactory).</p>
       <div class="checklist">
         <label class="check-item defect">
@@ -528,7 +257,7 @@ if('serviceWorker' in navigator){
       </div>
       <hr class="divider">
       <div class="field-grid col-2" style="margin-top:4px;">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Overall Physical Inspection Result</label>
           <div class="radio-group">
             <label class="radio-btn">
@@ -539,9 +268,9 @@ if('serviceWorker' in navigator){
             </label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Action Taken if Unsatisfactory</label>
-          <select id="action-taken">
+          <select class="input-base" id="action-taken">
             <option value="">— N/A —</option>
             <option>Quarantined pending review</option>
             <option>Returned to supplier</option>
@@ -552,7 +281,7 @@ if('serviceWorker' in navigator){
       </div>
       <div class="field" style="margin-top:14px;">
         <label>Physical Inspection Notes</label>
-        <textarea id="phys-notes" placeholder="Describe any anomalies observed, container appearance, volume, color, etc..."></textarea>
+        <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="phys-notes" placeholder="Describe any anomalies observed, container appearance, volume, color, etc..."></textarea>
       </div>
     </div>
     <div class="status-bar" id="phys-status-bar">
@@ -562,68 +291,68 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- 5. QC Testing -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">05</span> Quality Control — Performance &amp; Sterility</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <p style="font-size:11px;font-family:var(--mono);color:var(--text-muted);margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;">Growth Promotion Test (GPT)</p>
 
       <div class="qc-row">
-        <div class="field">
+        <div class="input-group">
           <label>Reference Organism 1</label>
-          <input type="text" id="gpt-org-1" placeholder="e.g. S. aureus ATCC 6538 / NCTC 12981">
+          <input type="text" class="input-base" id="gpt-org-1" placeholder="e.g. S. aureus ATCC 6538 / NCTC 12981">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Result</label>
-          <select id="gpt-result-1">
+          <select class="input-base" id="gpt-result-1">
             <option value="">—</option>
             <option value="pass">Pass ✓</option>
             <option value="fail">Fail ✗</option>
             <option value="pending">Pending</option>
           </select>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Observations / CFU Count</label>
-          <input type="text" id="gpt-obs-1" placeholder="e.g. Good growth, CR+">
+          <input type="text" class="input-base" id="gpt-obs-1" placeholder="e.g. Good growth, CR+">
         </div>
       </div>
 
       <div class="qc-row">
-        <div class="field">
+        <div class="input-group">
           <label>Reference Organism 2</label>
-          <input type="text" id="gpt-org-2" placeholder="e.g. E. coli ATCC 8739 / NCTC 12241">
+          <input type="text" class="input-base" id="gpt-org-2" placeholder="e.g. E. coli ATCC 8739 / NCTC 12241">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Result</label>
-          <select id="gpt-result-2">
+          <select class="input-base" id="gpt-result-2">
             <option value="">—</option>
             <option value="pass">Pass ✓</option>
             <option value="fail">Fail ✗</option>
             <option value="pending">Pending</option>
           </select>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Observations / CFU Count</label>
-          <input type="text" id="gpt-obs-2" placeholder="e.g. Good growth, lactose fermentation">
+          <input type="text" class="input-base" id="gpt-obs-2" placeholder="e.g. Good growth, lactose fermentation">
         </div>
       </div>
 
       <div class="qc-row">
-        <div class="field">
+        <div class="input-group">
           <label>Reference Organism 3 (optional)</label>
-          <input type="text" id="gpt-org-3" placeholder="e.g. C. albicans ATCC 10231">
+          <input type="text" class="input-base" id="gpt-org-3" placeholder="e.g. C. albicans ATCC 10231">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Result</label>
-          <select id="gpt-result-3">
+          <select class="input-base" id="gpt-result-3">
             <option value="">—</option>
             <option value="pass">Pass ✓</option>
             <option value="fail">Fail ✗</option>
             <option value="pending">Pending</option>
           </select>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Observations</label>
-          <input type="text" id="gpt-obs-3" placeholder="e.g. Positive growth confirmed">
+          <input type="text" class="input-base" id="gpt-obs-3" placeholder="e.g. Positive growth confirmed">
         </div>
       </div>
 
@@ -631,7 +360,7 @@ if('serviceWorker' in navigator){
 
       <p style="font-size:11px;font-family:var(--mono);color:var(--text-muted);margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;">Sterility Test</p>
       <div class="field-grid col-2">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Sterility Result</label>
           <div class="radio-group">
             <label class="radio-btn">
@@ -645,16 +374,16 @@ if('serviceWorker' in navigator){
             </label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Incubation Conditions (Sterility)</label>
-          <input type="text" id="sterility-incubation" placeholder="e.g. 30–35 °C / 72 h">
+          <input type="text" class="input-base" id="sterility-incubation" placeholder="e.g. 30–35 °C / 72 h">
         </div>
       </div>
 
       <hr class="divider">
 
       <div class="field-grid col-2" style="margin-top:4px;">
-        <div class="field">
+        <div class="input-group">
           <label><span class="req">*</span> Overall QC Disposition</label>
           <div class="radio-group">
             <label class="radio-btn">
@@ -668,72 +397,72 @@ if('serviceWorker' in navigator){
             </label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>QC Reference / Test Report No.</label>
-          <input type="text" class="mono" id="qc-ref" placeholder="e.g. QC-2025-0089">
+          <input type="text" class="input-base" class="mono" id="qc-ref" placeholder="e.g. QC-2025-0089">
         </div>
       </div>
 
       <div class="field" style="margin-top:14px;">
         <label>QC Notes / Remarks</label>
-        <textarea id="qc-notes" placeholder="Summarize QC performance, any deviations, comparisons to acceptance criteria..."></textarea>
+        <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="qc-notes" placeholder="Summarize QC performance, any deviations, comparisons to acceptance criteria..."></textarea>
       </div>
     </div>
   </div>
 
   <!-- 6. Sign-off -->
-  <div class="section">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">06</span> Authorization &amp; Sign-Off</div>
-    <div class="section-body">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="signoff-grid">
         <div class="sig-box">
           <div class="sig-box-label">Opened By (Analyst)</div>
           <div class="sig-box-body">
-            <div class="field">
+            <div class="input-group">
               <label>Full Name</label>
-              <input type="text" id="analyst-name" placeholder="Name">
+              <input type="text" class="input-base" id="analyst-name" placeholder="Name">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Initials / Staff ID</label>
-              <input type="text" class="mono" id="analyst-id" placeholder="e.g. KAR / LB-007">
+              <input type="text" class="input-base" class="mono" id="analyst-id" placeholder="e.g. KAR / LB-007">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Date</label>
-              <input type="date" id="analyst-date">
+              <input type="date" class="input-base" id="analyst-date">
             </div>
           </div>
         </div>
         <div class="sig-box">
           <div class="sig-box-label">QC Verified By</div>
           <div class="sig-box-body">
-            <div class="field">
+            <div class="input-group">
               <label>Full Name</label>
-              <input type="text" id="qc-name" placeholder="Name">
+              <input type="text" class="input-base" id="qc-name" placeholder="Name">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Initials / Staff ID</label>
-              <input type="text" class="mono" id="qc-id" placeholder="e.g. JDW / QC-003">
+              <input type="text" class="input-base" class="mono" id="qc-id" placeholder="e.g. JDW / QC-003">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Date</label>
-              <input type="date" id="qc-date">
+              <input type="date" class="input-base" id="qc-date">
             </div>
           </div>
         </div>
         <div class="sig-box">
           <div class="sig-box-label">Reviewed By (Supervisor)</div>
           <div class="sig-box-body">
-            <div class="field">
+            <div class="input-group">
               <label>Full Name</label>
-              <input type="text" id="sup-name" placeholder="Name">
+              <input type="text" class="input-base" id="sup-name" placeholder="Name">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Initials / Staff ID</label>
-              <input type="text" class="mono" id="sup-id" placeholder="e.g. MH / SP-001">
+              <input type="text" class="input-base" class="mono" id="sup-id" placeholder="e.g. MH / SP-001">
             </div>
-            <div class="field">
+            <div class="input-group">
               <label>Date</label>
-              <input type="date" id="sup-date">
+              <input type="date" class="input-base" id="sup-date">
             </div>
           </div>
         </div>
@@ -741,9 +470,9 @@ if('serviceWorker' in navigator){
 
       <hr class="divider">
 
-      <div class="field">
+      <div class="input-group">
         <label>Additional Comments / Non-Conformance Reference</label>
-        <textarea id="additional-notes" placeholder="Reference any NCR, deviation report, or corrective action number if applicable..."></textarea>
+        <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="additional-notes" placeholder="Reference any NCR, deviation report, or corrective action number if applicable..."></textarea>
       </div>
     </div>
   </div>
@@ -765,7 +494,7 @@ if('serviceWorker' in navigator){
   function generateTempId() {
     const n = new Date();
     const pad = v => String(v).padStart(2, '0');
-    return `MOR-${String(n.getFullYear()).slice(2)}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
+    return `MOR-${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
   }
 
   async function fetchRecordId() {
@@ -774,7 +503,10 @@ if('serviceWorker' in navigator){
       el.textContent = generateTempId();
     }
     try {
-      const nextId = await supabaseNextId('MOR', 'mor_seq');
+      const n = new Date();
+      const pad = v => String(v).padStart(2, '0');
+      const dateStr = `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}`;
+      const nextId = await supabaseNextId('MOR-' + dateStr, 'mor_seq');
       el.textContent = nextId;
     } catch(e) { /* keep temp ID — still unique */ }
   }
@@ -1078,5 +810,6 @@ if('serviceWorker' in navigator){
   ['mousedown','touchstart'].forEach(e=>document.addEventListener(e,preload,{once:true}));
 })();
 </script>
+<script src="animations.js"></script>
 </body>
 </html>

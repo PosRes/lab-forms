@@ -12,227 +12,7 @@
 <script src="supabase-config.js"></script>
 
 
-<style>
-  :root {
-    --bg-dark: #0a0f18;
-    --surface: rgba(20, 30, 48, 0.6);
-    --surface-solid: #151f30;
-    --border: rgba(130, 180, 255, 0.15);
-    --bg: var(--bg-dark);
-    --text: #e2e8f0;
-    --text-muted: #8b9db5;
-    --accent: #00e5ff;
-    --accent-glow: rgba(0, 229, 255, 0.4);
-    --accent-light: rgba(0, 229, 255, 0.1);
-    --accent-rsr: #ff9955;
-    --accent-rsr-glow: rgba(255, 153, 85, 0.4);
-    --accent-rsr-light: rgba(255, 153, 85, 0.1);
-    --accent-eql: #00ff88;
-    --accent-eql-glow: rgba(0, 255, 136, 0.4);
-    --accent-eql-light: rgba(0, 255, 136, 0.1);
-    --accent-arl: #ff3366;
-    --accent-arl-glow: rgba(255, 51, 102, 0.4);
-    --accent-arl-light: rgba(255, 51, 102, 0.1);
-    --warn: #ff3366;
-    --warn-glow: rgba(255, 51, 102, 0.4);
-    --warn-light: rgba(255, 51, 102, 0.1);
-    --pass: #00ff88;
-    --pass-glow: rgba(0, 255, 136, 0.4);
-    --pass-light: rgba(0, 255, 136, 0.1);
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-    --radius: 8px;
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--sans); background: radial-gradient(circle at 50% 0%, #1a2536, var(--bg-dark) 80%); background-attachment: fixed; color: var(--text); min-height: 100vh; padding: 24px 16px 60px; }
-  .page-wrap { max-width: 1000px; margin: 0 auto; perspective: 1000px; transform-style: preserve-3d; }
-
-  .page-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px; background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--glass-shadow); margin-bottom: 24px; flex-wrap: wrap; gap: 16px; position: relative; overflow: hidden; }
-  .page-header::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
-  .page-header h1 { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-  .page-header p { font-size: 12px; color: var(--text-muted); font-family: var(--mono); margin-top: 6px; }
-  .doc-ref { font-family: var(--mono); font-size: 11px; color: var(--text-muted); line-height: 1.8; text-align: right; }
-  .doc-ref strong { color: #fff; font-weight: 500; }
-
-  .tab-bar { display: flex; margin-bottom: 20px; border-radius: 12px; overflow-x: auto; overflow-y: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 4px; gap: 4px; }
-  .tab-bar::-webkit-scrollbar { display: none; }
-  .tab-btn { flex: 1; padding: 12px 16px; font-size: 13px; font-weight: 600; font-family: var(--sans); border: 1px solid transparent; border-radius: 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .tab-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  .tab-btn .tab-count { font-family: var(--mono); font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 12px; color: inherit; }
-  .tab-btn+.tab-btn { border-left: none; }
-
-  .tab-btn.active-mor { background: linear-gradient(145deg, #0a2e3a, #05181e); color: var(--accent); border-color: rgba(0,229,255,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(0,229,255,0.2); text-shadow: 0 0 5px var(--accent-glow); transform: translateY(-1px); }
-  .tab-btn.active-rsr { background: linear-gradient(145deg, #2b1d14, #1a110a); color: var(--accent-rsr); border-color: rgba(255,153,85,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,153,85,0.2); text-shadow: 0 0 5px var(--accent-rsr-glow); transform: translateY(-1px); }
-  .tab-btn.active-eql { background: linear-gradient(145deg, #0d261a, #08160f); color: var(--accent-eql); border-color: rgba(0,255,136,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(0,255,136,0.2); text-shadow: 0 0 5px var(--accent-eql-glow); transform: translateY(-1px); }
-  .tab-btn.active-arl { background: linear-gradient(145deg, #330b14, #1a050a); color: var(--accent-arl); border-color: rgba(255,51,102,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,51,102,0.2); text-shadow: 0 0 5px var(--accent-arl-glow); transform: translateY(-1px); }
-  .tab-btn.active-mor .tab-count { background: rgba(0,229,255,0.15); }
-  .tab-btn.active-rsr .tab-count { background: rgba(255,153,85,0.15); }
-  .tab-btn.active-eql .tab-count { background: rgba(0,255,136,0.15); }
-  .tab-btn.active-arl .tab-count { background: rgba(255,51,102,0.15); }
-
-  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
-  .search-box { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0 14px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); transition: all 0.3s; }
-  .search-box:focus-within { border-color: rgba(255,255,255,0.3); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.1); }
-  .search-box input { flex: 1; border: none; background: transparent; outline: none; font-size: 14px; font-family: var(--sans); color: #fff; padding: 12px 0; }
-  .search-box input::placeholder { color: rgba(255,255,255,0.3); }
-  .search-icon { color: var(--text-muted); font-size: 16px; }
-  .filter-select { padding: 12px 36px 12px 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; font-size: 14px; font-family: var(--sans); color: #fff; background: rgba(0,0,0,0.4); cursor: pointer; appearance: none; -webkit-appearance: none; outline: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b9db5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); transition: all 0.3s; }
-  .filter-select:focus { border-color: rgba(255,255,255,0.3); }
-  .filter-select option { background: var(--surface-solid); color: #fff; }
-  .count-badge { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); white-space: nowrap; }
-  .last-loaded { font-family: var(--mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
-
-  .load-btn-main { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all 0.3s; white-space: nowrap; min-height: 44px; transform-style: preserve-3d; }
-  .load-btn-mor { background: linear-gradient(145deg, #0a3d4c, #051e26); color: var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 1px rgba(0,229,255,0.2); border: 1px solid rgba(0,229,255,0.2); }
-  .load-btn-mor:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 15px var(--accent-glow); filter: brightness(1.1); }
-  .load-btn-rsr { background: linear-gradient(145deg, #3d2b1f, #1a110a); color: var(--accent-rsr); box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,153,85,0.2); border: 1px solid rgba(255,153,85,0.2); }
-  .load-btn-rsr:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 15px var(--accent-rsr-glow); filter: brightness(1.1); }
-  .load-btn-eql { background: linear-gradient(145deg, #0d3820, #05160d); color: var(--accent-eql); box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 1px rgba(0,255,136,0.2); border: 1px solid rgba(0,255,136,0.2); }
-  .load-btn-eql:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 15px var(--accent-eql-glow); filter: brightness(1.1); }
-  .load-btn-arl { background: linear-gradient(145deg, #330b14, #1a050a); color: var(--accent-arl); box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,51,102,0.2); border: 1px solid rgba(255,51,102,0.2); }
-  .load-btn-arl:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 15px var(--accent-arl-glow); filter: brightness(1.1); }
-  .load-btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-  .load-btn-main .spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  .load-btn-main.loading .spinner { display: block; }
-  .load-btn-main.loading .btn-icon { display: none; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .state-box { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(12px); }
-  .state-box .icon { font-size: 40px; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
-  .state-box div { font-size: 16px; font-weight: 500; color: #fff; margin-bottom: 8px; }
-  .state-box p { font-size: 14px; }
-
-  .records-grid { display: flex; flex-direction: column; gap: 16px; }
-  .record-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--glass-shadow); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-  .record-card:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.05); transform: translateY(-2px); }
-  .record-card.mor-card { border-left: 4px solid var(--accent); }
-  .record-card.rsr-card { border-left: 4px solid var(--accent-rsr); }
-  .record-card.eql-card { border-left: 4px solid var(--accent-eql); }
-  .record-card.arl-card { border-left: 4px solid var(--accent-arl); }
-  .eql-card .record-id { color: var(--accent-eql); background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); text-shadow: 0 0 5px var(--accent-eql-glow); }
-  .arl-card .record-id { color: var(--accent-arl); background: rgba(255,51,102,0.1); border: 1px solid rgba(255,51,102,0.2); text-shadow: 0 0 5px var(--accent-arl-glow); }
-  .eql-card .detail-section h4 { color: var(--accent-eql); }
-  .arl-card .detail-section h4 { color: var(--accent-arl); }
-  .btn-eql { background: linear-gradient(145deg, #0d3820, #05160d); border: 1px solid rgba(0,255,136,0.3); color: var(--accent-eql); }
-  .btn-eql:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(0,255,136,0.2); transform: translateY(-1px); }
-  .btn-arl { background: linear-gradient(145deg, #330b14, #1a050a); border: 1px solid rgba(255,51,102,0.3); color: var(--accent-arl); }
-  .btn-arl:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(255,51,102,0.2); transform: translateY(-1px); }
-
-  .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; gap: 12px; flex-wrap: wrap; background: rgba(255,255,255,0.02); transition: background 0.2s; }
-  .card-header:hover { background: rgba(255,255,255,0.05); }
-  .card-header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .record-id { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-  .mor-card .record-id { color: var(--accent); background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2); text-shadow: 0 0 5px var(--accent-glow); }
-  .rsr-card .record-id { color: var(--accent-rsr); background: rgba(255,153,85,0.1); border: 1px solid rgba(255,153,85,0.2); text-shadow: 0 0 5px var(--accent-rsr-glow); }
-  .media-name { font-size: 15px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-  .card-meta { font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
-
-  .card-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .badge { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 4px; font-family: var(--mono); letter-spacing: 0.5px; white-space: nowrap; border: 1px solid transparent; }
-  .badge-pass { background: rgba(0,255,136,0.1); color: var(--pass); border-color: rgba(0,255,136,0.2); text-shadow: 0 0 5px var(--pass-glow); }
-  .badge-fail { background: rgba(255,51,102,0.1); color: var(--warn); border-color: rgba(255,51,102,0.2); text-shadow: 0 0 5px var(--warn-glow); }
-  .badge-pending { background: rgba(255,255,255,0.05); color: var(--text-muted); border-color: rgba(255,255,255,0.1); }
-  .badge-approved { background: rgba(0,255,136,0.1); color: var(--pass); border-color: rgba(0,255,136,0.2); }
-  .badge-rejected { background: rgba(255,51,102,0.1); color: var(--warn); border-color: rgba(255,51,102,0.2); }
-  .badge-conditional { background: rgba(255,153,85,0.1); color: var(--accent-rsr); border-color: rgba(255,153,85,0.2); }
-  .expand-icon { color: var(--text-muted); font-size: 18px; flex-shrink: 0; transition: transform 0.3s; }
-  .record-card.open .expand-icon { transform: rotate(180deg); color: #fff; }
-
-  .card-detail { display: none; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
-  .record-card.open .card-detail { display: block; animation: slideDown 0.3s ease-out; }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-  .detail-sections { display: grid; grid-template-columns: 1fr 1fr; }
-  @media(max-width:640px) { .detail-sections { grid-template-columns: 1fr; } }
-  .detail-section { padding: 20px; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .detail-section:nth-child(even) { border-right: none; }
-  .detail-section.full-width { grid-column: 1/-1; border-right: none; }
-  .detail-section h4 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 12px; color: var(--accent); }
-  .rsr-card .detail-section h4 { color: var(--accent-rsr); }
-  .detail-row { display: flex; gap: 12px; margin-bottom: 8px; align-items: baseline; }
-  .detail-key { font-size: 12px; color: var(--text-muted); min-width: 140px; flex-shrink: 0; }
-  .detail-val { font-size: 13px; color: #fff; font-family: var(--mono); word-break: break-word; }
-  .detail-val.approved { color: var(--pass); font-weight: 500; text-shadow: 0 0 5px var(--pass-glow); }
-  .detail-val.rejected { color: var(--warn); font-weight: 500; text-shadow: 0 0 5px var(--warn-glow); }
-  .detail-val.defect { color: var(--warn); }
-
-  .passage-mini { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; }
-  .passage-mini th { background: rgba(0,0,0,0.4); color: var(--text-muted); font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .passage-mini td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: var(--mono); font-size: 11px; color: var(--text); }
-  .passage-mini tr:last-child td { border-bottom: none; }
-  .passage-mini tr:hover td { background: rgba(255,255,255,0.02); }
-  .p-pass { color: var(--pass); font-weight: 500; } .p-fail { color: var(--warn); font-weight: 500; }
-
-  .card-actions { display: flex; gap: 12px; padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); flex-wrap: wrap; }
-
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: var(--sans); cursor: pointer; border: none; transition: all 0.3s; min-height: 38px; }
-  .btn-primary { background: linear-gradient(145deg, #0a3d4c, #051e26); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); }
-  .btn-primary:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(0,229,255,0.2); transform: translateY(-1px); }
-  .btn-primary-rsr { background: linear-gradient(145deg, #3d2b1f, #1a110a); border: 1px solid rgba(255,153,85,0.3); color: var(--accent-rsr); }
-  .btn-primary-rsr:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(255,153,85,0.2); transform: translateY(-1px); }
-  .btn-ghost { background: transparent; border: 1px solid rgba(139, 157, 181, 0.3); color: var(--text-muted); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.5); transform: translateY(-1px); }
-  .btn-edit { background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.2); color: var(--accent); }
-  .btn-edit:hover { background: rgba(0,229,255,0.1); box-shadow: 0 0 10px rgba(0,229,255,0.2); transform: translateY(-1px); }
-  .btn-delete { background: rgba(255,51,102,0.05); border: 1px solid rgba(255,51,102,0.2); color: var(--warn); }
-  .btn-delete:hover { background: rgba(255,51,102,0.1); box-shadow: 0 0 10px rgba(255,51,102,0.2); transform: translateY(-1px); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-  .modal-backdrop.show { display: flex; }
-  .modal { background: linear-gradient(145deg, #182436, #0f1724); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 32px 28px 24px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-icon { font-size: 40px; margin-bottom: 16px; }
-  .modal h3 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 10px; }
-  .modal p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
-  .modal-record-id { font-family: var(--mono); font-size: 13px; background: rgba(255,51,102,0.1); color: var(--warn); border: 1px solid rgba(255,51,102,0.2); padding: 8px 12px; border-radius: 6px; margin: 16px 0 24px; display: inline-block; }
-  .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
-
-  .edit-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 300; }
-  .edit-backdrop.show { display: block; }
-  .edit-drawer { position: fixed; top: 0; right: -100%; width: min(640px, 100vw); height: 100vh; background: var(--surface-solid); border-left: 1px solid rgba(255,255,255,0.1); box-shadow: -10px 0 50px rgba(0,0,0,0.5); z-index: 301; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); overflow: hidden; }
-  .edit-drawer.open { right: 0; }
-  .edit-drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); flex-shrink: 0; }
-  .edit-drawer-header.rsr { border-color: rgba(255,153,85,0.3); }
-  .edit-drawer-header.eql { border-color: rgba(0,255,136,0.3); }
-  .edit-drawer-title { font-size: 18px; font-weight: 600; color: #fff; }
-  .edit-drawer-subtitle { font-size: 12px; color: var(--text-muted); font-family: var(--mono); margin-top: 4px; }
-  .close-drawer-btn { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; line-height: 1; }
-  .close-drawer-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  .edit-drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
-  .edit-drawer-footer { display: flex; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10,15,24,0.9); flex-shrink: 0; }
-  .edit-drawer-footer .btn { flex: 1; padding: 12px; font-size: 14px; }
-
-  .edit-section { margin-bottom: 24px; }
-  .edit-section-title { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-family: var(--mono); color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 6px; margin-bottom: 16px; }
-  .edit-section-title.mor { color: var(--accent); background: rgba(0,229,255,0.08); }
-  .edit-section-title.rsr { color: var(--accent-rsr); background: rgba(255,153,85,0.08); }
-  .edit-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:440px) { .edit-field-grid { grid-template-columns: 1fr; } }
-  .edit-field { display: flex; flex-direction: column; gap: 6px; }
-  .edit-field.full { grid-column: 1/-1; }
-  .edit-label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); font-family: var(--mono); }
-  .edit-input { font-family: var(--sans); font-size: 14px; color: #fff; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px 12px; width: 100%; outline: none; appearance: none; -webkit-appearance: none; transition: all 0.3s; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
-  .edit-input:focus { border-color: rgba(130,180,255,0.5); background: rgba(0,0,0,0.6); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 10px rgba(130,180,255,0.2); }
-  .edit-input.mono { font-family: var(--mono); font-size: 13px; }
-  textarea.edit-input { resize: vertical; min-height: 80px; line-height: 1.5; }
-  select.edit-input { cursor: pointer; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b9db5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
-
-  .passage-editor-wrap { overflow-x: auto; margin-top: 8px; }
-  .passage-editor-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px; }
-  .passage-editor-table th { background: rgba(0,0,0,0.4); color: var(--accent-rsr); font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; padding: 7px 6px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .passage-editor-table td { padding: 5px 4px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; }
-  .passage-editor-table tr:last-child td { border-bottom: none; }
-  .passage-editor-table input, .passage-editor-table select { font-size: 12px; padding: 6px 8px; background: rgba(0,0,0,0.3); border: 1px solid transparent; border-radius: 4px; width: 100%; outline: none; font-family: var(--sans); color: #fff; }
-  .passage-editor-table input:focus, .passage-editor-table select:focus { border-color: rgba(130,180,255,0.5); background: rgba(0,0,0,0.6); }
-  .add-passage-btn { margin-top: 8px; padding: 6px 12px; background: rgba(255,153,85,0.08); border: 1px dashed rgba(255,153,85,0.3); border-radius: 6px; color: var(--accent-rsr); font-size: 12px; font-weight: 600; font-family: var(--mono); cursor: pointer; transition: all 0.2s; }
-  .add-passage-btn:hover { background: rgba(255,153,85,0.15); border-color: rgba(255,153,85,0.6); }
-  .del-p-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 2px 5px; border-radius: 3px; transition: all 0.12s; }
-  .del-p-btn:hover { color: var(--warn); background: rgba(255,51,102,0.1); }
-
-  #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--surface-solid); border: 1px solid var(--border); color: #fff; padding: 14px 24px; border-radius: 24px; font-size: 14px; font-family: var(--mono); box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.05); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; z-index: 400; white-space: nowrap; max-width: 90vw; text-align: center; }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-</style>
+<link rel="stylesheet" href="theme.css">
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -244,8 +24,8 @@ if('serviceWorker' in navigator){
 </script>
 </head>
 <body>
-<div class="page-wrap">
-  <div class="page-header">
+<div class="main-container">
+  <div class="section-title scroll-animate delay-1" style="justify-content: space-between;">
     <div>
       <h1>Lab Records Viewer</h1>
       <p>ISO 17025:2017 — Submitted Entries</p>
@@ -261,27 +41,27 @@ if('serviceWorker' in navigator){
     </div>
   </div>
 
-  <div class="tab-bar">
-    <button class="tab-btn active-mor" id="tab-mor" onclick="switchTab('MOR Records')">
-      🧫 Media Opening Records<span class="tab-count" id="tab-count-mor">0</span>
+  <div class="tab-bar scroll-animate delay-2" style="display:flex; gap:12px; margin-bottom:24px; overflow-x:auto; padding-bottom:8px;">
+    <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;" active-mor" id="tab-mor" onclick="switchTab('MOR Records')">
+      🧫 Media Opening Records<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-mor">0</span>
     </button>
-    <button class="tab-btn" id="tab-rsr" onclick="switchTab('RSR Records')">
-      🦠 Reference Strain Records<span class="tab-count" id="tab-count-rsr">0</span>
+    <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;"" id="tab-rsr" onclick="switchTab('RSR Records')">
+      🦠 Reference Strain Records<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-rsr">0</span>
     </button>
-    <button class="tab-btn" id="tab-eql" onclick="switchTab('Equipment Log')">
-      ⚙️ Equipment Log<span class="tab-count" id="tab-count-eql">0</span>
+    <button class="btn btn-ghost" style="border-radius:20px; white-space:nowrap;"" id="tab-eql" onclick="switchTab('Equipment Log')">
+      ⚙️ Equipment Log<span class="badge badge-pending" style="margin-left:8px;"  id="tab-count-eql">0</span>
     </button>
 
   </div>
 
-  <div class="toolbar">
+  <div class="glass-panel toolbar scroll-animate delay-3" style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:16px 20px; margin-bottom:24px; justify-content:space-between;">
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search" placeholder="Search records…" oninput="filterRecords()">
+      <input type="text" class="input-base" id="search" style="width:100%; max-width:300px;"  placeholder="Search records…" oninput="filterRecords()">
     </div>
     <!-- Filters -->
     <div class="search-filters">
-      <select id="filter-eq-type" onchange="filterRecords()" style="display:none;min-width:180px;">
+      <select id="filter-eq-type" class="input-base" onchange="filterRecords()" style="display:none;min-width:180px;">
         <option value="">All Equipment</option>
         <option value="autoclave">Autoclave</option>
         <option value="incubator">Incubator</option>
@@ -292,7 +72,7 @@ if('serviceWorker' in navigator){
         <option value="analytical balance">Analytical Balance</option>
         <option value="microscope">Microscope</option>
       </select>
-      <select id="filter-disposition" onchange="filterRecords()">
+      <select id="filter-disposition" class="input-base" style="max-width:200px;" onchange="filterRecords()">
         <option value="">All Dispositions</option>
         <option value="approved">Approved</option>
         <option value="rejected">Rejected</option>
@@ -303,7 +83,7 @@ if('serviceWorker' in navigator){
     <span class="last-loaded" id="last-loaded"></span>
   </div>
 
-  <div id="content">
+  <div id="content" class="scroll-animate delay-4">
     <div class="state-box"><div class="icon">📋</div><div>Loading records…</div></div>
   </div>
 </div>
@@ -323,17 +103,17 @@ if('serviceWorker' in navigator){
 </div>
 
 <!-- Edit drawer -->
-<div class="edit-backdrop" id="edit-backdrop" onclick="closeEditDrawer()"></div>
-<div class="edit-drawer" id="edit-drawer">
-  <div class="edit-drawer-header" id="edit-drawer-header">
+<div class="edit-backdrop" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.5); backdrop-filter:blur(10px); z-index:900;"  id="edit-backdrop" onclick="closeEditDrawer()"></div>
+<div class="edit-drawer glass-panel" style="position:fixed; top:0; right:-100%; width:min(600px,100vw); height:100vh; z-index:901; transition:right 0.3s ease; display:flex; flex-direction:column; border-radius:0; border-left:1px solid rgba(255,255,255,0.8);"  id="edit-drawer">
+  <div class="edit-drawer-header" style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.5);"  id="edit-drawer-header">
     <div>
       <div class="edit-drawer-title" id="edit-drawer-title">Edit Record</div>
       <div class="edit-drawer-subtitle" id="edit-drawer-subtitle"></div>
     </div>
     <button class="close-drawer-btn" onclick="closeEditDrawer()">✕</button>
   </div>
-  <div class="edit-drawer-body" id="edit-drawer-body"></div>
-  <div class="edit-drawer-footer">
+  <div class="edit-drawer-body" style="flex:1; overflow-y:auto; padding:24px;"  id="edit-drawer-body"></div>
+  <div class="edit-drawer-footer" style="padding:20px; border-top:1px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.5); display:flex; gap:12px;">
     <button class="btn btn-ghost" onclick="closeEditDrawer()">Cancel</button>
     <button class="btn btn-primary" id="save-edit-btn" onclick="saveEdit()">☁ Save Changes</button>
   </div>
@@ -516,7 +296,7 @@ function row(k,x){
   if(!x||x==='—')return'';
   const cls=vcls(x);const s=String(x);
   const d=cls==='approved'?'✓ '+s.toUpperCase():cls==='rejected'?'✗ '+s.toUpperCase():s;
-  return`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val ${cls}">${d}</span></div>`;
+  return`<div class="detail-row" style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed rgba(0,0,0,0.05); font-size:13px;"><span class="detail-key" style="color:var(--text-muted); font-weight:600;">${k}</span><span class="detail-val" style="font-weight:600; color:var(--text-main);"  ${cls}">${d}</span></div>`;
 }
 function badge(x){
   if(!x)return'';const s=String(x).toLowerCase();
@@ -558,29 +338,29 @@ function formatRunLog(json){
 }
 
 function cardMOR(r,idx){
-  return`<div class="record-card mor-card" id="card-${idx}">
-    <div class="card-header" onclick="toggleCard(${idx})">
-      <div class="card-header-left">
-        <span class="record-id">${v(r['Record ID'])}</span>
-        <span class="media-name">${v(r['Media Name / Type'])||'Unnamed'}</span>
-        <span class="card-meta">Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Opened: ${v(r['Date Opened'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
+  return`<div class="glass-panel record-card glass-panel-hover" style="margin-bottom:20px; overflow:hidden;" mor-card" id="card-${idx}">
+    <div class="card-header" style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleCard(${idx})">
+      <div class="card-header-left" style="display:flex; flex-direction:column; gap:6px;">
+        <span class="record-id" style="font-family:var(--mono); color:var(--primary); font-weight:700; font-size:12px; background:var(--primary-light); padding:2px 8px; border-radius:4px; align-self:flex-start;">${v(r['Record ID'])}</span>
+        <span class="media-name" style="font-size:18px; font-weight:700;">${v(r['Media Name / Type'])||'Unnamed'}</span>
+        <span class="card-meta" style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Opened: ${v(r['Date Opened'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
       </div>
-      <div class="card-badges">
+      <div class="card-badges" style="display:flex; gap:8px; align-items:center;">
         ${badge(r['QC Disposition'])}
         ${r['Physical Result']?`<span class="badge ${vcls(r['Physical Result'])==='approved'?'badge-pass':'badge-fail'}">${vcls(r['Physical Result'])==='approved'?'✓ PHYS OK':'✗ PHYS FAIL'}</span>`:''}
         <span class="expand-icon">⌄</span>
       </div>
     </div>
-    <div class="card-detail">
-      <div class="detail-sections">
-        <div class="detail-section"><h4>Identification</h4>${row('Media Name',r['Media Name / Type'])}${row('Catalog No.',r['Catalog No.'])}${row('Supplier',r['Manufacturer / Supplier'])}${row('Lot',r['Lot / Batch Number'])}${row('Container',r['Container Size'])}${row('Intended Use',r['Intended Use'])}</div>
-        <div class="detail-section"><h4>Dates</h4>${row('Receipt',r['Date of Receipt'])}${row('Opened',r['Date Opened'])}${row('Mfr. Expiry',r['Expiration Date (Mfr)'])}${row('In-House Expiry',r['In-House Expiry'])}${row('Prepared',r['Prepared / Poured Date'])}${row('QC Test Date',r['Date of QC Test'])}</div>
-        <div class="detail-section"><h4>Storage</h4>${row('Location',r['Storage Location'])}${row('Temp at Receipt',r['Temp at Receipt (°C)']?r['Temp at Receipt (°C)']+'°C':'')}${row('Humidity',r['Humidity Condition'])}${row('Equipment ID',r['Storage Equipment ID'])}</div>
-        <div class="detail-section"><h4>Physical Inspection</h4>${row('Result',r['Physical Result'])}<div class="detail-row"><span class="detail-key">Defects</span><span class="detail-val ${r['Defects Observed']&&r['Defects Observed']!=='None'?'defect':''}">${v(r['Defects Observed'])}</span></div>${row('Action',r['Action if Unsatisfactory'])}</div>
-        <div class="detail-section"><h4>QC — Growth Promotion</h4>${row('Organism 1',r['GPT Organism 1'])}${row('Result 1',r['GPT Result 1'])}${row('Organism 2',r['GPT Organism 2'])}${row('Result 2',r['GPT Result 2'])}${row('Organism 3',r['GPT Organism 3'])}${row('Result 3',r['GPT Result 3'])}${row('Sterility',r['Sterility Result'])}</div>
-        <div class="detail-section"><h4>Disposition & Sign-Off</h4>${row('Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Ref'])}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}</div>
+    <div class="card-detail" style="display:none; padding:20px 24px; border-top:1px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.3);"
+      <div class="detail-sections" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Identification</h4>${row('Media Name',r['Media Name / Type'])}${row('Catalog No.',r['Catalog No.'])}${row('Supplier',r['Manufacturer / Supplier'])}${row('Lot',r['Lot / Batch Number'])}${row('Container',r['Container Size'])}${row('Intended Use',r['Intended Use'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Dates</h4>${row('Receipt',r['Date of Receipt'])}${row('Opened',r['Date Opened'])}${row('Mfr. Expiry',r['Expiration Date (Mfr)'])}${row('In-House Expiry',r['In-House Expiry'])}${row('Prepared',r['Prepared / Poured Date'])}${row('QC Test Date',r['Date of QC Test'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Storage</h4>${row('Location',r['Storage Location'])}${row('Temp at Receipt',r['Temp at Receipt (°C)']?r['Temp at Receipt (°C)']+'°C':'')}${row('Humidity',r['Humidity Condition'])}${row('Equipment ID',r['Storage Equipment ID'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Physical Inspection</h4>${row('Result',r['Physical Result'])}<div class="detail-row" style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed rgba(0,0,0,0.05); font-size:13px;"><span class="detail-key" style="color:var(--text-muted); font-weight:600;">Defects</span><span class="detail-val" style="font-weight:600; color:var(--text-main);"  ${r['Defects Observed']&&r['Defects Observed']!=='None'?'defect':''}">${v(r['Defects Observed'])}</span></div>${row('Action',r['Action if Unsatisfactory'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>QC — Growth Promotion</h4>${row('Organism 1',r['GPT Organism 1'])}${row('Result 1',r['GPT Result 1'])}${row('Organism 2',r['GPT Organism 2'])}${row('Result 2',r['GPT Result 2'])}${row('Organism 3',r['GPT Organism 3'])}${row('Result 3',r['GPT Result 3'])}${row('Sterility',r['Sterility Result'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Disposition & Sign-Off</h4>${row('Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Ref'])}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}</div>
       </div>
-      <div class="card-actions">
+      <div class="card-actions" style="display:flex; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05);">
         <button class="btn btn-primary" onclick="downloadPDF_MOR(${idx})">⬇ PDF</button>
         <button class="btn btn-edit"    onclick="openEditDrawer(${idx})">✏ Edit</button>
         <button class="btn btn-ghost"   onclick="copyRecord(${idx})">⎘ Copy</button>
@@ -596,29 +376,29 @@ function cardRSR(r,idx){
     const rows=JSON.parse(r['Passage Log']||'[]');
     if(rows.length){passHTML=`<table class="passage-mini"><thead><tr><th>P#</th><th>Date</th><th>From</th><th>Medium</th><th>Incubation</th><th>Result</th><th>Analyst</th></tr></thead><tbody>${rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${p.date||'—'}</td><td>${p.from||'—'}</td><td>${p.medium||'—'}</td><td>${p.incubation||'—'}</td><td class="${String(p.result||'').toLowerCase()==='pass'?'p-pass':String(p.result||'').toLowerCase()==='fail'?'p-fail':''}">${p.result||'—'}</td><td>${p.analyst||'—'}</td></tr>`).join('')}</tbody></table>`;}
   }catch(e){}
-  return`<div class="record-card rsr-card" id="card-${idx}">
-    <div class="card-header" onclick="toggleCard(${idx})">
-      <div class="card-header-left">
-        <span class="record-id">${v(r['Record ID'])}</span>
-        <span class="media-name">${v(r['Organism Name'])||'Unknown Organism'}</span>
-        <span class="card-meta">Strain: ${v(r['Strain Designation'])} &nbsp;|&nbsp; Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
+  return`<div class="glass-panel record-card glass-panel-hover" style="margin-bottom:20px; overflow:hidden;" rsr-card" id="card-${idx}">
+    <div class="card-header" style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleCard(${idx})">
+      <div class="card-header-left" style="display:flex; flex-direction:column; gap:6px;">
+        <span class="record-id" style="font-family:var(--mono); color:var(--primary); font-weight:700; font-size:12px; background:var(--primary-light); padding:2px 8px; border-radius:4px; align-self:flex-start;">${v(r['Record ID'])}</span>
+        <span class="media-name" style="font-size:18px; font-weight:700;">${v(r['Organism Name'])||'Unknown Organism'}</span>
+        <span class="card-meta" style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">Strain: ${v(r['Strain Designation'])} &nbsp;|&nbsp; Lot: ${v(r['Lot / Batch Number'])} &nbsp;|&nbsp; Saved: ${savedDate(r['Saved At'])}</span>
       </div>
-      <div class="card-badges">
+      <div class="card-badges" style="display:flex; gap:8px; align-items:center;">
         ${badge(r['QC Disposition'])}
         ${r['Purity Check Result']?`<span class="badge ${String(r['Purity Check Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Purity Check Result']).toLowerCase()==='pass'?'✓ PURE':'✗ IMPURE'}</span>`:''}
         ${r['Viability Check Result']?`<span class="badge ${String(r['Viability Check Result']).toLowerCase()==='pass'?'badge-pass':'badge-fail'}">${String(r['Viability Check Result']).toLowerCase()==='pass'?'✓ VIABLE':'✗ NO GROWTH'}</span>`:''}
         <span class="expand-icon">⌄</span>
       </div>
     </div>
-    <div class="card-detail">
-      <div class="detail-sections">
-        <div class="detail-section"><h4>Strain Identification</h4>${row('Organism',r['Organism Name'])}${row('Strain Code',r['Strain Designation'])}${row('Collection',r['Culture Collection'])}${row('Gram / Type',r['Gram / Organism Type'])}${row('BSL',r['Biosafety Level'])}${row('Application',r['Primary Application'])}${row('Internal ID',r['Internal Lab Strain ID'])}</div>
-        <div class="detail-section"><h4>Receipt & Storage</h4>${row('Supplier',r['Supplier / Vendor'])}${row('Lot No.',r['Lot / Batch Number'])}${row('Format',r['Format Received'])}${row('Date of Receipt',r['Date of Receipt'])}${row('Expiration',r['Expiration Date'])}${row('Stock Type',r['Stock Type'])}${row('Storage',r['Storage Location'])}${row('Equipment ID',r['Storage Equipment ID'])}${row('Position',r['Storage Position / Box'])}${row('Vials',r['Number of Vials'])}</div>
-        <div class="detail-section"><h4>Identity & QC</h4>${row('Colony Morphology',r['Colony Morphology'])}${row('Gram Stain',r['Gram Stain Result'])}${row('Biochemical',r['Biochemical Results'])}${row('MALDI',r['Molecular / MALDI Confirmation'])}${row('Purity',r['Purity Check Result'])}${row('Viability',r['Viability Check Result'])}${row('QC Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Reference'])}</div>
-        <div class="detail-section"><h4>Passage Summary</h4>${row('Current Passage',r['Current Passage Number']?'P'+r['Current Passage Number']:'')}${row('Max Allowed',r['Max Passages Allowed']?'≤ P'+r['Max Passages Allowed']:'')}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}${r['Disposal Reason']?row('Disposal',r['Disposal Reason']):''}</div>
+    <div class="card-detail" style="display:none; padding:20px 24px; border-top:1px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.3);"
+      <div class="detail-sections" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Strain Identification</h4>${row('Organism',r['Organism Name'])}${row('Strain Code',r['Strain Designation'])}${row('Collection',r['Culture Collection'])}${row('Gram / Type',r['Gram / Organism Type'])}${row('BSL',r['Biosafety Level'])}${row('Application',r['Primary Application'])}${row('Internal ID',r['Internal Lab Strain ID'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Receipt & Storage</h4>${row('Supplier',r['Supplier / Vendor'])}${row('Lot No.',r['Lot / Batch Number'])}${row('Format',r['Format Received'])}${row('Date of Receipt',r['Date of Receipt'])}${row('Expiration',r['Expiration Date'])}${row('Stock Type',r['Stock Type'])}${row('Storage',r['Storage Location'])}${row('Equipment ID',r['Storage Equipment ID'])}${row('Position',r['Storage Position / Box'])}${row('Vials',r['Number of Vials'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Identity & QC</h4>${row('Colony Morphology',r['Colony Morphology'])}${row('Gram Stain',r['Gram Stain Result'])}${row('Biochemical',r['Biochemical Results'])}${row('MALDI',r['Molecular / MALDI Confirmation'])}${row('Purity',r['Purity Check Result'])}${row('Viability',r['Viability Check Result'])}${row('QC Disposition',r['QC Disposition'])}${row('QC Ref',r['QC Report Reference'])}</div>
+        <div class="detail-section" style="display:flex; flex-direction:column; gap:8px;"><h4>Passage Summary</h4>${row('Current Passage',r['Current Passage Number']?'P'+r['Current Passage Number']:'')}${row('Max Allowed',r['Max Passages Allowed']?'≤ P'+r['Max Passages Allowed']:'')}${row('Analyst',r['Analyst Name'])}${row('QC Verifier',r['QC Verifier Name'])}${row('Supervisor',r['Supervisor Name'])}${r['Disposal Reason']?row('Disposal',r['Disposal Reason']):''}</div>
         ${passHTML?`<div class="detail-section full-width"><h4>Passage / Subculture Log</h4>${passHTML}</div>`:''}
       </div>
-      <div class="card-actions">
+      <div class="card-actions" style="display:flex; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05);">
         <button class="btn btn-primary-rsr" onclick="downloadPDF_RSR(${idx})">⬇ PDF</button>
         <button class="btn btn-edit"        onclick="openEditDrawer(${idx})">✏ Edit</button>
         <button class="btn btn-ghost"       onclick="copyRecord(${idx})">⎘ Copy</button>
@@ -628,7 +408,12 @@ function cardRSR(r,idx){
   </div>`;
 }
 
-function toggleCard(idx){document.getElementById(`card-${idx}`).classList.toggle('open');}
+function toggleCard(idx){
+  const card = document.getElementById(`card-${idx}`);
+  card.classList.toggle('open');
+  const detail = card.querySelector('.card-detail');
+  detail.style.display = card.classList.contains('open') ? 'block' : 'none';
+}
 
 // ── Generic card for Equipment Log and Autoclave Run Log ──
 function cardGeneric(r,idx){
@@ -669,26 +454,26 @@ function cardGeneric(r,idx){
   const detailRows=Object.entries(r)
     .filter(([k,vv])=>!skipKeys.has(k)&&vv!==null&&vv!==undefined&&vv!=='')
     .map(([k,vv])=>{
-      if(k==='Run Log') return`<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-key">Run Log</span>${formatRunLog(vv)}</div>`;
+      if(k==='Run Log') return`<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-key" style="color:var(--text-muted); font-weight:600;">Run Log</span>${formatRunLog(vv)}</div>`;
       if(dateKeys.has(k)) return row(k, fmtDate(vv));
       return row(k,vv);
     }).join('');
 
-  return`<div class="record-card ${accentClass}" id="card-${idx}">
-    <div class="card-header" onclick="toggleCard(${idx})">
-      <div class="card-header-left">
-        <span class="record-id">${v(r['Record ID'])}</span>
-        <span class="media-name">${title}</span>
-        <span class="card-meta">${subtitle}</span>
-        <span class="card-meta">${meta}</span>
+  return`<div class="glass-panel record-card glass-panel-hover" style="margin-bottom:20px; overflow:hidden;" ${accentClass}" id="card-${idx}">
+    <div class="card-header" style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleCard(${idx})">
+      <div class="card-header-left" style="display:flex; flex-direction:column; gap:6px;">
+        <span class="record-id" style="font-family:var(--mono); color:var(--primary); font-weight:700; font-size:12px; background:var(--primary-light); padding:2px 8px; border-radius:4px; align-self:flex-start;">${v(r['Record ID'])}</span>
+        <span class="media-name" style="font-size:18px; font-weight:700;">${title}</span>
+        <span class="card-meta" style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">${subtitle}</span>
+        <span class="card-meta" style="font-size:12px; color:var(--text-muted); font-family:var(--mono);">${meta}</span>
       </div>
-      <div class="card-badges">${badges}<span class="expand-icon">⌄</span></div>
+      <div class="card-badges" style="display:flex; gap:8px; align-items:center;">${badges}<span class="expand-icon">⌄</span></div>
     </div>
-    <div class="card-detail">
+    <div class="card-detail" style="display:none; padding:20px 24px; border-top:1px solid rgba(0,0,0,0.05); background:rgba(255,255,255,0.3);"
       <div class="detail-sections" style="grid-template-columns:1fr;">
         <div class="detail-section full-width">${detailRows}</div>
       </div>
-      <div class="card-actions">
+      <div class="card-actions" style="display:flex; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05);">
         <button class="btn ${isEql?'btn-eql':'btn-arl'}" onclick="downloadPDF_Generic(${idx})">⬇ PDF</button>
         <button class="btn btn-edit" onclick="openEditDrawer(${idx})">✏ Edit</button>
         <button class="btn btn-ghost" onclick="copyRecord(${idx})">⎘ Copy</button>
@@ -754,12 +539,12 @@ function openEditDrawer(idx){
   document.getElementById('edit-drawer-subtitle').textContent=r['Record ID']+' — '+(isMor?(r['Media Name / Type']||''):isEql?(r['Equipment Type']||''):(r['Organism Name']||''));
   document.getElementById('save-edit-btn').className='btn '+(isMor?'btn-primary':isEql?'btn-eql':'btn-primary-rsr');
   document.getElementById('edit-drawer-body').innerHTML=isMor?buildMorForm(r):isEql?buildEqlForm(r):buildRsrForm(r);
-  document.getElementById('edit-backdrop').classList.add('show');
-  document.getElementById('edit-drawer').classList.add('open');
+  document.getElementById('edit-backdrop').style.display='block';
+  document.getElementById('edit-drawer').style.right='0';
 }
 function closeEditDrawer(){
-  document.getElementById('edit-backdrop').classList.remove('show');
-  document.getElementById('edit-drawer').classList.remove('open');
+  document.getElementById('edit-backdrop').style.display='none';
+  document.getElementById('edit-drawer').style.right='-100%';
   editingIdx=null;
 }
 
@@ -769,37 +554,37 @@ function f(label,key,r,type,opts,full){
   const fc=full?' full':'';
   if(type==='select'){
     const oh=opts.map(o=>`<option ${val===o||val.toLowerCase()===o.toLowerCase()?'selected':''}>${o}</option>`).join('');
-    return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><select class="edit-input" id="${id}" data-key="${key}"><option value="">—</option>${oh}</select></div>`;
+    return`<div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" ${fc}"><label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">${label}</label><select class="input-base" id="${id}" data-key="${key}"><option value="">—</option>${oh}</select></div>`;
   }
   if(type==='textarea'){
-    return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><textarea class="edit-input" id="${id}" data-key="${key}">${val}</textarea></div>`;
+    return`<div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" ${fc}"><label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">${label}</label><textarea class="input-base" id="${id}" data-key="${key}">${val}</textarea></div>`;
   }
-  return`<div class="edit-field${fc}"><label class="edit-label">${label}</label><input type="${type||'text'}" class="edit-input" id="${id}" data-key="${key}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+  return`<div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" ${fc}"><label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">${label}</label><input type="${type||'text'}" class="input-base" id="${id}" data-key="${key}" value="${val.replace(/"/g,'&quot;')}"></div>`;
 }
 
 function buildMorForm(r){
   const F=(a,b,c,d,e)=>f(a,b,r,c,d,e);
   return`
-  <div class="edit-section"><div class="edit-section-title mor">01 — Identification</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  mor">01 — Identification</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Media Name / Type','Media Name / Type')}${F('Catalog No.','Catalog No.')}
     ${F('Supplier','Manufacturer / Supplier')}${F('Lot / Batch No.','Lot / Batch Number')}
     ${F('Container Size','Container Size')}${F('Intended Use','Intended Use')}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title mor">02 — Dates</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  mor">02 — Dates</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Date of Receipt','Date of Receipt','date')}${F('Date Opened','Date Opened','date')}
     ${F('Mfr. Expiry','Expiration Date (Mfr)','date')}${F('In-House Expiry','In-House Expiry','date')}
     ${F('Prepared / Poured','Prepared / Poured Date','date')}${F('Date of QC Test','Date of QC Test','date')}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title mor">03 — Storage</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  mor">03 — Storage</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Storage Location','Storage Location')}${F('Temp at Receipt (°C)','Temp at Receipt (°C)','number')}
     ${F('Humidity','Humidity Condition')}${F('Equipment ID','Storage Equipment ID')}
     ${F('Storage Notes','Storage Notes','textarea',null,true)}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title mor">04 — QC & Disposition</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  mor">04 — QC & Disposition</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Physical Result','Physical Result','select',['pass','fail'])}
     ${F('QC Disposition','QC Disposition','select',['Approved','Rejected','Conditional'])}
     ${F('Sterility Result','Sterility Result','select',['pass','fail'])}
@@ -809,8 +594,8 @@ function buildMorForm(r){
     ${F('GPT Organism 3','GPT Organism 3')}${F('GPT Result 3','GPT Result 3','select',['pass','fail'])}
     ${F('QC Notes','QC Notes','textarea',null,true)}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title mor">05 — Sign-Off</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  mor">05 — Sign-Off</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Analyst Name','Analyst Name')}${F('Analyst Date','Analyst Date','date')}
     ${F('QC Verifier Name','QC Verifier Name')}${F('QC Verifier Date','QC Verifier Date','date')}
     ${F('Supervisor Name','Supervisor Name')}${F('Supervisor Date','Supervisor Date','date')}
@@ -823,15 +608,15 @@ function buildRsrForm(r){
   let existingRows=[];try{existingRows=JSON.parse(r['Passage Log']||'[]');}catch(e){}
   const pRows=existingRows.map(p=>buildPassageRow(p)).join('');
   return`
-  <div class="edit-section"><div class="edit-section-title rsr">01 — Strain Identification</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  rsr">01 — Strain Identification</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Organism Name','Organism Name')}${F('Strain Designation','Strain Designation')}
     ${F('Culture Collection','Culture Collection')}${F('Gram / Type','Gram / Organism Type')}
     ${F('BSL','Biosafety Level','select',['BSL-1','BSL-2','BSL-3'])}${F('Application','Primary Application')}
     ${F('Internal Lab ID','Internal Lab Strain ID')}${F('CoA No.','Certificate of Analysis No.')}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title rsr">02 — Receipt & Storage</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  rsr">02 — Receipt & Storage</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Supplier','Supplier / Vendor')}${F('Lot / Batch No.','Lot / Batch Number')}
     ${F('Date of Receipt','Date of Receipt','date')}${F('Expiration Date','Expiration Date','date')}
     ${F('Temp at Receipt (°C)','Temp at Receipt (°C)','number')}
@@ -841,8 +626,8 @@ function buildRsrForm(r){
     ${F('Equipment ID','Storage Equipment ID')}${F('Storage Position','Storage Position / Box')}
     ${F('No. of Vials','Number of Vials','number')}${F('Cryoprotectant','Cryoprotectant')}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title rsr">03 — Passage / Subculture Log</div>
-  <div class="edit-field-grid" style="margin-bottom:12px;">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  rsr">03 — Passage / Subculture Log</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="margin-bottom:12px;">
     ${F('Current Passage No.','Current Passage Number','number')}${F('Max Passages Allowed','Max Passages Allowed','number')}
   </div>
   <div class="passage-editor-wrap">
@@ -853,8 +638,8 @@ function buildRsrForm(r){
   </div>
   <button class="add-passage-btn" onclick="addEditPassageRow()">+ Add Row</button>
   </div>
-  <div class="edit-section"><div class="edit-section-title rsr">04 — Identity & QC</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  rsr">04 — Identity & QC</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Colony Morphology','Colony Morphology','textarea',null,true)}
     ${F('Gram Stain Result','Gram Stain Result','textarea',null,true)}
     ${F('Biochemical Results','Biochemical Results','textarea',null,true)}
@@ -866,8 +651,8 @@ function buildRsrForm(r){
     ${F('QC Report Ref','QC Report Reference')}
     ${F('QC Notes','QC Notes','textarea',null,true)}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title rsr">05 — Sign-Off</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  rsr">05 — Sign-Off</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Analyst Name','Analyst Name')}${F('Analyst Date','Analyst Date','date')}
     ${F('QC Verifier Name','QC Verifier Name')}${F('QC Verifier Date','QC Verifier Date','date')}
     ${F('Supervisor Name','Supervisor Name')}${F('Supervisor Date','Supervisor Date','date')}
@@ -1078,15 +863,15 @@ function buildEqlForm(r){
   let sec2='';
   if(isAutoclave){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Autoclave Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Autoclave Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Chamber Condition','Chamber Condition','select',['Clean','Needs Cleaning','Damaged'])}
       ${F('Door Seal / Gasket','Door Seal','select',['Intact','Worn','Damaged'])}
       ${F('Pre-Vacuum / Bowie-Dick','Pre-Vacuum Test','select',['Pass','Fail','Not Performed'])}
       ${F('Drain / Strainer','Drain Condition','select',['Clear','Blocked','Not Checked'])}
       ${F('Autoclave Notes','Notes','textarea',null,true)}
     </div></div>
-    <div class="edit-section"><div class="edit-section-title eql">03 — Run Log</div>
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">03 — Run Log</div>
     <div style="padding:4px 0 8px;">
       <p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-family:var(--mono);">Existing runs are pre-filled. Add more rows or edit values below.</p>
       <div style="overflow-x:auto;">
@@ -1113,8 +898,8 @@ function buildEqlForm(r){
   setTimeout(()=>editRunInit(r['Run Log']),0);
   } else if(isInc){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Incubator Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Incubator Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Set Temp (°C)','Set Temp (°C)','number')}
       ${F('Actual Temp AM (°C)','Actual Temp AM','number')}
       ${F('Actual Temp PM (°C)','Actual Temp PM','number')}
@@ -1125,8 +910,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isFridge){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Refrigerator / Freezer Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Refrigerator / Freezer Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Sub-Type','Unit Sub-Type','select',['Refrigerator (2–8°C)','Freezer (-20°C)','ULT Freezer (-80°C)'])}
       ${F('Set Temp (°C)','Set Temp (°C)','number')}
       ${F('Actual Temp AM (°C)','Actual Temp AM','number')}
@@ -1139,8 +924,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isWb){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Waterbath Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Waterbath Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Set Temp (°C)','Set Temp (°C)','number')}
       ${F('Actual Temp AM (°C)','Actual Temp AM','number')}
       ${F('Actual Temp PM (°C)','Actual Temp PM','number')}
@@ -1152,8 +937,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isCol){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Colony Counter Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Colony Counter Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Illumination','Illumination','select',['Functional','Faulty'])}
       ${F('Counting Grid','Counting Grid','select',['Functional','Faulty'])}
       ${F('Display Function','Display Function','select',['Normal','Error'])}
@@ -1162,8 +947,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isBal){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Analytical Balance Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Analytical Balance Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Leveling Bubble','Leveling Bubble','select',['Centered','Off-Center — Adjusted','Off-Center — Not Fixed'])}
       ${F('Zero / Tare Check','Zero / Tare Check','select',['Pass','Fail'])}
       ${F('Cal Weight (g)','Cal Weight (g)','number')}
@@ -1174,8 +959,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isMic){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Microscope Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Microscope Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('Illumination','Illumination','select',['Functional','Dim','Faulty'])}
       ${F('Objective Lenses','Objective Lenses','select',['Clean & Intact','Needs Cleaning','Damaged'])}
       ${F('Stage Movement','Stage Movement','select',['Smooth','Stiff','Faulty'])}
@@ -1185,8 +970,8 @@ function buildEqlForm(r){
     </div></div>`;
   } else if(isBsc){
     sec2=`
-    <div class="edit-section"><div class="edit-section-title eql">02 — Biosafety Cabinet Status</div>
-    <div class="edit-field-grid">
+    <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">02 — Biosafety Cabinet Status</div>
+    <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       ${F('UV Decontamination','UV Decontamination','select',['Yes','No'])}
       ${F('UV Duration (min)','UV Duration (min)','number')}
       ${F('Blower Pre-run','Blower Pre-run','select',['Yes — 5 min','Yes — 10 min','Not Performed'])}
@@ -1200,20 +985,20 @@ function buildEqlForm(r){
   }
 
   return`
-  <div class="edit-section"><div class="edit-section-title eql">01 — Record Information</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">01 — Record Information</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Equipment Type','Equipment Type','select',['Autoclave','Incubator','Refrigerator','BSC'])}
     ${F('Record Date','Record Date','date')}
     ${F('Shift','Shift','select',['Morning','Afternoon','Evening'])}
   </div></div>
   ${sec2}
-  <div class="edit-section"><div class="edit-section-title eql">03 — Overall Status</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">03 — Overall Status</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Overall Status','Overall Status','select',['Operational','Requires Maintenance','Out of Service'])}
     ${F('Corrective Action','Corrective Action / Notes','textarea',null,true)}
   </div></div>
-  <div class="edit-section"><div class="edit-section-title eql">04 — Sign-Off</div>
-  <div class="edit-field-grid">
+  <div class="edit-section"><div class="edit-section-title" style="font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);"  eql">04 — Sign-Off</div>
+  <div class="edit-field" style="display:flex; flex-direction:column; gap:4px;" -grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     ${F('Analyst Name','Analyst Name')}
     ${F('Checked Date & Time','Checked Date & Time','datetime-local')}
   </div></div>`;
@@ -1318,5 +1103,6 @@ function editRunSync(){
   ['mousedown','touchstart'].forEach(e=>document.addEventListener(e,preload,{once:true}));
 })();
 </script>
+<script src="animations.js"></script>
 </body>
 </html>

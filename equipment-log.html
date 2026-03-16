@@ -12,419 +12,47 @@
 <script src="supabase-config.js"></script>
 
 
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root {
-    --bg-dark: #0a0f18;
-    --surface: rgba(20, 30, 48, 0.6);
-    --surface-solid: #151f30;
-    --border: rgba(130, 180, 255, 0.15);
-    --border-glow: rgba(0, 255, 136, 0.5);
-    --text: #e2e8f0;
-    --text-muted: #8b9db5;
-    --accent: #00ff88;
-    --accent-glow: rgba(0, 255, 136, 0.4);
-    --accent-mid: #00cc6a;
-    --warn: #ff3366;
-    --warn-glow: rgba(255, 51, 102, 0.4);
-    --amber: #ffaa33;
-    --amber-glow: rgba(255, 170, 51, 0.4);
-    --pass: #00ff88;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-    --radius: 8px;
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{
-    font-family:var(--sans);
-    background: radial-gradient(circle at 50% -20%, #1a273b, var(--bg-dark) 80%);
-    background-attachment: fixed;
-    color:var(--text);
-    min-height:100vh;
-    padding:24px 16px 140px;
-  }
-  @media(min-width:600px){body{padding:36px 24px 100px;}}
-  .page-wrap{max-width:840px;margin:0 auto;perspective:1000px;}
-
-  .form-header{
-    display:flex;align-items:flex-start;justify-content:space-between;
-    padding: 20px;
-    background: var(--surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--glass-shadow);
-    margin-bottom:28px;gap:16px;flex-wrap:wrap;
-    position: relative;
-    overflow: hidden;
-  }
-  .form-header::after {
-    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    box-shadow: 0 0 10px var(--accent);
-  }
-  .form-header-left h1{
-    font-size:22px;font-weight:600;color:#fff;letter-spacing:1px;
-    text-shadow: 0 0 15px var(--accent-glow);
-  }
-  .form-header-left p{font-size:12px;color:var(--text-muted);margin-top:6px;font-family:var(--mono);}
-  .doc-meta{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:right;line-height:1.8;}
-  .doc-meta strong{color:var(--accent); text-shadow: 0 0 8px var(--accent-glow);}
-
-  .record-id-banner{
-    background: linear-gradient(135deg, #132a23, #0a1816);
-    border: 1px solid var(--accent);
-    box-shadow: 0 0 15px var(--accent-glow), inset 0 0 20px rgba(0,255,136,0.1);
-    color:#fff;padding:12px 20px;border-radius:var(--radius);
-    font-family:var(--mono);font-size:13px;margin-bottom:24px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-    transform-style: preserve-3d;
-  }
-  .record-id-label{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;text-shadow: 0 0 5px var(--accent);}
-  .record-id-value{font-size:18px;font-weight:500;letter-spacing:2px;text-shadow: 0 0 10px #fff;}
-
-  /* Equipment selector */
-  .equip-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px; perspective: 800px;}
-  @media(max-width:500px){.equip-selector{grid-template-columns:repeat(2,1fr);}}
+  .form-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; gap: 20px; flex-wrap: wrap; }
+  .form-header h1 { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .form-header p { font-size: 14px; color: var(--text-muted); }
+  .doc-meta { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.6; }
   
-  .equip-btn{
-    padding:16px 8px;
-    background: linear-gradient(145deg, #182436, #0f1724);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px;
-    box-shadow: 6px 6px 12px rgba(0,0,0,0.5), -4px -4px 10px rgba(255,255,255,0.03);
-    cursor:pointer;text-align:center;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--sans);
-    transform-style: preserve-3d;
-  }
-  .equip-btn .eq-icon{
-    font-size:32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-    transition: transform 0.3s ease;
-  }
-  .equip-btn .eq-label{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.5px;}
-  .equip-btn .eq-sub{font-size:10px;color:var(--text-muted);font-family:var(--mono);}
+  .record-id-banner { background: var(--primary-light); border: 1px solid rgba(14,165,233,0.2); border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .record-id-label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--primary); letter-spacing: 1px; margin-bottom: 4px; }
+  .record-id-value { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text-main); }
   
-  .equip-btn:hover{
-    transform: translateY(-5px) rotateX(5deg);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.6), -2px -2px 10px rgba(255,255,255,0.05), 0 0 15px rgba(130,180,255,0.2);
-    border-color: rgba(130,180,255,0.3);
-  }
-  .equip-btn:hover .eq-icon{ transform: translateZ(15px) scale(1.1); }
+  .req { color: var(--danger); font-weight: 700; }
   
-  .equip-btn.active{
-    background: linear-gradient(145deg, #0f241d, #091a13);
-    border-color: var(--accent);
-    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.6), inset -2px -2px 6px rgba(0,255,136,0.1), 0 0 20px var(--accent-glow);
-    transform: translateY(2px);
-  }
-  .equip-btn.active .eq-label{color:var(--accent); text-shadow: 0 0 3px var(--accent-glow);}
-  .equip-btn.active .eq-sub{color:rgba(0,255,136,0.6);}
-  .equip-btn.active .eq-icon{ transform: translateZ(-5px) scale(0.95); filter: drop-shadow(0 0 10px var(--accent)); }
-
-  .section{
-    background: var(--surface);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom:24px;
-    overflow:hidden;
-    box-shadow: var(--glass-shadow);
-    transition: transform 0.3s ease, border-color 0.3s ease;
-  }
-  .section:hover {
-    border-color: rgba(130, 180, 255, 0.3);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7), 0 0 20px rgba(130, 200, 255, 0.05);
-  }
-  .section-header{
-    background: linear-gradient(90deg, #1a283c, #101826);
-    border-bottom: 1px solid rgba(0,0,0,0.5);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;
-    position: relative;
-  }
-  .section-header::before{
-    content: ''; position: absolute; top:0; left:0; width:100%; height:1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
-  }
-  .section-num{
-    font-family:var(--mono);font-size:11px;font-weight:600;
-    color: var(--accent);
-    background: rgba(0,255,136,0.05);
-    border:1px solid rgba(0,255,136,0.3);
-    box-shadow: 0 0 8px rgba(0,255,136,0.2);
-    padding:3px 8px;border-radius:4px;
-    text-shadow: 0 0 5px var(--accent);
-  }
-  .section-title{font-size:14px;font-weight:600; letter-spacing:0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
-  .section-body{padding:24px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;}
-  @media(max-width:580px){.section-body{grid-template-columns:1fr;}}
-  .full{grid-column:1/-1;}
-
-  .field{display:flex;flex-direction:column;gap:8px;}
-  .field label{
-    font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-    color:var(--text-muted);font-family:var(--mono);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-  }
-  .field label .req{color:var(--warn); text-shadow: 0 0 5px var(--warn);}
+  .radio-group, .checkbox-group { display: flex; gap: 12px; flex-wrap: wrap; }
+  .rpill { display: flex; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 20px; background: rgba(255,255,255,0.6); transition: all 0.2s; user-select: none; }
+  .rpill input { display: none; }
+  .rpill:has(input:checked) { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px var(--primary-glow); }
+  .cpill { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; background: rgba(255,255,255,0.6); transition: all 0.2s; }
+  .cpill:has(input:checked) { background: rgba(16,185,129,0.1); border-color: var(--success); }
   
-  input,select,textarea{
-    font-family:var(--sans);font-size:15px;color:#fff;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    padding:12px 14px;width:100%;outline:none;-webkit-appearance:none;appearance:none;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-    transition:all 0.3s ease;
-  }
-  input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); }
-  input:focus,select:focus,textarea:focus{
-    border-color:var(--accent);
-    background: rgba(0,0,0,0.6);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 12px var(--accent-glow);
-  }
-  select{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300ff88' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
-  }
-  select option { background: var(--surface-solid); color: #fff; }
-  textarea{resize:vertical;min-height:80px;line-height:1.5;}
-  input[type=number]{-moz-appearance:textfield;}
-  input[readonly]{
-    color:var(--accent);
-    font-family:var(--mono);
-    background: rgba(0,255,136,0.03);
-    border-style: dashed;
-    text-shadow: 0 0 5px rgba(0,255,136,0.3);
-  }
-
-  /* 3D Radio pills */
-  .radio-group{display:flex;flex-wrap:wrap;gap:10px;}
-  .rpill{display:inline-flex;align-items:center; perspective: 400px;}
-  .rpill input[type=radio]{display:none;}
-  .rpill span{
-    display:block;padding:10px 18px;
-    background: linear-gradient(145deg, #1a273b, #121b29);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 20px;font-size:13px;font-weight:600;cursor:pointer;
-    transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color:var(--text-muted);
-    box-shadow: 3px 3px 6px rgba(0,0,0,0.4), -2px -2px 5px rgba(255,255,255,0.02);
-    white-space:nowrap;user-select:none;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    transform: translateZ(0);
-  }
-  .rpill:hover span {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.05);
-    color: #fff;
-  }
+  .equip-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .equip-btn { background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 16px; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+  .eq-icon { font-size: 28px; margin-bottom: 12px; }
+  .eq-label { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+  .eq-sub { font-size: 11px; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+  .equip-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: #fff; }
+  .equip-btn.active { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary-light); }
   
-  .rpill input[type=radio]:checked + span{
-    background: linear-gradient(145deg, #0d261a, #08160f);
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6), inset -1px -1px 3px rgba(0,255,136,0.2), 0 0 15px var(--accent-glow);
-    text-shadow: 0 0 3px var(--accent-glow);
-    transform: translateY(1px);
-  }
+  .run-log-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .run-log-table th { background: rgba(0,0,0,0.02); padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .run-log-table td { padding: 10px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  .run-log-table input, .run-log-table select { width: 100%; border: none; background: transparent; font-family: var(--sans); font-size: 13px; outline: none; padding: 4px; }
+  .run-log-table input:focus, .run-log-table select:focus { background: rgba(14,165,233,0.05); border-radius: 4px; }
+  .run-log-table tr:last-child td { border-bottom: none; }
   
-  .rpill.pass input[type=radio]:checked + span{
-    background: linear-gradient(145deg, #0d261a, #08160f);
-    color: var(--pass); border-color: var(--pass);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6), inset -1px -1px 3px rgba(0,255,136,0.2), 0 0 15px var(--accent-glow);
-    text-shadow: 0 0 3px var(--accent-glow);
-  }
-  .rpill.warn input[type=radio]:checked + span{
-    background: linear-gradient(145deg, #330b14, #1a050a);
-    color: var(--warn); border-color: var(--warn);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,51,102,0.2), 0 0 15px var(--warn-glow);
-    text-shadow: 0 0 3px var(--warn-glow);
-  }
-  .rpill.amber input[type=radio]:checked + span{
-    background: linear-gradient(145deg, #33220a, #1a1105);
-    color: var(--amber); border-color: var(--amber);
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,170,51,0.2), 0 0 15px var(--amber-glow);
-    text-shadow: 0 0 3px var(--amber-glow);
-  }
-
-  .status-banner{
-    padding:14px 20px;border-radius:8px;font-size:14px;font-weight:600;display:none;margin-top:10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    backdrop-filter: blur(10px);
-    animation: pulseGlow 3s infinite alternate;
-  }
-  .status-banner.show{display:block; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;}
+  #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.4s; z-index: 9999; }
+  #toast.show { bottom: 32px; }
   
-  @keyframes slideUp {
-    from { opacity:0; transform: translateY(20px) scale(0.95); }
-    to { opacity:1; transform: translateY(0) scale(1); }
-  }
-  @keyframes pulseGlow {
-    from { filter: brightness(1); }
-    to { filter: brightness(1.2); }
-  }
-
-  .status-banner.ok{
-    background: rgba(0, 255, 136, 0.1); color: var(--pass);
-    border: 1px solid var(--pass); box-shadow: 0 0 20px rgba(0, 255, 136, 0.2), inset 0 0 10px rgba(0, 255, 136, 0.1);
-    text-shadow: 0 0 3px var(--accent-glow);
-  }
-  .status-banner.warn{
-    background: rgba(255, 51, 102, 0.1); color: var(--warn);
-    border: 1px solid var(--warn); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2), inset 0 0 10px rgba(255, 51, 102, 0.1);
-    text-shadow: 0 0 3px var(--warn-glow);
-  }
-  .status-banner.caution{
-    background: rgba(255, 170, 51, 0.1); color: var(--amber);
-    border: 1px solid var(--amber); box-shadow: 0 0 20px rgba(255, 170, 51, 0.2), inset 0 0 10px rgba(255, 170, 51, 0.1);
-    text-shadow: 0 0 3px var(--amber-glow);
-  }
-
-  .cond-section{display:none;}
-  .cond-section.visible{display:block; animation: fadeIn3D 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);}
-  @keyframes fadeIn3D {
-    from { opacity: 0; transform: translateY(30px) rotateX(-10deg); }
-    to { opacity: 1; transform: translateY(0) rotateX(0); }
-  }
-
-  /* Autoclave Run Log table - 3D Glass Table */
-  .run-log-section{margin-top:0;}
-  .run-table-wrap{
-    overflow-x:auto;margin-top:8px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-  }
-  .run-table{width:100%;border-collapse:separate; border-spacing: 0; font-size:13px; min-width:800px;}
-  .run-table th{
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-    color: var(--accent);font-family:var(--mono);font-size:10px;font-weight:600;
-    text-transform:uppercase;padding:12px 8px;text-align:left;
-    border-bottom:1px solid rgba(0,255,136,0.2);
-    text-shadow: 0 0 5px rgba(0,255,136,0.3);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .run-table td{
-    padding:6px 4px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle;
-    transition: background 0.2s;
-  }
-  .run-table tr:hover td { background: rgba(255,255,255,0.03); }
-  .run-table tr:last-child td{border-bottom:none;}
-  .run-table input,.run-table select{
-    font-size:13px;padding:8px;
-    background: rgba(0,0,0,0.3);
-    border:1px solid transparent;
-    border-radius:4px;width:100%;outline:none;font-family:var(--sans);-webkit-appearance:none;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-    color: #fff;
-  }
-  .run-table input:focus,.run-table select:focus{
-    border-color:var(--accent);
-    background: rgba(0,0,0,0.6);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 8px var(--accent-glow);
-  }
-
-  /* 3D Sticky footer */
-  .sticky-footer{
-    position:fixed;bottom:0;left:0;right:0;
-    background: rgba(15, 23, 38, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(0, 255, 136, 0.3);
-    padding:16px 24px;display:flex;gap:12px;justify-content:flex-end;z-index:100;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:12px 28px;border-radius:12px;font-size:15px;font-weight:600;
-    font-family:var(--sans);cursor:pointer;border:none;
-    transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    min-height:48px;
-    transform-style: preserve-3d;
-  }
-  
-  .btn-primary{
-    background: linear-gradient(145deg, #00e67a, #00b35f);
-    color:#000;
-    box-shadow: 0 8px 20px rgba(0,255,136,0.3), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 5px rgba(0,0,0,0.2);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
-  }
-  .btn-primary:hover{
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 12px 25px rgba(0,255,136,0.4), inset 0 2px 0 rgba(255,255,255,0.5);
-    filter: brightness(1.1);
-  }
-  .btn-primary:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 5px rgba(0,255,136,0.3), inset 0 4px 8px rgba(0,0,0,0.3);
-  }
-  
-  .btn-ghost{
-    background: transparent;
-    border:1px solid rgba(139, 157, 181, 0.3);
-    color:var(--text);
-  }
-  .btn-ghost:hover{
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.6);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  }
-  .btn-ghost:active { transform: translateY(1px); }
-  
-  .btn-pdf{
-    background: linear-gradient(145deg, #2a3b54, #1c2838);
-    border: 1px solid rgba(130, 200, 255, 0.2);
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .btn-pdf:hover{
-    border-color: rgba(130, 200, 255, 0.6);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(130, 200, 255, 0.2);
-    transform: translateY(-2px);
-  }
-  .btn-pdf:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 4px 8px rgba(0,0,0,0.3);
-  }
-  
-  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
-  .btn .spinner{
-    display:none;width:18px;height:18px;
-    border:3px solid rgba(0,0,0,0.2);border-top-color:#000;
-    border-radius:50%;animation:spin 0.7s linear infinite;
-  }
-  .btn.loading .spinner{display:block;}
-  .btn.loading .btn-text{display:none;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-
-  #toast{
-    position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px) translateZ(50px);
-    background: rgba(0, 255, 136, 0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--accent);
-    color:#fff;padding:14px 24px;border-radius:30px;
-    font-size:14px;font-family:var(--mono);font-weight: 600;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
-    text-shadow: 0 0 8px var(--accent);
-    opacity:0;transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    pointer-events:none;z-index:200;white-space:nowrap;max-width:90vw;text-align:center;
-  }
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0) translateZ(50px);}
-  #toast.error{
-    background: rgba(255, 51, 102, 0.15);
-    border-color: var(--warn);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px var(--warn-glow);
-    text-shadow: 0 0 8px var(--warn);
-  }
+  .full-width { grid-column: 1 / -1; }
 </style>
+
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -436,7 +64,7 @@ if('serviceWorker' in navigator){
 </script>
 </head>
 <body>
-<div class="page-wrap">
+<div class="main-container scroll-animate delay-1">
 
   <div class="form-header">
     <div class="form-header-left">
@@ -459,10 +87,10 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- 00 Equipment Selector -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-num">00</span>
-      <span class="section-title">Select Equipment Type</span>
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
+      <span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">00</span>
+      <span style="color:var(--text-main); font-size:16px;">Select Equipment Type</span>
     </div>
     <div style="padding:18px 16px;">
       <div class="equip-selector">
@@ -495,17 +123,17 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- 01 Record Info (simplified — no model/location since only one unit) -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-num">01</span>
-      <span class="section-title">Record Information</span>
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;">
+      <span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">01</span>
+      <span style="color:var(--text-main); font-size:16px;">Record Information</span>
     </div>
-    <div class="section-body">
-      <div class="field">
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
+      <div class="input-group">
         <label>Date of Record <span class="req">*</span></label>
-        <input type="date" id="record-date">
+        <input type="date" class="input-base" id="record-date">
       </div>
-      <div class="field">
+      <div class="input-group">
         <label>Shift / Session</label>
         <div class="radio-group">
           <label class="rpill"><input type="radio" name="shift" value="Morning"><span>Morning</span></label>
@@ -518,10 +146,10 @@ if('serviceWorker' in navigator){
 
   <!-- ── AUTOCLAVE ── -->
   <div id="sec-autoclave" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Autoclave — Daily Status Check</span></div>
-      <div class="section-body">
-        <div class="field">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Autoclave — Daily Status Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
+        <div class="input-group">
           <label>Chamber Condition</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="ac-chamber" value="Clean"><span>Clean</span></label>
@@ -529,7 +157,7 @@ if('serviceWorker' in navigator){
             <label class="rpill warn"><input type="radio" name="ac-chamber" value="Damaged"><span>Damaged</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Door Seal / Gasket</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="ac-seal" value="Intact"><span>Intact</span></label>
@@ -537,7 +165,7 @@ if('serviceWorker' in navigator){
             <label class="rpill warn"><input type="radio" name="ac-seal" value="Replace Required"><span>Replace Required</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Pre-Vacuum / Bowie-Dick Test</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="ac-prevac" value="Pass"><span>Pass</span></label>
@@ -545,7 +173,7 @@ if('serviceWorker' in navigator){
             <label class="rpill"><input type="radio" name="ac-prevac" value="Not Performed"><span>Not Performed</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Drain / Strainer Condition</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="ac-drain" value="Clear"><span>Clear</span></label>
@@ -555,14 +183,14 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Autoclave Daily Notes</label>
-          <textarea id="ac-notes" placeholder="Observations, faults, maintenance actions…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="ac-notes" placeholder="Observations, faults, maintenance actions…"></textarea>
         </div>
       </div>
     </div>
 
     <!-- Autoclave Run Log (embedded — static 8-row fill table) -->
     <div class="section run-log-section">
-      <div class="section-header"><span class="section-num">03</span><span class="section-title">Autoclave Run Log — Cycles This Session</span></div>
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">03</span><span style="color:var(--text-main); font-size:16px;">Autoclave Run Log — Cycles This Session</span></div>
       <div style="padding:16px;">
         <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-bottom:10px;">Fill in each cycle as runs are completed. Leave unused rows blank.</p>
         <div class="run-table-wrap">
@@ -590,26 +218,26 @@ if('serviceWorker' in navigator){
 
   <!-- ── INCUBATOR ── -->
   <div id="sec-incubator" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Incubator — Daily Status Check</span></div>
-      <div class="section-body">
-        <div class="field">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Incubator — Daily Status Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
+        <div class="input-group">
           <label>Set Temperature (°C) <span class="req">*</span></label>
-          <input type="number" id="inc-set-temp" step="0.1" placeholder="37.0" oninput="checkTempDev('inc')">
+          <input type="number" class="input-base" id="inc-set-temp" step="0.1" placeholder="37.0" oninput="checkTempDev('inc')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temperature AM (°C)</label>
-          <input type="number" id="inc-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('inc')">
+          <input type="number" class="input-base" id="inc-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('inc')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temperature PM (°C)</label>
-          <input type="number" id="inc-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('inc')">
+          <input type="number" class="input-base" id="inc-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('inc')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Temperature Deviation</label>
-          <input type="text" id="inc-deviation" readonly placeholder="Auto-calculated">
+          <input type="text" class="input-base" id="inc-deviation" readonly placeholder="Auto-calculated">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Temperature Alarm</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="inc-alarm" value="Normal"><span>Normal</span></label>
@@ -617,7 +245,7 @@ if('serviceWorker' in navigator){
             <label class="rpill"><input type="radio" name="inc-alarm" value="Not Checked"><span>Not Checked</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Door Seal</label>
           <div class="radio-group">
             <label class="rpill pass"><input type="radio" name="inc-seal" value="Intact"><span>Intact</span></label>
@@ -627,7 +255,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Incubator Notes</label>
-          <textarea id="inc-notes" placeholder="Observations, faults, corrective actions…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="inc-notes" placeholder="Observations, faults, corrective actions…"></textarea>
         </div>
       </div>
     </div>
@@ -635,9 +263,9 @@ if('serviceWorker' in navigator){
 
   <!-- ── REFRIGERATOR / FREEZER ── -->
   <div id="sec-refrigerator" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Refrigerator / Freezer — Daily Status Check</span></div>
-      <div class="section-body">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Refrigerator / Freezer — Daily Status Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Unit Sub-Type</label>
           <div class="radio-group">
@@ -646,21 +274,21 @@ if('serviceWorker' in navigator){
             <label class="rpill"><input type="radio" name="ref-subtype" value="ULT Freezer (–70°C or below)"><span>ULT Freezer (–70°C or below)</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Set Temperature (°C)</label>
-          <input type="number" id="ref-set-temp" step="0.1" placeholder="e.g. 4" oninput="checkTempDev('ref')">
+          <input type="number" class="input-base" id="ref-set-temp" step="0.1" placeholder="e.g. 4" oninput="checkTempDev('ref')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temp AM (°C)</label>
-          <input type="number" id="ref-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('ref')">
+          <input type="number" class="input-base" id="ref-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('ref')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temp PM (°C)</label>
-          <input type="number" id="ref-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('ref')">
+          <input type="number" class="input-base" id="ref-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('ref')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Temperature Deviation</label>
-          <input type="text" id="ref-deviation" readonly placeholder="Auto-calculated">
+          <input type="text" class="input-base" id="ref-deviation" readonly placeholder="Auto-calculated">
         </div>
         <div class="field full">
           <label>Temperature Alarm</label>
@@ -690,7 +318,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Refrigerator Notes</label>
-          <textarea id="ref-notes" placeholder="Observations, faults, corrective actions…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="ref-notes" placeholder="Observations, faults, corrective actions…"></textarea>
         </div>
       </div>
     </div>
@@ -698,9 +326,9 @@ if('serviceWorker' in navigator){
 
   <!-- ── BSC ── -->
   <div id="sec-bsc" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">BSC — Pre/Post Use Check</span></div>
-      <div class="section-body">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">BSC — Pre/Post Use Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Pre-Use UV Decontamination</label>
           <div class="radio-group">
@@ -708,21 +336,21 @@ if('serviceWorker' in navigator){
             <label class="rpill"><input type="radio" name="bsc-uv" value="No"><span>No</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>UV Duration (min)</label>
-          <input type="number" id="bsc-uv-duration" step="1" placeholder="e.g. 15" min="0">
+          <input type="number" class="input-base" id="bsc-uv-duration" step="1" placeholder="e.g. 15" min="0">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Blower Pre-run (min)</label>
-          <input type="number" id="bsc-blower" step="1" placeholder="e.g. 5" min="0">
+          <input type="number" class="input-base" id="bsc-blower" step="1" placeholder="e.g. 5" min="0">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Decontamination Agent</label>
-          <input type="text" id="bsc-agent" placeholder="e.g. 70% Ethanol">
+          <input type="text" class="input-base" id="bsc-agent" placeholder="e.g. 70% Ethanol">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Contact Time (min)</label>
-          <input type="number" id="bsc-contact-time" step="1" placeholder="e.g. 5">
+          <input type="number" class="input-base" id="bsc-contact-time" step="1" placeholder="e.g. 5">
         </div>
         <div class="field full">
           <label>Sash Position</label>
@@ -749,7 +377,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>BSC Notes</label>
-          <textarea id="bsc-notes" placeholder="Observations, faults, decontamination notes…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="bsc-notes" placeholder="Observations, faults, decontamination notes…"></textarea>
         </div>
       </div>
     </div>
@@ -757,9 +385,9 @@ if('serviceWorker' in navigator){
 
   <!-- Colony Counter -->
   <div id="sec-colonycount" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Colony Counter — Condition Check</span></div>
-      <div class="section-body">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Colony Counter — Condition Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Illumination</label>
           <div class="radio-group">
@@ -790,7 +418,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Colony Counter Notes</label>
-          <textarea id="cc-notes" placeholder="Observations, faults, maintenance…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="cc-notes" placeholder="Observations, faults, maintenance…"></textarea>
         </div>
       </div>
     </div>
@@ -798,9 +426,9 @@ if('serviceWorker' in navigator){
 
   <!-- Analytical Balance -->
   <div id="sec-balance" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Analytical Balance — Calibration & Condition Check</span></div>
-      <div class="section-body">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Analytical Balance — Calibration & Condition Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Leveling Bubble</label>
           <div class="radio-group">
@@ -816,13 +444,13 @@ if('serviceWorker' in navigator){
             <label class="rpill warn"><input type="radio" name="bal-zero" value="Fail"><span>Fail</span></label>
           </div>
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Calibration Weight Used (g)</label>
-          <input type="number" id="bal-cal-weight" step="0.0001" placeholder="e.g. 100.0000">
+          <input type="number" class="input-base" id="bal-cal-weight" step="0.0001" placeholder="e.g. 100.0000">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Balance Reading (g)</label>
-          <input type="number" id="bal-reading" step="0.0001" placeholder="e.g. 100.0002">
+          <input type="number" class="input-base" id="bal-reading" step="0.0001" placeholder="e.g. 100.0002">
         </div>
         <div class="field full">
           <label>Calibration Result</label>
@@ -840,7 +468,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Balance Notes</label>
-          <textarea id="bal-notes" placeholder="Calibration details, deviations, corrective action…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="bal-notes" placeholder="Calibration details, deviations, corrective action…"></textarea>
         </div>
       </div>
     </div>
@@ -848,9 +476,9 @@ if('serviceWorker' in navigator){
 
   <!-- Microscope -->
   <div id="sec-microscope" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Microscope — Condition & Optics Check</span></div>
-      <div class="section-body">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Microscope — Condition & Optics Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
         <div class="field full">
           <label>Illumination / Light Source</label>
           <div class="radio-group">
@@ -893,7 +521,7 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Microscope Notes</label>
-          <textarea id="mic-notes" placeholder="Observations, cleaning performed, faults…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="mic-notes" placeholder="Observations, cleaning performed, faults…"></textarea>
         </div>
       </div>
     </div>
@@ -901,24 +529,24 @@ if('serviceWorker' in navigator){
 
   <!-- Waterbath -->
   <div id="sec-waterbath" class="cond-section">
-    <div class="section">
-      <div class="section-header"><span class="section-num">02</span><span class="section-title">Waterbath — Temperature & Condition Check</span></div>
-      <div class="section-body">
-        <div class="field">
+    <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+      <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span style="background:var(--primary); color:#fff; font-family:var(--mono); padding:4px 8px; border-radius:6px; font-size:12px;">02</span><span style="color:var(--text-main); font-size:16px;">Waterbath — Temperature & Condition Check</span></div>
+      <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
+        <div class="input-group">
           <label>Set Temperature (°C) <span class="req">*</span></label>
-          <input type="number" id="wb-set-temp" step="0.1" placeholder="e.g. 37" oninput="checkTempDev('wb')">
+          <input type="number" class="input-base" id="wb-set-temp" step="0.1" placeholder="e.g. 37" oninput="checkTempDev('wb')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temperature AM (°C)</label>
-          <input type="number" id="wb-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
+          <input type="number" class="input-base" id="wb-actual-am" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Actual Temperature PM (°C)</label>
-          <input type="number" id="wb-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
+          <input type="number" class="input-base" id="wb-actual-pm" step="0.1" placeholder="—" oninput="checkTempDev('wb')">
         </div>
-        <div class="field">
+        <div class="input-group">
           <label>Temperature Deviation</label>
-          <input type="text" id="wb-deviation" readonly placeholder="Auto-calculated">
+          <input type="text" class="input-base" id="wb-deviation" readonly placeholder="Auto-calculated">
         </div>
         <div class="field full">
           <label>Water Level</label>
@@ -946,16 +574,16 @@ if('serviceWorker' in navigator){
         </div>
         <div class="field full">
           <label>Waterbath Notes</label>
-          <textarea id="wb-notes" placeholder="Observations, water change, maintenance…"></textarea>
+          <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="wb-notes" placeholder="Observations, water change, maintenance…"></textarea>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Overall Status -->
-  <div class="section">
-    <div class="section-header"><span class="section-num" id="overall-num">03</span><span class="section-title">Overall Equipment Status</span></div>
-    <div class="section-body">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="overall-num">03</span><span style="color:var(--text-main); font-size:16px;">Overall Equipment Status</span></div>
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
       <div class="field full">
         <label>Status <span class="req">*</span></label>
         <div class="radio-group">
@@ -967,20 +595,20 @@ if('serviceWorker' in navigator){
       </div>
       <div class="field full">
         <label>Corrective Action (if any)</label>
-        <textarea id="corrective-action" placeholder="Describe action taken or required…"></textarea>
+        <textarea class="input-base" style="min-height:80px; resize:vertical; line-height:1.5;" id="corrective-action" placeholder="Describe action taken or required…"></textarea>
       </div>
     </div>
   </div>
 
   <!-- Sign-Off — simplified -->
-  <div class="section">
-    <div class="section-header"><span class="section-num" id="signoff-num">04</span><span class="section-title">Sign-Off</span></div>
-    <div class="section-body">
-      <div class="field">
+  <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
+    <div style="background:rgba(255,255,255,0.4); padding:16px 24px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; gap:12px; font-weight:800; border-radius:16px 16px 0 0;"><span class="section-num" id="signoff-num">04</span><span style="color:var(--text-main); font-size:16px;">Sign-Off</span></div>
+    <div style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px;">
+      <div class="input-group">
         <label>Analyst Name <span class="req">*</span></label>
-        <input type="text" id="analyst-name" placeholder="Full name">
+        <input type="text" class="input-base" id="analyst-name" placeholder="Full name">
       </div>
-      <div class="field">
+      <div class="input-group">
         <label>Checked Date &amp; Time <span class="req">*</span></label>
         <input type="datetime-local" id="analyst-datetime">
       </div>
@@ -1012,7 +640,7 @@ function grv(name){const el=document.querySelector(`input[name="${name}"]:checke
 function generateTempId(prefix) {
   const n = new Date();
   const pad = v => String(v).padStart(2, '0');
-  return `${prefix}-${String(n.getFullYear()).slice(2)}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
+  return `${prefix}-${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}-${pad(n.getHours())}${pad(n.getMinutes())}`;
 }
 
 async function generateId(){
@@ -1026,7 +654,10 @@ async function generateId(){
     const equipType=equipTypeMap[currentEquipType];
     const seqName=EQUIP_SEQ_MAP[equipType];
     if(seqName){
-      const nextId = await supabaseNextId(prefix, seqName);
+      const n = new Date();
+      const pad = v => String(v).padStart(2, '0');
+      const dateStr = `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}`;
+      const nextId = await supabaseNextId(prefix + '-' + dateStr, seqName);
       display.textContent=nextId;
     }
   }catch(e){/* keep temp ID — still unique */}
@@ -1085,26 +716,26 @@ function buildRunLog(){
     tr.id=`run-row-${n}`;
     tr.innerHTML=`
       <td style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-muted);">${n}</td>
-      <td><input type="text" id="rn-load-${n}" placeholder="e.g. Media, Tips, Instruments"></td>
-      <td><select id="rn-cycle-${n}">
+      <td><input type="text" class="input-base" id="rn-load-${n}" placeholder="e.g. Media, Tips, Instruments"></td>
+      <td><select class="input-base" id="rn-cycle-${n}">
         <option value="">—</option>
         <option>Gravity (121°C/15 min)</option>
         <option>Pre-Vacuum (134°C/4 min)</option>
         <option>Liquid (121°C/20 min)</option>
       </select></td>
-      <td><input type="time" id="rn-start-${n}"></td>
-      <td><input type="time" id="rn-end-${n}"></td>
-      <td><input type="number" id="rn-temp-${n}" step="0.1" placeholder="121"></td>
-      <td><input type="number" id="rn-pressure-${n}" step="1" placeholder="103"></td>
-      <td><select id="rn-chem-${n}">
+      <td><input type="time" class="input-base" id="rn-start-${n}"></td>
+      <td><input type="time" class="input-base" id="rn-end-${n}"></td>
+      <td><input type="number" class="input-base" id="rn-temp-${n}" step="0.1" placeholder="121"></td>
+      <td><input type="number" class="input-base" id="rn-pressure-${n}" step="1" placeholder="103"></td>
+      <td><select class="input-base" id="rn-chem-${n}">
         <option value="">—</option>
         <option>Pass</option><option>Fail</option><option>Not Used</option>
       </select></td>
-      <td><select id="rn-bi-${n}">
+      <td><select class="input-base" id="rn-bi-${n}">
         <option value="">—</option>
         <option>Pass</option><option>Fail</option><option>Pending</option><option>Not Tested</option>
       </select></td>
-      <td><select id="rn-result-${n}">
+      <td><select class="input-base" id="rn-result-${n}">
         <option value="">—</option>
         <option>Pass</option>
         <option>Fail — Cycle Aborted</option>
@@ -1368,5 +999,6 @@ window.addEventListener('load',()=>{
   ['mousedown','touchstart'].forEach(e=>document.addEventListener(e,preload,{once:true}));
 })();
 </script>
+<script src="animations.js"></script>
 </body>
 </html>
