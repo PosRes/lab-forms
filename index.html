@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Microbiology Laboratorium — Quality Management System</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <style>
   :root {
     --bg-dark: #0a0f18;
@@ -534,8 +536,6 @@ function checkLogin(){
 </script>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
-
 const EQUIPMENT_SHEETS = [
   { sheet: 'Autoclave Log',      icon: '♨️',  label: 'Autoclave' },
   { sheet: 'Incubator Log',      icon: '🌡️', label: 'Incubator' },
@@ -556,13 +556,9 @@ function fmtDate(iso) {
 
 async function fetchLatestRecord(sheet) {
   try {
-    const enc = encodeURIComponent(sheet);
-    const res = await fetch(`${APPS_SCRIPT_URL}?sheet=${enc}`);
-    const data = await res.json();
-    if (!data.records || data.records.length === 0) return null;
-    // Sort by Saved At descending, take latest
-    const sorted = data.records.sort((a, b) => new Date(b['Saved At'] || 0) - new Date(a['Saved At'] || 0));
-    return sorted[0];
+    const records = await supabaseFetchRecords(sheet);
+    if (!records || records.length === 0) return null;
+    return records[0]; // Already sorted by created_at DESC
   } catch (e) {
     return null;
   }

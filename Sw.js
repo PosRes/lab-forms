@@ -1,4 +1,4 @@
-const CACHE = 'qms-lab-v1';
+const CACHE = 'qms-lab-v2';
 const STATIC = [
   '/',
   '/index.html',
@@ -6,6 +6,7 @@ const STATIC = [
   '/reference-strain-record.html',
   '/equipment-log.html',
   '/records-viewer.html',
+  '/supabase-config.js',
 ];
 
 // Install: cache all static pages
@@ -25,13 +26,13 @@ self.addEventListener('activate', e => {
 });
 
 // Fetch strategy:
-// - Apps Script (Google) → always network
+// - Supabase API / Google APIs → always network
 // - Static files → cache first, fallback network, update cache in background
 self.addEventListener('fetch', e => {
   const url = e.request.url;
 
-  // Always network for Apps Script / Google APIs
-  if (url.includes('script.google.com') || url.includes('googleapis.com') || url.includes('fonts.g')) {
+  // Always network for API calls
+  if (url.includes('supabase.co') || url.includes('script.google.com') || url.includes('googleapis.com') || url.includes('fonts.g')) {
     e.respondWith(fetch(e.request).catch(() => new Response('', {status: 503})));
     return;
   }

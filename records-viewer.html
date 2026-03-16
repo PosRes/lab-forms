@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 
 
 <style>
@@ -347,15 +349,12 @@ if('serviceWorker' in navigator){
 <div id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
-
 let allRecords=[],activeSheet='MOR Records',editingIdx=null,passRowCount=0;
 
 // ── Performance cache ──
 const sheetCache={};       // { sheetName: { records:[], fetchedAt:Date } }
 const CACHE_TTL=60*1000;   // 60 seconds before background refresh
 
-function cacheKey(sheet){ return 'labcache_'+sheet.replace(/\s/g,'_'); }
 function saveCountsToStorage(){
   const counts={};
   Object.entries(sheetCache).forEach(([k,v])=>{ counts[k]=v.records.length; });
@@ -376,23 +375,22 @@ function loadCountsFromStorage(){
 }
 
 window.addEventListener('load',()=>{
-  loadCountsFromStorage();  // show cached counts instantly
-  loadBothCounts();         // refresh all counts in background
-  loadRecords();            // load active tab
+  loadCountsFromStorage();
+  loadBothCounts();
+  loadRecords();
 });
 
 async function loadBothCounts(){
   try{
-    const sheets=['MOR%20Records','RSR%20Records','Autoclave%20Log','Incubator%20Log','Refrigerator%20Log','BSC%20Log','Waterbath%20Log','Colony%20Counter%20Log','Balance%20Log','Microscope%20Log'];
     const sheetNames=['MOR Records','RSR Records','Autoclave Log','Incubator Log','Refrigerator Log','BSC Log','Waterbath Log','Colony Counter Log','Balance Log','Microscope Log'];
-    const counts=['tab-count-mor','tab-count-rsr','tab-count-ac','tab-count-inc','tab-count-ref','tab-count-bsc','tab-count-wb','tab-count-col','tab-count-bal','tab-count-mic'];
-    const results=await Promise.all(sheets.map(s=>fetch(APPS_SCRIPT_URL+'?sheet='+s).then(r=>r.json()).catch(()=>({status:'error'}))));
-    results.forEach((r,i)=>{
-      const n=r.status==='success'?r.records.length:0;
-      document.getElementById(counts[i]).textContent=r.status==='success'?n:'—';
-      // Cache the fetched data so tab switches are instant
-      if(r.status==='success'){
-        sheetCache[sheetNames[i]]={records:r.records, fetchedAt:Date.now()};
+    const countIds=['tab-count-mor','tab-count-rsr','tab-count-ac','tab-count-inc','tab-count-ref','tab-count-bsc','tab-count-wb','tab-count-col','tab-count-bal','tab-count-mic'];
+    const results=await Promise.all(sheetNames.map(s=>supabaseFetchRecords(s).catch(()=>null)));
+    results.forEach((records,i)=>{
+      if(records){
+        document.getElementById(countIds[i]).textContent=records.length;
+        sheetCache[sheetNames[i]]={records, fetchedAt:Date.now()};
+      } else {
+        document.getElementById(countIds[i]).textContent='—';
       }
     });
     saveCountsToStorage();
@@ -457,11 +455,7 @@ async function loadRecords(){
   btn.classList.add('loading');btn.disabled=true;
   document.getElementById('content').innerHTML='<div class="state-box"><div class="icon">⏳</div><div>Fetching records…</div></div>';
   try{
-    const enc=encodeURIComponent(activeSheet);
-    const res=await fetch(`${APPS_SCRIPT_URL}?sheet=${enc}`);
-    const data=await res.json();
-    if(data.status!=='success')throw new Error(data.message||'Unknown error');
-    allRecords=data.records;
+    allRecords=await supabaseFetchRecords(activeSheet);
     sheetCache[activeSheet]={records:allRecords,fetchedAt:Date.now()};
     saveCountsToStorage();
     renderRecords(allRecords);
@@ -472,27 +466,22 @@ async function loadRecords(){
     showToast(`✓ ${allRecords.length} record(s) loaded`);
   }catch(err){
     document.getElementById('content').innerHTML=`<div class="state-box"><div class="icon">⚠️</div><div>Failed to load</div><p>${err.message}</p></div>`;
-    showToast('✗ Load failed — check URL or redeploy Script',true);
+    showToast('✗ Load failed — '+err.message,true);
   }finally{btn.classList.remove('loading');btn.disabled=false;}
 }
 
 // Background refresh — updates cache and UI silently
 async function fetchSheetInBackground(sheet){
   try{
-    const enc=encodeURIComponent(sheet);
-    const res=await fetch(`${APPS_SCRIPT_URL}?sheet=${enc}`);
-    const data=await res.json();
-    if(data.status==='success'){
-      sheetCache[sheet]={records:data.records,fetchedAt:Date.now()};
-      saveCountsToStorage();
-      // If user is still on the same tab, update the displayed data
-      if(activeSheet===sheet){
-        allRecords=data.records;
-        renderRecords(allRecords);
-        const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
-        document.getElementById(tabCountMap[sheet]||'tab-count-mor').textContent=allRecords.length;
-        document.getElementById('last-loaded').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-      }
+    const records=await supabaseFetchRecords(sheet);
+    sheetCache[sheet]={records,fetchedAt:Date.now()};
+    saveCountsToStorage();
+    if(activeSheet===sheet){
+      allRecords=records;
+      renderRecords(allRecords);
+      const tabCountMap={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+      document.getElementById(tabCountMap[sheet]||'tab-count-mor').textContent=allRecords.length;
+      document.getElementById('last-loaded').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
   }catch(e){}
 }
@@ -924,7 +913,7 @@ function collectPassageRows(){
 
 async function saveEdit(){
   if(editingIdx===null)return;
-  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||b['created_at']||0)-new Date(a['Saved At']||a['created_at']||0));
   const r=sorted[editingIdx];if(!r)return;
   const updated={...r};
   editRunSync();
@@ -933,23 +922,29 @@ async function saveEdit(){
   const btn=document.getElementById('save-edit-btn');
   btn.textContent='⏳ Saving…';btn.disabled=true;
   try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method: 'POST',
-      body:JSON.stringify({action:'update',sheetName:activeSheet,recordId:r['Record ID'],data:updated})
-    });
-    const result=await res.json();
-    if(result.status==='success'){
-      const gi=allRecords.indexOf(r);
-      if(gi>=0)allRecords[gi]=updated;
-      // Invalidate cache so next loadRecords gets fresh data
-      sheetCache[activeSheet]={records:[...allRecords],fetchedAt:Date.now()};
-      saveCountsToStorage();
-      closeEditDrawer();filterRecords();
-      showToast('✓ Record updated successfully');
+    const table=SHEET_TO_TABLE[activeSheet];
+    // Build the row update: key columns + full data JSONB
+    const rowUpdate={data:updated};
+    if(table==='mor_records'){
+      rowUpdate.media_name=updated['Media Name / Type']||null;
+      rowUpdate.qc_disposition=updated['QC Disposition']||null;
+      rowUpdate.analyst_name=updated['Analyst Name']||null;
+    } else if(table==='rsr_records'){
+      rowUpdate.organism_name=updated['Organism Name']||null;
+      rowUpdate.qc_disposition=updated['QC Disposition']||null;
+      rowUpdate.analyst_name=updated['Analyst Name']||null;
     } else {
-      showToast('✗ Update failed — '+(result.message||'unknown error'),true);
+      rowUpdate.overall_status=updated['Overall Status']||null;
+      rowUpdate.analyst_name=updated['Analyst Name']||null;
     }
-  }catch(e){showToast('✗ Save failed — check network or redeploy Script',true);}
+    await supabaseUpdateRecord(table, r['Record ID']||r['record_id'], rowUpdate);
+    const gi=allRecords.indexOf(r);
+    if(gi>=0)allRecords[gi]=updated;
+    sheetCache[activeSheet]={records:[...allRecords],fetchedAt:Date.now()};
+    saveCountsToStorage();
+    closeEditDrawer();filterRecords();
+    showToast('✓ Record updated successfully');
+  }catch(e){showToast('✗ Update failed — '+(e.message||'unknown error'),true);}
   finally{btn.textContent='☁ Save Changes';btn.disabled=false;}
 }
 
@@ -965,29 +960,21 @@ function deleteRecord(idx){
 function closeDeleteModal(){document.getElementById('delete-modal').classList.remove('show');pendingDeleteIdx=null;}
 async function confirmDelete(){
   if(pendingDeleteIdx===null)return;
-  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||0)-new Date(a['Saved At']||0));
+  const sorted=[...allRecords].sort((a,b)=>new Date(b['Saved At']||b['created_at']||0)-new Date(a['Saved At']||a['created_at']||0));
   const r=sorted[pendingDeleteIdx];if(!r)return;
   const btn=document.getElementById('confirm-delete-btn');
   btn.textContent='⏳ Deleting…';btn.disabled=true;
   try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method: 'POST',
-      body:JSON.stringify({action:'delete',sheetName:activeSheet,recordId:r['Record ID']})
-    });
-    const result=await res.json();
-    if(result.status==='success'){
-      allRecords=allRecords.filter(rec=>rec['Record ID']!==r['Record ID']);
-      // Invalidate cache
-      sheetCache[activeSheet]={records:[...allRecords],fetchedAt:Date.now()};
-      saveCountsToStorage();
-      closeDeleteModal();filterRecords();
-      const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
-      document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
-      showToast(`🗑 Record ${r['Record ID']} deleted`);
-    } else {
-      showToast('✗ Delete failed — '+(result.message||'unknown error'),true);
-    }
-  }catch(err){showToast('✗ Delete failed',true);}
+    const table=SHEET_TO_TABLE[activeSheet];
+    await supabaseDeleteRecord(table, r['Record ID']||r['record_id']);
+    allRecords=allRecords.filter(rec=>(rec['Record ID']||rec['record_id'])!==(r['Record ID']||r['record_id']));
+    sheetCache[activeSheet]={records:[...allRecords],fetchedAt:Date.now()};
+    saveCountsToStorage();
+    closeDeleteModal();filterRecords();
+    const tcm2={'MOR Records':'tab-count-mor','RSR Records':'tab-count-rsr','Autoclave Log':'tab-count-ac','Incubator Log':'tab-count-inc','Refrigerator Log':'tab-count-ref','BSC Log':'tab-count-bsc','Waterbath Log':'tab-count-wb','Colony Counter Log':'tab-count-col','Balance Log':'tab-count-bal','Microscope Log':'tab-count-mic'};
+    document.getElementById(tcm2[activeSheet]||'tab-count-mor').textContent=allRecords.length;
+    showToast(`🗑 Record ${r['Record ID']||r['record_id']} deleted`);
+  }catch(err){showToast('✗ Delete failed — '+(err.message||'unknown error'),true);}
   finally{btn.textContent='Yes, Delete';btn.disabled=false;}
 }
 document.getElementById('delete-modal').addEventListener('click',function(e){if(e.target===this)closeDeleteModal();});

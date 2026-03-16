@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 
 
 <style>
@@ -870,10 +872,7 @@ if('serviceWorker' in navigator){
 </div>
 
 <script>
-  // ── PASTE YOUR APPS SCRIPT URL HERE ──
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
-
-  // ── Instant temp ID, then fetch real one in background ──
+  // ── Instant temp ID, then fetch real one from Supabase ──
   function generateTempId() {
     const n = new Date();
     const pad = v => String(v).padStart(2, '0');
@@ -886,9 +885,8 @@ if('serviceWorker' in navigator){
       el.textContent = generateTempId();
     }
     try {
-      const res  = await fetch(APPS_SCRIPT_URL + '?action=nextId&sheet=RSR%20Records&prefix=RSR');
-      const data = await res.json();
-      if (data.status === 'success') el.textContent = data.nextId;
+      const nextId = await supabaseNextId('RSR', 'rsr_seq');
+      el.textContent = nextId;
     } catch(e) { /* keep temp ID — still unique */ }
   }
   fetchRecordId();
@@ -1093,27 +1091,26 @@ if('serviceWorker' in navigator){
     return true;
   }
 
-  // ── Save to Google Sheet ──
+  // ── Save to Supabase ──
   async function saveToSheet() {
     if (!validate()) return;
     const btn = document.querySelector('.btn-save');
     btn.textContent = '⏳ Saving…'; btn.disabled = true;
     try {
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ ...collectRecord(), sheet: 'RSR Records' })
+      const r = collectRecord();
+      await supabaseInsertRecord('rsr_records', {
+        record_id: r['Record ID'],
+        organism_name: r['Organism Name'],
+        qc_disposition: r['QC Disposition'],
+        analyst_name: r['Analyst Name'],
+        data: r
       });
-      const data = await res.json();
-      if (data.status === 'success') {
-        showToast(`✓ Saved to Google Sheet`);
-        setTimeout(fetchRecordId, 1500); // wait for Sheet to commit before re-fetching max ID
-      } else {
-        showToast('✗ Save failed — ' + (data.message || 'unknown error'), true);
-      }
+      showToast(`✓ Record ${r['Record ID']} saved`);
+      fetchRecordId();
     } catch(e) {
-      showToast('✗ Save failed — check network or Script URL', true);
+      showToast('✗ Save failed — ' + (e.message || 'unknown error'), true);
     } finally {
-      btn.textContent = '☁ Save to Sheet'; btn.disabled = false;
+      btn.textContent = '☁ Save'; btn.disabled = false;
     }
   }
 

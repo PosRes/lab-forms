@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 
 
 <style>
@@ -999,13 +1001,12 @@ if('serviceWorker' in navigator){
 <div id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzHBRO5t_UILc_IqRaP-FcVp-qNF0mlg09Ciluk5iTQ6r-aud_HZ-ar9z4YjD2pmVajg/exec';
 let currentEquipType = '';
 
 function gv(id){const el=document.getElementById(id);return el?el.value:'';}
 function grv(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
 
-// ── Instant temp ID, then fetch real one in background ──
+// ── Instant temp ID, then fetch real one from Supabase ──
 function generateTempId(prefix) {
   const n = new Date();
   const pad = v => String(v).padStart(2, '0');
@@ -1017,15 +1018,15 @@ async function generateId(){
   if(!currentEquipType){display.textContent='Select equipment type first';return;}
   const prefixMap={'autoclave':'EQL-AUT','incubator':'EQL-INC','refrigerator':'EQL-REF','bsc':'EQL-BSC','waterbath':'EQL-WTB','colonycount':'EQL-COL','balance':'EQL-BAL','microscope':'EQL-MIC'};
   const prefix=prefixMap[currentEquipType]||'EQL';
-  // Show temp ID instantly
   display.textContent=generateTempId(prefix);
   try{
-    const sheetNames={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log','waterbath':'Waterbath Log','colonycount':'Colony Counter Log','balance':'Balance Log','microscope':'Microscope Log'};
-    const sheetName=sheetNames[currentEquipType]||'Equipment Log';
-    const enc=encodeURIComponent(sheetName);
-    const res=await fetch(`${APPS_SCRIPT_URL}?action=nextId&sheet=${enc}&prefix=${encodeURIComponent(prefix)}`);
-    const data=await res.json();
-    if(data.status==='success')display.textContent=data.nextId;
+    const equipTypeMap={'autoclave':'Autoclave','incubator':'Incubator','refrigerator':'Refrigerator','bsc':'Biosafety Cabinet','waterbath':'Waterbath','colonycount':'Colony Counter','balance':'Analytical Balance','microscope':'Microscope'};
+    const equipType=equipTypeMap[currentEquipType];
+    const seqName=EQUIP_SEQ_MAP[equipType];
+    if(seqName){
+      const nextId = await supabaseNextId(prefix, seqName);
+      display.textContent=nextId;
+    }
   }catch(e){/* keep temp ID — still unique */}
 }
 
@@ -1247,26 +1248,25 @@ async function saveRecord(){
   const btn=document.getElementById('save-btn');
   btn.classList.add('loading');btn.disabled=true;
 
-  const data=collectData();
-  data['Saved At']=new Date().toISOString();
-  const sheetMap={'autoclave':'Autoclave Log','incubator':'Incubator Log','refrigerator':'Refrigerator Log','bsc':'BSC Log','waterbath':'Waterbath Log','colonycount':'Colony Counter Log','balance':'Balance Log','microscope':'Microscope Log'};
-  data['sheet']=sheetMap[currentEquipType]||'Equipment Log';
+  const formData=collectData();
+  formData['Saved At']=new Date().toISOString();
+
+  const equipTypeMap={'autoclave':'Autoclave','incubator':'Incubator','refrigerator':'Refrigerator','bsc':'Biosafety Cabinet','waterbath':'Waterbath','colonycount':'Colony Counter','balance':'Analytical Balance','microscope':'Microscope'};
 
   try{
-    const res = await fetch(APPS_SCRIPT_URL,{
-      method: 'POST',
-      body:JSON.stringify(data)
+    await supabaseInsertRecord('equipment_logs', {
+      record_id: formData['Record ID'],
+      equipment_type: equipTypeMap[currentEquipType] || currentEquipType,
+      overall_status: formData['Overall Status'],
+      analyst_name: formData['Analyst Name'],
+      record_date: formData['Record Date'] || null,
+      data: formData
     });
-    const result = await res.json();
-    if(result.status==='success'){
-      showToast('✓ Record saved to Equipment Log sheet');
-      await new Promise(r=>setTimeout(r,1500)); await generateId(); // wait for Sheet to commit
-      setTimeout(()=>{if(confirm('Record saved! Reset form for a new entry?'))resetForm();},1000);
-    } else {
-      showToast('✗ Save failed — '+(result.message||'unknown error'),true);
-    }
+    showToast('✓ Record saved');
+    generateId();
+    setTimeout(()=>{if(confirm('Record saved! Reset form for a new entry?'))resetForm();},1000);
   }catch(err){
-    showToast('✗ Save failed — check network or redeploy Script',true);
+    showToast('✗ Save failed — '+(err.message||'unknown error'),true);
   }finally{
     btn.classList.remove('loading');btn.disabled=false;
   }
