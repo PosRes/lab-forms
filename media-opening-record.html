@@ -79,6 +79,18 @@
   
   /* Sticky footer */
   .sticky-footer { position: sticky; bottom: 0; z-index: 50; padding: 16px 24px; background: rgba(255,255,255,0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: flex-end; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.04); }
+
+  .check-item { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; padding: 8px 16px; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; background: rgba(255,255,255,0.9); transition: all 0.2s; user-select: none; }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-item:has(input:checked) { background: var(--warning-light); border-color: var(--warning); color: #92400e; font-weight: 600; }
+  .check-item:hover { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.3); }
+  .checklist { display: flex; flex-wrap: wrap; gap: 8px; }
+  .status-bar { padding: 12px 24px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; border-top: 1px solid rgba(0,0,0,0.05); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+  .signoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .sig-box { border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; overflow: hidden; }
+  .sig-box-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 10px 16px; background: rgba(0,0,0,0.02); }
+  .sig-box-body { padding: 16px; }
 </style>
 
 <script>
@@ -443,57 +455,14 @@ if('serviceWorker' in navigator){
   <div class="glass-panel scroll-animate delay-2" style="margin-bottom: 24px; overflow:hidden;">
     <div class="section-title"><span class="num">06</span> Authorization &amp; Sign-Off</div>
     <div style="padding:24px; ">
-      <div class="signoff-grid">
-        <div class="sig-box">
-          <div class="sig-box-label">Opened By (Analyst)</div>
-          <div class="sig-box-body">
-            <div class="input-group">
-              <label>Full Name</label>
-              <input type="text" class="input-base" id="analyst-name" placeholder="Name">
-            </div>
-            <div class="input-group">
-              <label>Initials / Staff ID</label>
-              <input type="text" class="input-base" class="mono" id="analyst-id" placeholder="e.g. KAR / LB-007">
-            </div>
-            <div class="input-group">
-              <label>Date</label>
-              <input type="date" class="input-base" id="analyst-date">
-            </div>
-          </div>
+      <div class="field-grid col-2">
+        <div class="input-group">
+          <label><span class="req">*</span> Analyst Name</label>
+          <input type="text" class="input-base" id="analyst-name" placeholder="Full name">
         </div>
-        <div class="sig-box">
-          <div class="sig-box-label">QC Verified By</div>
-          <div class="sig-box-body">
-            <div class="input-group">
-              <label>Full Name</label>
-              <input type="text" class="input-base" id="qc-name" placeholder="Name">
-            </div>
-            <div class="input-group">
-              <label>Initials / Staff ID</label>
-              <input type="text" class="input-base" class="mono" id="qc-id" placeholder="e.g. JDW / QC-003">
-            </div>
-            <div class="input-group">
-              <label>Date</label>
-              <input type="date" class="input-base" id="qc-date">
-            </div>
-          </div>
-        </div>
-        <div class="sig-box">
-          <div class="sig-box-label">Reviewed By (Supervisor)</div>
-          <div class="sig-box-body">
-            <div class="input-group">
-              <label>Full Name</label>
-              <input type="text" class="input-base" id="sup-name" placeholder="Name">
-            </div>
-            <div class="input-group">
-              <label>Initials / Staff ID</label>
-              <input type="text" class="input-base" class="mono" id="sup-id" placeholder="e.g. MH / SP-001">
-            </div>
-            <div class="input-group">
-              <label>Date</label>
-              <input type="date" class="input-base" id="sup-date">
-            </div>
-          </div>
+        <div class="input-group">
+          <label><span class="req">*</span> Date</label>
+          <input type="date" class="input-base" id="analyst-date">
         </div>
       </div>
 
