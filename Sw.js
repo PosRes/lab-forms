@@ -5,7 +5,7 @@ const STATIC = [
   '/media-opening-record.html',
   '/reference-strain-record.html',
   '/equipment-log.html',
-  '/media-records-viewer.html',
+  '/records-viewer.html',
 ];
 
 // Install: cache all static pages
