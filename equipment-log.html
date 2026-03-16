@@ -650,17 +650,17 @@ function generateTempId(prefix) {
 async function generateId(){
   const display=document.getElementById('record-id-display');
   if(!currentEquipType){display.textContent='Select equipment type first';return;}
-  const prefix = 'EQL';
+  const equipTypeMap={'autoclave':'Autoclave','incubator':'Incubator','refrigerator':'Refrigerator','bsc':'Biosafety Cabinet','waterbath':'Waterbath','colonycount':'Colony Counter','balance':'Analytical Balance','microscope':'Microscope'};
+  const equipType=equipTypeMap[currentEquipType];
+  const prefix = EQUIP_PREFIX_MAP[equipType] || 'EQL';
   display.textContent=generateTempId(prefix);
   try{
-    const equipTypeMap={'autoclave':'Autoclave','incubator':'Incubator','refrigerator':'Refrigerator','bsc':'Biosafety Cabinet','waterbath':'Waterbath','colonycount':'Colony Counter','balance':'Analytical Balance','microscope':'Microscope'};
-    const equipType=equipTypeMap[currentEquipType];
     const seqName=EQUIP_SEQ_MAP[equipType];
     if(seqName){
       const n = new Date();
       const pad = v => String(v).padStart(2, '0');
       const dateStr = `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}`;
-      const nextId = await supabaseNextId('EQL-' + dateStr, seqName);
+      const nextId = await supabaseNextId(prefix + '-' + dateStr, seqName);
       display.textContent=nextId;
     }
   }catch(e){/* keep temp ID — still unique */}

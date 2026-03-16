@@ -121,11 +121,19 @@ function checkLogin(){
   <div class="card-grid scroll-animate delay-2">
     <div class="glass-panel quick-ref-card glass-panel-hover">
       <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Record ID Format</div>
-      <div style="font-family:var(--mono);font-size:16px;color:var(--primary);font-weight:700;margin-top:4px;">MOR-20260310-0001</div>
+      <div style="font-family:var(--mono);font-size:14px;color:var(--primary);font-weight:700;margin-top:4px;">MOR-20260310-0001</div>
+      <div style="font-family:var(--mono);font-size:14px;color:var(--success);font-weight:700;margin-top:2px;">EQL-AUT-20260310-0001</div>
       <div style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.6;">
-        <b>MOR/RSR/EQL</b> — Form Type<br>
+        <b>MOR/RSR</b> — Form Type<br>
+        <b>EQL-[ABBREV]</b> — Equipment Log<br>
         <b>YYYYMMDD</b> — Date Stamp<br>
-        <b>0001</b> — Reset Monthly
+        <b>0001</b> — Sequential (resets monthly)
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.8;font-family:var(--mono);">
+        AUT=Autoclave · INC=Incubator<br>
+        REF=Refrigerator · BSC=Biosafety Cabinet<br>
+        WTB=Waterbath · COL=Colony Counter<br>
+        BAL=Balance · MIC=Microscope
       </div>
     </div>
     <div class="glass-panel quick-ref-card glass-panel-hover">
@@ -246,22 +254,30 @@ async function fetchLatestRecord(eqType) {
 const ALERT_CACHE_KEY = 'lab_equip_alerts_v2';
 const ALERT_CACHE_TTL = 5 * 60 * 1000;
 
-function renderAlertCards(withRecords) {
+function renderAlertCards(allResults) {
   const grid = document.getElementById('alert-grid');
-  if (withRecords.length === 0) {
+  if (allResults.length === 0) {
     grid.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted); width: 100%;">No equipment records found.</div>';
     return;
   }
-  grid.innerHTML = withRecords.map(eq => {
+  grid.innerHTML = allResults.map(eq => {
     const r = eq.record;
-    const status = r['Overall Status'] || '—';
-    const date = fmtDate(r['Record Date'] || r['Saved At']);
-    
-    let cls = 'status-ok';
-    let statusIcon = '✅';
-    if (status.toLowerCase().includes('maintenance')) { cls = 'status-warn'; statusIcon = '⚠️'; }
-    else if (status.toLowerCase().includes('out of service') || status.toLowerCase() === 'fail') { cls = 'status-bad'; statusIcon = '🚨'; }
-    else if (status === '—') { cls = 'status-warn'; statusIcon = '❓'; }
+    let status, date, cls, statusIcon;
+
+    if (!r) {
+      status = 'No Records Yet';
+      date = '—';
+      cls = 'status-warn';
+      statusIcon = '📋';
+    } else {
+      status = r['Overall Status'] || '—';
+      date = fmtDate(r['Record Date'] || r['Saved At']);
+      cls = 'status-ok';
+      statusIcon = '✅';
+      if (status.toLowerCase().includes('maintenance')) { cls = 'status-warn'; statusIcon = '⚠️'; }
+      else if (status.toLowerCase().includes('out of service') || status.toLowerCase() === 'fail') { cls = 'status-bad'; statusIcon = '🚨'; }
+      else if (status === '—') { cls = 'status-warn'; statusIcon = '❓'; }
+    }
 
     return `<div class="glass-panel alert-card ${cls} glass-panel-hover">
       <div class="alert-icon">${eq.icon}</div>
@@ -298,11 +314,11 @@ async function loadEquipmentAlerts() {
     })
   );
 
-  const withRecords = results.filter(eq => eq.record !== null);
-  renderAlertCards(withRecords);
+  // Show ALL equipment types (including those with no records)
+  renderAlertCards(results);
 
   try {
-    sessionStorage.setItem(ALERT_CACHE_KEY, JSON.stringify({ data: withRecords, fetchedAt: Date.now() }));
+    sessionStorage.setItem(ALERT_CACHE_KEY, JSON.stringify({ data: results, fetchedAt: Date.now() }));
   } catch(e) {}
 
   const now = new Date();
